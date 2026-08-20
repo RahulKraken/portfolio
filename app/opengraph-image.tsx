@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
-import { site } from "@/lib/site";
+import { site, thesis } from "@/lib/site";
 
-export const alt = `${site.name} — ${site.target}`;
+export const alt = `${site.name} — ${thesis}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -12,8 +12,8 @@ export default function OpenGraphImage() {
         style={{
           width: "100%",
           height: "100%",
-          background: "#0b0a08",
-          color: "#ebe4d6",
+          background: "#ecebe6",
+          color: "#141414",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
@@ -22,48 +22,31 @@ export default function OpenGraphImage() {
       >
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
             fontSize: 22,
-            letterSpacing: 6,
+            letterSpacing: 4,
             textTransform: "uppercase",
-            color: "#8a8378",
+            color: "#5c5c56",
             fontFamily: "ui-monospace, monospace",
           }}
         >
-          <span>{site.name.toUpperCase()}</span>
-          <span>{site.locationCode}</span>
+          {site.name.toUpperCase()}
         </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <div
-            style={{
-              fontSize: 148,
-              lineHeight: 0.85,
-              letterSpacing: -6,
-              fontFamily: "Times New Roman, serif",
-            }}
-          >
-            {site.target}
-          </div>
-          <div
-            style={{
-              marginTop: 24,
-              fontSize: 28,
-              letterSpacing: 8,
-              textTransform: "uppercase",
-              color: "#d4a35a",
-              fontFamily: "ui-monospace, monospace",
-            }}
-          >
-            MMRT · TARGET
-          </div>
+        <div
+          style={{
+            fontSize: 52,
+            lineHeight: 1.2,
+            letterSpacing: -1,
+            maxWidth: 900,
+            fontFamily: "ui-sans-serif, system-ui, sans-serif",
+          }}
+        >
+          {thesis}
         </div>
         <div
           style={{
             height: 2,
-            width: "100%",
-            background: "#d4a35a",
-            opacity: 0.85,
+            width: 120,
+            background: "#0c6b54",
           }}
         />
       </div>

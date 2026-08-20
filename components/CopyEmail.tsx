@@ -22,7 +22,7 @@ export function CopyEmail() {
         {site.email}
       </a>
       <button type="button" className="copy-note" onClick={copy}>
-        {copied ? "Copied" : "Copy address"}
+        {copied ? "Copied" : "Copy"}
       </button>
     </div>
   );

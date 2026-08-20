@@ -1,6 +1,6 @@
 # Rahul Kumar — personal site
 
-An identity-first personal site: rider, maker, musician, self-built. Not a resume. Built from the [Portfolio Website](https://app.notion.com/p/3c21644e44b681678cd5eba1291b8d12) brief in Notion.
+He doesn’t trust an instrument until he’s built it himself. Built from the v2 brief on the [Portfolio Website](https://app.notion.com/p/3c21644e44b681678cd5eba1291b8d12) Notion page.
 
 Stack: **Next.js (App Router)** · TypeScript · CSS. No CMS, no forms, no environment variables.
 
@@ -18,21 +18,15 @@ npm run build
 npm start
 ```
 
-Requires Node 20+.
+Requires Node 20.9+.
 
 ## Deploy on Vercel
 
-1. Push this repo to GitHub (already: `RahulKraken/portfolio`).
-2. In [Vercel](https://vercel.com/new), **Import** the repository.
-3. Vercel detects Next.js. Leave the defaults:
-   - Framework Preset: Next.js
-   - Build Command: `next build`
-   - Output: default (no extra `vercel.json` needed)
-   - Environment variables: none
-4. Deploy. Attach `rahulkraken.com` under Project → Settings → Domains if you want the existing domain on this site.
+1. Import `RahulKraken/portfolio`.
+2. Framework Preset: **Next.js**. Root Directory: empty. Output Directory: default.
+3. No environment variables.
+4. Attach `rahulkraken.com` under Project → Settings → Domains if you want that domain on this site.
 
-That’s the whole pipeline. Subsequent pushes to the production branch rebuild automatically.
+If a Git-authored preview fails on a Hobby private repo, Redeploy from the Vercel dashboard while logged in as the project owner.
 
-## Edit copy
-
-All names, email, quotes, and section text live in [`lib/site.ts`](lib/site.ts). Visual language is in [`app/globals.css`](app/globals.css).
+Copy lives in [`app/page.tsx`](app/page.tsx) and [`lib/site.ts`](lib/site.ts).
