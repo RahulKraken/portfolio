@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { hudSections, site } from "@/lib/site";
 
 export function Hud() {
-  const [active, setActive] = useState(hudSections[0].label);
+  const [active, setActive] = useState<(typeof hudSections)[number]["label"]>(
+    hudSections[0].label,
+  );
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -15,12 +17,14 @@ export function Hud() {
       const max = doc.scrollHeight - window.innerHeight;
       setProgress(max > 0 ? window.scrollY / max : 0);
 
-      let current = hudSections[0].label;
+      let current: (typeof hudSections)[number]["label"] =
+        hudSections[0].label;
       for (const id of ids) {
         const el = document.getElementById(id);
         if (!el) continue;
         if (el.getBoundingClientRect().top <= window.innerHeight * 0.38) {
-          current = hudSections.find((s) => s.id === id)?.label ?? current;
+          const match = hudSections.find((s) => s.id === id);
+          if (match) current = match.label;
         }
       }
       setActive(current);
