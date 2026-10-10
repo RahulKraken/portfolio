@@ -58,7 +58,13 @@ const alts: Record<Chapter["id"], string> = {
   engineering: "Duotoned atmosphere: server aisle",
 };
 
-export function ChapterWorld({ chapter }: { chapter: Chapter }) {
+export function ChapterWorld({
+  chapter,
+  eager,
+}: {
+  chapter: Chapter;
+  eager?: boolean;
+}) {
   const stat = stats[chapter.id];
 
   return (
@@ -68,7 +74,11 @@ export function ChapterWorld({ chapter }: { chapter: Chapter }) {
       data-world
       data-theme={chapter.theme}
     >
-      <Atmosphere src={`/atmosphere/${chapter.id}.jpg`} alt={alts[chapter.id]} />
+      <Atmosphere
+        src={`/atmosphere/${chapter.id}.jpg`}
+        alt={alts[chapter.id]}
+        eager={eager}
+      />
       <div className="world-giant" aria-hidden>
         {chapter.n}
       </div>

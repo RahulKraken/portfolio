@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function MusicPage() {
   return (
     <main>
-      <ChapterWorld chapter={chapter} />
+      <ChapterWorld chapter={chapter} eager />
       <ChapterBody chapter={chapter} />
       <SiteFooter />
     </main>

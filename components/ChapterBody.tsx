@@ -72,7 +72,7 @@ function bodyFor(id: Chapter["id"]) {
               <strong>{p.name}</strong>
               <p>
                 {p.line}{" "}
-                {"href" in p && p.href ? (
+                {"href" in p && p.href?.startsWith("http") ? (
                   <a href={p.href} rel="noreferrer" target="_blank">
                     Source
                   </a>

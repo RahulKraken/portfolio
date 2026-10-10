@@ -12,7 +12,7 @@ function formatIst(d: Date) {
 }
 
 export function Clock() {
-  const [time, setTime] = useState<string>("");
+  const [time, setTime] = useState(() => formatIst(new Date()));
 
   useEffect(() => {
     const tick = () => setTime(formatIst(new Date()));
@@ -21,13 +21,9 @@ export function Clock() {
     return () => window.clearInterval(id);
   }, []);
 
-  if (!time) {
-    return (
-      <span className="nav-clock" suppressHydrationWarning>
-        —:— IST
-      </span>
-    );
-  }
-
-  return <span className="nav-clock">{time} IST</span>;
+  return (
+    <span className="nav-clock" suppressHydrationWarning>
+      {time} IST
+    </span>
+  );
 }

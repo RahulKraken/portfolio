@@ -210,7 +210,6 @@ a {
   padding: 1.15rem 1.25rem 1.3rem;
   text-decoration: none;
   min-height: 8.6rem;
-  color: inherit;
   transition: filter 0.35s var(--ease);
 }
 
@@ -252,22 +251,22 @@ a {
   max-width: 18ch;
 }
 
-.rail-track {
+.rail a.rail-track {
   background: var(--track);
   color: var(--cream);
 }
 
-.rail-strength {
+.rail a.rail-strength {
   background: var(--strength);
   color: var(--strength-ink);
 }
 
-.rail-music {
+.rail a.rail-music {
   background: var(--music);
   color: var(--music-ink);
 }
 
-.rail-building {
+.rail a.rail-building {
   background: var(--building);
   color: var(--cream);
 }
@@ -304,6 +303,11 @@ a {
   font-weight: 400;
 }
 
+.about h2 em {
+  font-style: normal;
+  color: var(--track);
+}
+
 .about p {
   margin: 0 0 1.15rem;
   font-family: var(--serif);
@@ -314,7 +318,7 @@ a {
 }
 
 .about p em {
-  color: var(--cream-dim);
+  color: var(--cream);
 }
 
 .about-close {

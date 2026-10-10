@@ -6,7 +6,11 @@ export function About() {
     <section className="about" id="about">
       <div>
         <p className="about-kicker">Patna → Bengaluru</p>
-        <h2>{about.heading}</h2>
+        <h2>
+          Rahul
+          <br />
+          <em>Kumar</em>
+        </h2>
         <p>{about.lede}</p>
         <p>
           <em>{about.italic}</em>
