@@ -1,8 +1,10 @@
 # Rahul Kumar — personal site
 
-He doesn’t trust an instrument until he’s built it himself. Built from the v2 brief on the [Portfolio Website](https://app.notion.com/p/3c21644e44b681678cd5eba1291b8d12) Notion page.
+**Life is curated here.** Track, strength, music, building — Patna to Bengaluru.
 
-Stack: **Next.js (App Router)** · TypeScript · CSS. No CMS, no forms, no environment variables.
+The previous homepage essay, *He doesn’t trust an instrument until he’s built it himself*, now lives at [`/notes/built-it-himself`](/notes/built-it-himself).
+
+Stack: **Next.js (App Router)** · TypeScript · CSS · GSAP + ScrollTrigger + Lenis. No CMS, no forms, no environment variables.
 
 ## Local
 
@@ -23,10 +25,12 @@ Requires Node 20.9+.
 ## Deploy on Vercel
 
 1. Import `RahulKraken/portfolio`.
-2. Framework Preset: **Next.js**. Root Directory: empty. Output Directory: default.
+2. Framework Preset: **Next.js**. Root Directory: empty. Output Directory: default. Production branch: **`develop`**.
 3. No environment variables.
-4. Attach `rahulkraken.com` under Project → Settings → Domains if you want that domain on this site.
+4. Attach `rahulkraken.com` under Project → Settings → Domains.
 
 If a Git-authored preview fails on a Hobby private repo, Redeploy from the Vercel dashboard while logged in as the project owner.
 
-Copy lives in [`app/page.tsx`](app/page.tsx) and [`lib/site.ts`](lib/site.ts).
+## Copy and assets
+
+Chapter copy is in [`lib/chapters.ts`](lib/chapters.ts). Atmosphere stills are in `public/atmosphere/` and credited at `/credits`. Drop real photos into `public/portraits/` and replace `public/cv.pdf`.

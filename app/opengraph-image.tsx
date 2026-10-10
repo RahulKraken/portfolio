@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
-import { site, thesis } from "@/lib/site";
+import { site } from "@/lib/site";
 
-export const alt = `${site.name} — ${thesis}`;
+export const alt = `${site.name} — Life is curated here`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -12,43 +12,50 @@ export default function OpenGraphImage() {
         style={{
           width: "100%",
           height: "100%",
-          background: "#ecebe6",
-          color: "#141414",
+          background: "#100e0c",
+          color: "#f3eee4",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: "72px 80px",
+          padding: "64px 72px",
         }}
       >
         <div
           style={{
             fontSize: 22,
-            letterSpacing: 4,
+            letterSpacing: 6,
             textTransform: "uppercase",
-            color: "#5c5c56",
+            color: "#8a8276",
             fontFamily: "ui-monospace, monospace",
           }}
         >
-          {site.name.toUpperCase()}
+          PATNA → BENGALURU
         </div>
         <div
           style={{
-            fontSize: 52,
-            lineHeight: 1.2,
-            letterSpacing: -1,
-            maxWidth: 900,
+            display: "flex",
+            flexDirection: "column",
+            fontSize: 92,
+            lineHeight: 0.85,
+            letterSpacing: -2,
+            textTransform: "uppercase",
             fontFamily: "ui-sans-serif, system-ui, sans-serif",
+            fontWeight: 800,
           }}
         >
-          {thesis}
+          <span>Life is</span>
+          <span style={{ color: "#c41e32" }}>curated</span>
+          <span>here.</span>
         </div>
         <div
           style={{
-            height: 2,
-            width: 120,
-            background: "#0c6b54",
+            fontSize: 22,
+            fontFamily: "ui-serif, Georgia, serif",
+            fontStyle: "italic",
           }}
-        />
+        >
+          {site.name}
+        </div>
       </div>
     ),
     { ...size },
