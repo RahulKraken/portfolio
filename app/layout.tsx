@@ -1,75 +1,65 @@
 import type { Metadata, Viewport } from "next";
-import {
-  Bebas_Neue,
-  Figtree,
-  IBM_Plex_Mono,
-  IBM_Plex_Sans,
-  Instrument_Serif,
-} from "next/font/google";
-import { MotionRoot } from "@/components/MotionRoot";
+import { Archivo, Bodoni_Moda, Geist, Geist_Mono } from "next/font/google";
+import { Cursor } from "@/components/Cursor";
+import { Eyes } from "@/components/home/Eyes";
+import { Motion } from "@/components/home/Motion";
 import { Nav } from "@/components/Nav";
 import { site } from "@/lib/site";
 import "./globals.css";
+import "./home.css";
+import "./ride.css";
 
-const display = Bebas_Neue({
+const sans = Geist({
   subsets: ["latin"],
-  weight: "400",
+  variable: "--font-sans",
+  display: "swap",
+});
+
+// Width axis: the expanded italic cut is the site's one loud voice
+const display = Archivo({
+  subsets: ["latin"],
+  axes: ["wdth"],
+  style: ["normal", "italic"],
   variable: "--font-display",
   display: "swap",
 });
 
-const serif = Instrument_Serif({
+// The high-contrast serif that trades lines with the heavy sans
+const serif = Bodoni_Moda({
   subsets: ["latin"],
-  weight: "400",
   style: ["normal", "italic"],
   variable: "--font-serif",
   display: "swap",
 });
 
-const sans = Figtree({
+const mono = Geist_Mono({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const mono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
   variable: "--font-mono",
-  display: "swap",
-});
-
-const essaySans = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-essay-sans",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
-  title: { default: site.name, template: `%s · ${site.name}` },
+  title: { default: site.title, template: `%s · ${site.title}` },
   description: site.description,
-  authors: [{ name: site.name, url: site.url }],
   openGraph: {
-    title: `${site.name} — Life is curated here`,
+    title: site.title,
     description: site.description,
     url: site.url,
-    siteName: site.name,
+    siteName: site.title,
     locale: "en_IN",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: `${site.name} — Life is curated here`,
+    title: site.title,
     description: site.description,
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#100e0c",
-  colorScheme: "dark",
+  themeColor: "#fbf6ec",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -80,16 +70,17 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${display.variable} ${serif.variable} ${sans.variable} ${mono.variable} ${essaySans.variable}`}
+      className={`${sans.variable} ${mono.variable} ${display.variable} ${serif.variable}`}
     >
       <body>
-        <MotionRoot>
-          <a className="skip" href="#content">
-            Skip to content
-          </a>
-          <Nav />
-          <div id="content">{children}</div>
-        </MotionRoot>
+        <a className="skip" href="#content">
+          Skip to content
+        </a>
+        <Nav />
+        <div id="content">{children}</div>
+        <Motion />
+        <Eyes />
+        <Cursor />
       </body>
     </html>
   );

@@ -22,7 +22,7 @@ export function Clock() {
   }, []);
 
   return (
-    <span className="nav-clock" suppressHydrationWarning>
+    <span className="clock" suppressHydrationWarning>
       {time} IST
     </span>
   );

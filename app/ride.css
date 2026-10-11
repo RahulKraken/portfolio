@@ -1,0 +1,537 @@
+/* The ride is one space you travel through. Ride.tsx moves the camera; this file builds the world. */
+
+.ride-end,
+.ride-sound {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ride-end a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  text-decoration: none;
+}
+
+/* ——— The view ——— */
+.ride {
+  --kx: 1;
+  /* How wide a 3:2 picture must be to cover the viewport */
+  --cover: max(100vw, calc(100svh * 1.497));
+  --cover-ratio: 1.497;
+  position: relative;
+  background: #050505;
+  color: #fff;
+}
+
+.ride-view {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  perspective: 900px;
+}
+
+.ride-cam {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Everything in the world hangs from the centre of the view, placed by --x --y --z */
+/*
+  --rs is a raster scale: the element is laid out (and painted) at 1/rs of its world size and
+  scaled back up, so far-off scenery costs a fraction of the pixels. Perspective shrinks
+  it again anyway.
+*/
+.ride-item {
+  --rs: 2;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--w, 800) * 1px / var(--rs));
+  transform: translate(-50%, -50%)
+    translate3d(
+      calc(var(--x) * var(--kx) * 1px),
+      calc(var(--y) * 1px),
+      calc(var(--z) * -1px)
+    )
+    rotateY(calc(var(--ry) * 1deg)) scale(var(--rs));
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* Only what is in range exists; Ride.tsx switches things on as they come up */
+.ride.is-live .ride-item[data-z] {
+  display: none;
+}
+
+.ride-item img {
+  object-fit: cover;
+}
+
+.ride .tall {
+  display: none;
+}
+
+/*
+  Planes that must fill the screen from a distance d are made (900 + d) / 900 times
+  the cover size, since perspective shrinks them by 900 / (900 + d).
+*/
+.ride-cover {
+  --d: 0;
+  --rs: 1;
+  width: calc(var(--cover) * (900 + var(--d)) / 900 / var(--rs));
+  aspect-ratio: var(--cover-ratio);
+}
+
+.ride-machine {
+  --d: 900;
+  --rs: 2;
+}
+
+/* Giant slanted numerals */
+.ride-number {
+  width: auto;
+  margin: 0;
+  font-family: var(--display);
+  font-stretch: 125%;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+  --rs: 1;
+}
+
+/* 58vw as seen from 1150 away */
+.ride-number-open {
+  --y: 0;
+  font-size: calc(58vw * (900 + 1150) / 900);
+}
+
+/* Further down the track: an outlined gate you ride straight through */
+.ride-number-gate {
+  font-size: 1500px;
+  color: transparent;
+  --mark-stroke: var(--red);
+}
+
+.ride-number-gate .mark {
+  height: 1em;
+  stroke-width: 10px;
+}
+
+/* ——— Scenery ——— */
+/* Painted at a quarter of world size and scaled up by Ride.tsx, so the patterns here are quarter-size too */
+.ride-ground {
+  --sky: #050505;
+  --fade: linear-gradient(to bottom, var(--sky), transparent 32%);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 650px;
+  height: 2250px;
+  opacity: 0;
+  will-change: transform, opacity;
+  /* the far end dissolves into the sky; kerbs down both edges, tarmac between */
+  background:
+    var(--fade),
+    repeating-linear-gradient(0deg, var(--red) 0 38px, var(--bone) 38px 76px) left / 38px auto
+      repeat-y,
+    repeating-linear-gradient(0deg, var(--bone) 0 38px, var(--red) 38px 76px) right / 38px auto
+      repeat-y,
+    #161616;
+}
+
+.ride-board {
+  border: 7px solid var(--bone);
+  background: var(--bone);
+}
+
+.ride-slice {
+  border-width: 0;
+}
+
+/* Contact strips run along both sides like pit walls */
+.ride-wall {
+  --rs: 1;
+  width: 5200px;
+  height: 230px;
+  background-size: auto 100%;
+  background-repeat: repeat-x;
+  backface-visibility: visible;
+}
+
+.ride-screen {
+  --w: 1900;
+  border: 8px solid var(--red);
+}
+
+.ride-screen canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #000;
+}
+
+.ride-kit img {
+  width: 100%;
+  height: auto;
+  animation: ride-float 7s ease-in-out infinite alternate;
+}
+
+.ride-kit:nth-of-type(even) img {
+  animation-duration: 9s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes ride-float {
+  from {
+    transform: translateY(-26px) rotate(-7deg);
+  }
+
+  to {
+    transform: translateY(26px) rotate(7deg);
+  }
+}
+
+.ride-string {
+  width: 3200px;
+  border-radius: 99px;
+  --rs: 1;
+  background: linear-gradient(#fff, #9c9a94);
+}
+
+.ride-string.is-plucked {
+  animation: ride-ring 1100ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes ride-ring {
+  0% {
+    translate: 0 0;
+  }
+
+  12% {
+    translate: 0 26px;
+  }
+
+  28% {
+    translate: 0 -20px;
+  }
+
+  44% {
+    translate: 0 14px;
+  }
+
+  60% {
+    translate: 0 -9px;
+  }
+
+  76% {
+    translate: 0 5px;
+  }
+
+  100% {
+    translate: 0 0;
+  }
+}
+
+/* ——— Drawn scenery ——— */
+.art {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.art .i {
+  fill: currentColor;
+}
+
+.art .r {
+  fill: var(--accent);
+}
+
+.art .p {
+  fill: var(--pop);
+}
+
+.art :is(.s, .sr, .sp) {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.art .sr {
+  stroke: var(--accent);
+}
+
+.art .sp {
+  stroke: var(--pop);
+}
+
+.art-num {
+  font-family: var(--display);
+  font-stretch: 75%;
+  font-weight: 900;
+  font-size: 104px;
+}
+
+/* Ink per stretch: bone on the dark ones, black on the red and the pale ones */
+.ride-prop {
+  --accent: var(--red);
+  --pop: #0b0b0b;
+  color: var(--bone);
+}
+
+.ride-prop.z-iron {
+  --accent: var(--bone);
+  --pop: var(--bone);
+  color: #0b0b0b;
+}
+
+.ride-prop.z-table {
+  --pop: var(--bone);
+  color: #0b0b0b;
+}
+
+/* Standing props hang from their base, which sits on the ground */
+.ride-prop.is-grounded {
+  transform: translate(-50%, -100%)
+    translate3d(
+      calc(var(--x) * var(--kx) * 1px),
+      calc(var(--y) * 1px),
+      calc(var(--z) * -1px)
+    )
+    rotateY(calc(var(--ry) * 1deg)) scale(var(--rs));
+  transform-origin: 50% 100%;
+}
+
+.ride-prop.is-spin .art {
+  animation: ride-spin 6s linear infinite;
+}
+
+.ride-prop.is-float .art {
+  animation: ride-float 6s ease-in-out infinite alternate;
+}
+
+@keyframes ride-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.ride-chalk {
+  --w: 620;
+  aspect-ratio: 1;
+  background: radial-gradient(closest-side, rgb(239 236 228 / 0.4), transparent);
+}
+
+/* The sky travels with the camera, far ahead: a low sun over the track */
+.ride-sky {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 650px;
+  opacity: 0;
+  will-change: transform, opacity;
+  --accent: var(--red);
+}
+
+.ride-sky .art {
+  margin-top: -56%;
+}
+
+.ride-sky:not([data-kind="track"]) {
+  visibility: hidden;
+}
+
+/* The ground changes with the stretch */
+.ride-ground[data-kind="iron"] {
+  /* black rubber with lifting-platform lines */
+  background:
+    var(--fade),
+    repeating-linear-gradient(90deg, transparent 0 160px, var(--bone) 160px 163px),
+    repeating-linear-gradient(0deg, transparent 0 297px, var(--bone) 297px 300px),
+    #0d0d0d;
+}
+
+.ride-ground[data-kind="bench"] {
+  /* a circuit board: a grid of traces with a solder pad at every crossing */
+  background:
+    var(--fade),
+    radial-gradient(circle at 0 0, var(--red) 0 5px, transparent 6px) 0 0 / 50px 50px,
+    repeating-linear-gradient(0deg, transparent 0 48px, rgb(239 236 228 / 0.55) 48px 50px),
+    repeating-linear-gradient(90deg, transparent 0 48px, rgb(239 236 228 / 0.55) 48px 50px),
+    #0a0a0a;
+}
+
+.ride-ground[data-kind="strings"] {
+  /* a stage floor */
+  background:
+    var(--fade),
+    repeating-linear-gradient(90deg, transparent 0 79px, rgb(239 236 228 / 0.18) 79px 81px),
+    #121110;
+}
+
+.ride-ground[data-kind="table"] {
+  /* pale wood */
+  background:
+    var(--fade),
+    repeating-linear-gradient(90deg, transparent 0 79px, rgb(12 11 10 / 0.16) 79px 81px),
+    #ddd6c6;
+}
+
+/* ——— Overlays that stay with the screen ——— */
+.ride-fog {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 50% 50%, transparent 55%, rgb(0 0 0 / 0.55));
+  pointer-events: none;
+}
+
+/* A chevron that says "go" without a word */
+.ride-cue {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  rotate: 45deg;
+  translate: -50% 0;
+  animation: ride-cue 1.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes ride-cue {
+  50% {
+    translate: -50% 0.6rem;
+  }
+}
+
+.ride-sound {
+  position: absolute;
+  right: var(--pad);
+  bottom: 1.25rem;
+  min-height: 2.75rem;
+  padding: 0 1.1rem;
+  background: none;
+  border: 1px solid #fff;
+  border-radius: 999px;
+  color: #fff;
+  /* stays legible on black, red and bone skies */
+  mix-blend-mode: difference;
+  cursor: pointer;
+  transition:
+    transform 160ms var(--ease-out),
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.ride-sound:active {
+  transform: scale(0.97);
+}
+
+.ride-sound[aria-pressed="true"] {
+  background: #fff;
+  color: #000;
+}
+
+.ride-end {
+  position: absolute;
+  bottom: 1.25rem;
+  left: var(--pad);
+  display: flex;
+  gap: 1.75rem;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/*
+  Without the camera (reduced motion, or before the script runs) the world lies flat:
+  a plain column of pictures.
+*/
+.ride:not(.is-live) .ride-view {
+  position: static;
+  height: auto;
+  overflow: visible;
+  perspective: none;
+}
+
+.ride:not(.is-live) .ride-cam {
+  position: static;
+  display: grid;
+  gap: 4rem;
+  justify-items: center;
+  padding: 6rem var(--pad);
+}
+
+.ride:not(.is-live) .ride-item {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: min(100%, 56rem);
+  transform: none;
+}
+
+.ride:not(.is-live) :is(.ride-ground, .ride-sky, .ride-prop, .ride-chalk, .ride-machine, .ride-wall, .ride-string, .ride-number-gate, .ride-fog, .ride-cue, .ride-sound) {
+  display: none;
+}
+
+.ride:not(.is-live) .ride-number {
+  font-size: 30vw;
+}
+
+.ride:not(.is-live) .ride-kit {
+  width: min(60%, 22rem);
+}
+
+.ride:not(.is-live) .ride-end {
+  position: static;
+  padding: 0 var(--pad) 3rem;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  .ride {
+    --cover: max(100vw, calc(100svh * 0.643));
+    --cover-ratio: 0.643;
+  }
+
+  .ride-plate .wide,
+  .ride-machine .wide {
+    display: none;
+  }
+
+  .ride-plate .tall,
+  .ride-machine .tall {
+    display: block;
+  }
+
+  /* the machine fills a tall screen, so the number rides above it */
+  .ride-number-open {
+    --y: -620;
+    font-size: calc(74vw * (900 + 1150) / 900);
+  }
+
+  .ride-last {
+    --cover-ratio: 1.497;
+    --cover: calc(100svh * 1.497);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ride-kit img,
+  .ride-prop .art {
+    animation: none;
+  }
+}

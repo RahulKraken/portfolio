@@ -23,7 +23,7 @@ export default function List100Page() {
     <main className="page">
       <h1>List 100</h1>
       <p className="lede">
-        He uses “100” as shorthand for meaningful repetition: 100 laps, 100
+        I use “100” as shorthand for meaningful repetition: 100 laps, 100
         projects. Expertise comes from doing the thing enough times that the
         instrument starts talking back. This is not a completed list of 100
         feats. It is the reminder.
@@ -36,7 +36,7 @@ export default function List100Page() {
         ))}
       </div>
       <p className="lede">
-        The actual 100 — what belongs on it, what doesn’t — is still his to
+        The actual 100 — what belongs on it, what doesn’t — is still mine to
         fill. Until then the grid stays mostly empty on purpose.
       </p>
     </main>

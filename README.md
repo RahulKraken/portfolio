@@ -1,10 +1,10 @@
 # Rahul Kumar — personal site
 
-**Life is curated here.** Track, strength, music, building — Patna to Bengaluru.
+A strip of photographs you move through by scrolling.
 
 The previous homepage essay, *He doesn’t trust an instrument until he’s built it himself*, now lives at [`/notes/built-it-himself`](/notes/built-it-himself).
 
-Stack: **Next.js (App Router)** · TypeScript · CSS · GSAP + ScrollTrigger + Lenis. No CMS, no forms, no environment variables.
+Stack: **Next.js (App Router)** · TypeScript · CSS. No CMS, no forms, no environment variables.
 
 ## Local
 
@@ -33,4 +33,4 @@ If a Git-authored preview fails on a Hobby private repo, Redeploy from the Verce
 
 ## Copy and assets
 
-Chapter copy is in [`lib/chapters.ts`](lib/chapters.ts). Atmosphere stills are in `public/atmosphere/` and credited at `/credits`. Drop real photos into `public/portraits/` and replace `public/cv.pdf`.
+The film is laid out in [`app/page.tsx`](app/page.tsx). Stills are in `public/photos/`; the scroll-scrubbed bursts are in `public/photos/seq/`. Originals live in `photos-raw/`, which is git-ignored. Replace `public/cv.pdf`.

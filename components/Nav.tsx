@@ -1,72 +1,69 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Clock } from "@/components/Clock";
-import { navMain, navMeta } from "@/lib/chapters";
+import { useEffect, useState } from "react";
+import { Mark } from "@/components/Mark";
 import { site } from "@/lib/site";
+
+const links = [
+  { href: "/#track", label: "On track" },
+  { href: "/#work", label: "At work" },
+  { href: "/#hall", label: "Hall of fame" },
+  { href: "/ride", label: "Ride" },
+  { href: "/notes", label: "Notes" },
+];
 
 export function Nav() {
   const [open, setOpen] = useState(false);
 
-  function close() {
-    setOpen(false);
-  }
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   return (
-    <header className={`nav${open ? " is-open" : ""}`}>
-      <Link className="nav-mark" href="/" onClick={close}>
-        {site.name}
-      </Link>
-      <nav className="nav-main" aria-label="Chapters">
-        {navMain.map((item) => (
-          <Link key={item.href} href={item.href}>
-            {item.label}
+    <>
+      <header className="nav">
+        <Link className="nav-mark" href="/" aria-label="Home" onClick={() => setOpen(false)}>
+          <Mark />
+        </Link>
+        <div className="nav-tools">
+          <Link className="nav-pill" href="/notes" data-magnet>
+            Notes
+          </Link>
+          <button
+            type="button"
+            className="nav-burger"
+            data-magnet
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            aria-controls="menu"
+            onClick={() => setOpen((v) => !v)}
+          >
+            <span />
+            <span />
+          </button>
+        </div>
+      </header>
+      <nav id="menu" className={`menu${open ? " is-open" : ""}`} aria-label="Menu" inert={!open}>
+        {links.map((l, i) => (
+          <Link key={l.href} href={l.href} style={{ "--i": i } as React.CSSProperties} onClick={() => setOpen(false)}>
+            {l.label}
           </Link>
         ))}
+        <a
+          href={site.github}
+          rel="noreferrer"
+          target="_blank"
+          style={{ "--i": links.length } as React.CSSProperties}
+        >
+          GitHub
+        </a>
       </nav>
-      <div className="nav-meta">
-        {navMeta.map((item) =>
-          "external" in item && item.external ? (
-            <a key={item.href} href={item.href}>
-              {item.label}
-            </a>
-          ) : (
-            <Link key={item.href} href={item.href}>
-              {item.label}
-            </Link>
-          ),
-        )}
-        <Clock />
-      </div>
-      <button
-        type="button"
-        className="nav-toggle"
-        aria-expanded={open}
-        aria-controls="mobile-nav"
-        onClick={() => setOpen((v) => !v)}
-      >
-        {open ? "Close" : "Menu"}
-      </button>
-      <nav id="mobile-nav" className="nav-drawer" aria-label="Mobile">
-        {navMain.map((item) => (
-          <Link key={item.href} href={item.href} onClick={close}>
-            {item.label}
-          </Link>
-        ))}
-        {navMeta.map((item) =>
-          "external" in item && item.external ? (
-            <a key={item.href} href={item.href} onClick={close}>
-              {item.label}
-            </a>
-          ) : (
-            <Link key={item.href} href={item.href} onClick={close}>
-              {item.label}
-            </Link>
-          ),
-        )}
-        <Clock />
-      </nav>
-    </header>
+    </>
   );
 }

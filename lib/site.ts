@@ -1,15 +1,10 @@
 export const site = {
-  name: "Rahul Kumar",
+  /** Used where words are unavoidable (tab title, link previews). The visual mark is components/Mark.tsx. */
+  title: "Tarmac, packets, iron",
   email: "r.rahul4511@gmail.com",
-  location: "Bengaluru",
-  origin: "Patna",
   github: "https://github.com/RahulKraken",
   pillar: "https://github.com/RahulKraken/pillar.ai",
   meusic: "https://github.com/RahulKraken/meusic",
   url: "https://rahulkraken.com",
-  description:
-    "Life is curated here. Track, strength, music, building — Patna to Bengaluru.",
+  description: "Pictures, mostly in motion.",
 } as const;
-
-export const thesis =
-  "He doesn’t trust an instrument until he’s built it himself.";
