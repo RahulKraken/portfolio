@@ -41,23 +41,14 @@ export function LapHud() {
     const cover = ["#built", "#craft"]
       .map((q) => document.querySelector<HTMLElement>(q))
       .filter((el): el is HTMLElement => Boolean(el));
-    const seen = new Set<Element>();
     const syncAway = () => {
-      hud?.toggleAttribute("data-away", phone.matches && seen.size > 0);
+      const narrow = phone.matches || window.innerWidth <= 900;
+      const onBench = cover.some((el) => {
+        const r = el.getBoundingClientRect();
+        return r.bottom > 0 && r.top < window.innerHeight;
+      });
+      hud?.toggleAttribute("data-away", narrow && onBench);
     };
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) seen.add(entry.target);
-          else seen.delete(entry.target);
-        }
-        syncAway();
-      },
-      { threshold: 0.08 },
-    );
-    cover.forEach((el) => io.observe(el));
-    const onPhone = () => syncAway();
-    phone.addEventListener("change", onPhone);
 
     let best: LapState["best"] = null;
     try {
@@ -132,14 +123,19 @@ export function LapHud() {
     const schedule = () => {
       if (!raf) raf = requestAnimationFrame(frame);
     };
+    const onScroll = () => {
+      syncAway();
+      schedule();
+    };
 
     publish(null);
-    window.addEventListener("scroll", schedule, { passive: true });
+    syncAway();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", syncAway);
     return () => {
-      io.disconnect();
-      phone.removeEventListener("change", onPhone);
       cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", syncAway);
     };
   }, []);
 
