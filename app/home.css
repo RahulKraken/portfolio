@@ -393,10 +393,6 @@
   display: block;
 }
 
-.craft-head h2 .serif {
-  display: inline;
-}
-
 .has-motion [data-reveal] {
   opacity: 0;
   translate: 0 2.5rem;
@@ -882,7 +878,7 @@
 
 /* ——— What I’ve built: named work, first scroll ——— */
 .proof {
-  padding: clamp(4.5rem, 12vh, 8rem) var(--pad) clamp(5rem, 14vh, 9rem);
+  padding: clamp(4.5rem, 12vh, 8rem) var(--pad) clamp(2rem, 5vh, 3rem);
   background: var(--bone);
   color: var(--dark);
   border-top: 1.5px solid var(--dark);
@@ -1026,11 +1022,16 @@
   .built-link:hover {
     color: var(--red);
   }
+
+  .craft-card:hover {
+    border-color: var(--red);
+  }
 }
 
 /* ——— Engineering: compact supporting row under Built ——— */
 .craft {
-  padding: 0 var(--pad) clamp(3.2rem, 8vh, 5rem);
+  padding: 0.35rem var(--pad) clamp(3.2rem, 8vh, 5rem);
+  scroll-margin-top: 5.75rem;
   background: var(--bone);
   color: var(--dark);
 }
@@ -1039,12 +1040,13 @@
   margin: 0 0 1.1rem;
 }
 
-.craft-head h2 {
-  font-size: clamp(1.2rem, 2vw, 1.55rem);
-  line-height: 1.1;
+.home .craft-head h2 {
+  font-size: clamp(1.05rem, 1.6vw, 1.32rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
-.craft-head h2 .serif {
+.home .craft-head h2 .serif {
   display: inline;
   margin-left: 0.45rem;
   font-size: 1.05em;
@@ -1077,6 +1079,12 @@
   margin: 0;
   font-size: 0.88rem;
   line-height: 1.35;
+}
+
+@media (max-width: 1180px) {
+  .craft-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 /* ——— Scatter ——— */
