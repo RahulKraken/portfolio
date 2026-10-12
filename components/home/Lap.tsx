@@ -27,6 +27,7 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
  * as a lean angle and tips the headlines by it.
  */
 export function LapHud() {
+  const hudRef = useRef<HTMLDivElement>(null);
   const timeRef = useRef<HTMLSpanElement>(null);
   const leanRef = useRef<HTMLSpanElement>(null);
   const needleRef = useRef<HTMLSpanElement>(null);
@@ -35,6 +36,19 @@ export function LapHud() {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const marks = MARKS.map((q) => document.querySelector<HTMLElement>(q));
     const leaners = Array.from(document.querySelectorAll<HTMLElement>("[data-lean]"));
+    const hud = hudRef.current;
+    const phone = window.matchMedia("(max-width: 900px)");
+    const cover = ["#built", "#craft"]
+      .map((q) => document.querySelector<HTMLElement>(q))
+      .filter((el): el is HTMLElement => Boolean(el));
+    const syncAway = () => {
+      const narrow = phone.matches || window.innerWidth <= 900;
+      const onBench = cover.some((el) => {
+        const r = el.getBoundingClientRect();
+        return r.bottom > 0 && r.top < window.innerHeight;
+      });
+      hud?.toggleAttribute("data-away", narrow && onBench);
+    };
 
     let best: LapState["best"] = null;
     try {
@@ -109,17 +123,24 @@ export function LapHud() {
     const schedule = () => {
       if (!raf) raf = requestAnimationFrame(frame);
     };
+    const onScroll = () => {
+      syncAway();
+      schedule();
+    };
 
     publish(null);
-    window.addEventListener("scroll", schedule, { passive: true });
+    syncAway();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", syncAway);
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", syncAway);
     };
   }, []);
 
   return (
-    <div className="lap-hud" aria-hidden>
+    <div className="lap-hud" ref={hudRef} aria-hidden>
       <span className="lap-dot" />
       <span ref={timeRef} className="lap-time">
         0:00.0

@@ -214,8 +214,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Proof />
-      <Craft />
+      <div className="bench">
+        <Proof />
+        <Craft />
+      </div>
 
       {/* Statement: a line drawn by scrolling, then seven words that light up one by one */}
       <section className="statement on-paper" data-scrub data-cursor="pick">
