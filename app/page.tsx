@@ -8,8 +8,10 @@ import { LapBoard, LapHud } from "@/components/home/Lap";
 import { Rail } from "@/components/home/Rail";
 import { ToyBox } from "@/components/home/ToyBox";
 import { vignettes, type VignetteName } from "@/components/home/Vignettes";
+import { Proof } from "@/components/home/Proof";
 import { WorkScene } from "@/components/home/WorkScene";
 import { Mark } from "@/components/Mark";
+import { products } from "@/lib/products";
 import { site } from "@/lib/site";
 
 // The statement: plain nouns, every other one set in the serif
@@ -44,15 +46,6 @@ const atWork: Built[] = [
   { draw: "traces", title: "Every step,", turn: "traced", line: "Each thing an agent does becomes a span. Ten million traces a day." },
   { draw: "caught", title: "The bad call,", turn: "caught", line: "Judged in context, while the agent is still running." },
   { draw: "platforms", title: "Ten platforms", turn: "in", line: "The same guard, wired into more than ten agent platforms." },
-];
-
-// Built after hours
-const afterHours: Built[] = [
-  { draw: "laptimer", title: "A lap", turn: "timer", line: "GPS and motion sensors on the bars. A fix every 3.3 m at 120 km/h, lean angle, under $35 in parts." },
-  { draw: "solo", title: "A solo,", turn: "taken apart", line: "Pulls the guitar out of a song and cuts the solo into phrases to learn." },
-  { draw: "coach", title: "A coach that", turn: "remembers", line: "An app for training, fuel and recovery that adapts to the week you had." },
-  { draw: "plain", title: "Law in", turn: "plain words", line: "Explains what a real-life legal situation actually means." },
-  { draw: "robots", title: "Robots", turn: "and boards", line: "Simulated robots and hand-routed circuit boards." },
 ];
 
 type HallItem = { name: string; print?: string; draw?: ArtName };
@@ -208,7 +201,9 @@ export default function HomePage() {
               ))}
             </div>
             <ToyBox />
-            <h1 className="sr-only">{site.title}</h1>
+            <h1 className="sr-only">
+              {site.name}. What I’ve built.
+            </h1>
             <div className="hero-helmet">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/photos/print/helmet.webp" alt="A racing helmet, as a halftone print" width={900} height={1302} />
@@ -217,6 +212,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <Proof />
 
       {/* Statement: a line drawn by scrolling, then seven words that light up one by one */}
       <section className="statement on-paper" data-scrub data-cursor="pick">
@@ -309,7 +306,7 @@ export default function HomePage() {
           </h2>
           <span className="panel-go">The hall</span>
         </a>
-        <a className="panel panel-work" href="#work" data-reveal data-tilt>
+        <a className="panel panel-work" href="#engineering" data-reveal data-tilt>
           <div className="panel-art" aria-hidden>
             {(["terminal", "shield", "chip"] as ArtName[]).map((name) => (
               <div key={name} className={`float float-${name}`}>
@@ -325,13 +322,18 @@ export default function HomePage() {
       </section>
 
       {/* At work, then after hours: one card per thing built, travelling sideways */}
-      <Rail id="work" label="Things built at work and after hours">
+      <Rail id="engineering" label="Engineering craft, then what I build after hours">
+        <span id="work" hidden />
         <header className="rail-title">
           <h2>
             At
             <span className="serif">work</span>
           </h2>
-          <p>Team work. These are the parts I built or led.</p>
+          <p>
+            Runtime security for AI agents — eBPF, macOS endpoint security,
+            OpenTelemetry, detection engineering. Previously SDE-2 at Palo Alto
+            Networks. Team work: the parts I built or led.
+          </p>
         </header>
         <div className="built built-wide">
           <Attack>
@@ -343,25 +345,35 @@ export default function HomePage() {
             <div className="built-art">{vignettes[b.draw]}</div>
             <span className="built-no">{String(i + 1).padStart(2, "0")}</span>
             <h3>
-              {b.title} <span className="serif">{b.turn}</span>
+              {b.title}
+              {b.turn ? (
+                <>
+                  {" "}
+                  <span className="serif">{b.turn}</span>
+                </>
+              ) : null}
             </h3>
             <p>{b.line}</p>
           </article>
         ))}
-        <header className="rail-title rail-title-after">
+        <header className="rail-title rail-title-after" id="building">
           <h2>
             After
             <span className="serif">hours</span>
           </h2>
+          <p>The same four, named. Robots and boards still in the shop.</p>
         </header>
-        {afterHours.map((b, i) => (
-          <article key={b.draw} className="built built-paper" data-tilt>
-            <div className="built-art">{vignettes[b.draw]}</div>
-            <span className="built-no">{String(i + 1).padStart(2, "0")}</span>
-            <h3>
-              {b.title} <span className="serif">{b.turn}</span>
-            </h3>
-            <p>{b.line}</p>
+        {products.map((p) => (
+          <article key={p.id} className="built built-paper" data-tilt>
+            <div className="built-art">{vignettes[p.draw]}</div>
+            <span className="built-no">{p.status}</span>
+            <h3>{p.name}</h3>
+            <p>{p.line}</p>
+            {p.href ? (
+              <a className="built-link" href={p.href} rel="noreferrer" target="_blank">
+                {p.hrefLabel ?? "Open"}
+              </a>
+            ) : null}
           </article>
         ))}
       </Rail>
@@ -419,6 +431,7 @@ export default function HomePage() {
           ))}
         </div>
         <div className="fan-links">
+          <a href="#built">Built</a>
           <Link href="/ride">Ride</Link>
           <Link href="/notes">Notes</Link>
           <a href={site.github} rel="noreferrer" target="_blank">
@@ -436,9 +449,9 @@ export default function HomePage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="outro-helmet outro-bike" src="/photos/print/bike.webp" alt="" loading="lazy" data-drift />
           <nav className="outro-links" aria-label="Pages">
+            <a href="#built">Built</a>
             <a href="#track">On track</a>
-            <a href="#work">At work</a>
-            <a href="#hall">Hall of fame</a>
+            <a href="#engineering">At work</a>
             <Link href="/ride">Ride</Link>
           </nav>
           <nav className="outro-links outro-links-right" aria-label="Elsewhere">
@@ -447,6 +460,10 @@ export default function HomePage() {
               GitHub
             </a>
           </nav>
+          <p className="outro-sign">
+            <span>{site.name}</span>
+            <Mark />
+          </p>
           <LapBoard />
           <ToyBox />
         </div>
