@@ -204,10 +204,6 @@ export default function HomePage() {
             <h1 className="sr-only">
               {site.name}. What I’ve built.
             </h1>
-            <p className="hero-sign">
-              <Mark />
-              <span>{site.name}</span>
-            </p>
             <div className="hero-helmet">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/photos/print/helmet.webp" alt="A racing helmet, as a halftone print" width={900} height={1302} />
