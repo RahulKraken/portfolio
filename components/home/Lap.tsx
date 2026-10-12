@@ -27,6 +27,7 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
  * as a lean angle and tips the headlines by it.
  */
 export function LapHud() {
+  const hudRef = useRef<HTMLDivElement>(null);
   const timeRef = useRef<HTMLSpanElement>(null);
   const leanRef = useRef<HTMLSpanElement>(null);
   const needleRef = useRef<HTMLSpanElement>(null);
@@ -35,6 +36,28 @@ export function LapHud() {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const marks = MARKS.map((q) => document.querySelector<HTMLElement>(q));
     const leaners = Array.from(document.querySelectorAll<HTMLElement>("[data-lean]"));
+    const hud = hudRef.current;
+    const phone = window.matchMedia("(max-width: 900px)");
+    const cover = ["#built", "#craft"]
+      .map((q) => document.querySelector<HTMLElement>(q))
+      .filter((el): el is HTMLElement => Boolean(el));
+    const seen = new Set<Element>();
+    const syncAway = () => {
+      hud?.toggleAttribute("data-away", phone.matches && seen.size > 0);
+    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) seen.add(entry.target);
+          else seen.delete(entry.target);
+        }
+        syncAway();
+      },
+      { threshold: 0.08 },
+    );
+    cover.forEach((el) => io.observe(el));
+    const onPhone = () => syncAway();
+    phone.addEventListener("change", onPhone);
 
     let best: LapState["best"] = null;
     try {
@@ -113,13 +136,15 @@ export function LapHud() {
     publish(null);
     window.addEventListener("scroll", schedule, { passive: true });
     return () => {
+      io.disconnect();
+      phone.removeEventListener("change", onPhone);
       cancelAnimationFrame(raf);
       window.removeEventListener("scroll", schedule);
     };
   }, []);
 
   return (
-    <div className="lap-hud" aria-hidden>
+    <div className="lap-hud" ref={hudRef} aria-hidden>
       <span className="lap-dot" />
       <span ref={timeRef} className="lap-time">
         0:00.0

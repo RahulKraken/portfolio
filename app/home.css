@@ -284,6 +284,12 @@
   font-size: 0.8125rem;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
+  transition: opacity 280ms ease;
+}
+
+.lap-hud[data-away] {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .lap-dot {
@@ -876,19 +882,34 @@
   opacity: clamp(0.14, calc((var(--p) * 2.1 - 0.42) * var(--n) - var(--i)), 1);
 }
 
-/* ——— What I’ve built: named work, first scroll ——— */
+/* ——— Built + Engineering: one dark instrument band under the hero ——— */
+.bench {
+  --ink: var(--bone);
+  --accent: var(--red);
+  --hair: rgb(239 236 228 / 0.16);
+  --face: color-mix(in srgb, var(--bone) 7%, var(--dark));
+  position: relative;
+  background-color: var(--dark);
+  background-image:
+    linear-gradient(var(--hair) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hair) 1px, transparent 1px);
+  background-size: 2rem 2rem;
+  color: var(--bone);
+  border-radius: 2rem 2rem 0 0;
+}
+
 .proof {
-  padding: clamp(4.5rem, 12vh, 8rem) var(--pad) clamp(2rem, 5vh, 3rem);
-  background: var(--bone);
-  color: var(--dark);
-  border-top: 1.5px solid var(--dark);
+  padding: clamp(5rem, 14vh, 8.5rem) var(--pad) clamp(2rem, 5vh, 3rem);
+  scroll-margin-top: 5.5rem;
+  background: transparent;
+  color: inherit;
 }
 
 .proof-head {
   display: grid;
-  gap: 1rem;
-  max-width: 40rem;
-  margin-bottom: clamp(2rem, 6vh, 3.5rem);
+  gap: 0.85rem;
+  max-width: 38rem;
+  margin-bottom: clamp(2rem, 6vh, 3.2rem);
 }
 
 .proof-kicker {
@@ -904,86 +925,101 @@
 }
 
 .proof-lede {
-  max-width: 34rem;
-  margin: 0.25rem 0 0;
-  font-size: 1.12rem;
-  line-height: 1.45;
+  max-width: 28rem;
+  margin: 0.15rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.4;
+  color: rgb(239 236 228 / 0.72);
 }
 
 .proof-grid {
   list-style: none;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.85rem;
+  gap: 0.7rem;
   margin: 0;
   padding: 0;
 }
 
 .proof-card {
-  --ink: var(--dark);
+  --ink: var(--bone);
   --accent: var(--red);
+  position: relative;
   display: grid;
   grid-template-rows: auto auto 1fr auto auto;
-  gap: 0.45rem;
-  min-height: 22rem;
-  padding: 1.15rem 1.15rem 1.25rem;
-  border: 1.5px solid var(--dark);
-  border-radius: 1.4rem 1.4rem 0.3rem 1.4rem;
-  background: var(--mint);
-  transform: perspective(1000px) rotateY(calc(var(--tx, 0) * 6deg)) rotateX(calc(var(--ty, 0) * -6deg));
-  transition:
-    transform 500ms var(--ease-out),
-    border-color 300ms ease;
+  gap: 0.4rem;
+  min-height: 0;
+  padding: 1.05rem 1.1rem 1.15rem;
+  border: 1px solid var(--hair);
+  border-radius: 0.4rem;
+  background: var(--face);
+  transition: border-color 280ms ease;
 }
 
-.proof-card:nth-child(2) {
-  background: var(--sun);
-}
-
-.proof-card:nth-child(3) {
-  background: var(--sky);
-}
-
-.proof-card:nth-child(4) {
-  background: var(--butter);
+.proof-no {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.95rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: rgb(239 236 228 / 0.4);
 }
 
 .proof-art {
   display: grid;
   place-items: center;
-  height: 8.5rem;
+  height: 6.4rem;
+  margin: 0.15rem 0 0.35rem;
 }
 
 .proof-art .vig {
-  max-height: 8.5rem;
+  max-height: 6.4rem;
+  stroke-width: 1.35;
+}
+
+.proof .vig .f {
+  fill: rgb(239 236 228 / 0.82);
+  stroke: none;
+}
+
+.proof .vig .a {
+  fill: var(--red);
+  stroke: none;
+}
+
+.proof .vig-window,
+.proof .vig-node {
+  fill: transparent;
 }
 
 .proof-status {
-  color: var(--dark);
-  opacity: 0.72;
+  color: rgb(239 236 228 / 0.55);
 }
 
 .proof-card h3 {
   margin: 0;
+  padding-right: 2.2rem;
   font-family: var(--display);
   font-weight: 800;
-  font-size: clamp(1.6rem, 2.2vw, 2.15rem);
-  line-height: 0.92;
+  font-size: clamp(1.35rem, 1.8vw, 1.75rem);
+  line-height: 0.94;
   letter-spacing: -0.03em;
   text-transform: uppercase;
 }
 
 .proof-card p {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   line-height: 1.4;
+  color: rgb(239 236 228 / 0.78);
 }
 
 .proof-link,
 .built-link {
   width: fit-content;
   text-decoration: none;
-  border-bottom: 1.5px solid var(--dark);
+  border-bottom: 1px solid var(--hair);
 }
 
 .proof-sign {
@@ -991,15 +1027,15 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 1rem;
-  margin: 2.2rem 0 0;
-  padding-top: 1.4rem;
-  border-top: 1.5px solid var(--dark);
+  margin: 2rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--hair);
 }
 
 .proof-sign-name {
   font-family: var(--serif);
   font-style: italic;
-  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+  font-size: clamp(1.5rem, 3.2vw, 2.4rem);
   letter-spacing: -0.03em;
 }
 
@@ -1010,10 +1046,12 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   text-decoration: none;
+  color: rgb(239 236 228 / 0.7);
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .proof-card:hover {
+  .proof-card:hover,
+  .craft-card:hover {
     border-color: var(--red);
   }
 
@@ -1022,26 +1060,22 @@
   .built-link:hover {
     color: var(--red);
   }
-
-  .craft-card:hover {
-    border-color: var(--red);
-  }
 }
 
 /* ——— Engineering: compact supporting row under Built ——— */
 .craft {
-  padding: 0.35rem var(--pad) clamp(3.2rem, 8vh, 5rem);
+  padding: 0.2rem var(--pad) clamp(3.4rem, 9vh, 5.5rem);
   scroll-margin-top: 5.75rem;
-  background: var(--bone);
-  color: var(--dark);
+  background: transparent;
+  color: inherit;
 }
 
 .craft-head {
-  margin: 0 0 1.1rem;
+  margin: 0 0 1rem;
 }
 
 .home .craft-head h2 {
-  font-size: clamp(1.05rem, 1.6vw, 1.32rem);
+  font-size: clamp(1.05rem, 1.6vw, 1.28rem);
   line-height: 1.15;
   letter-spacing: -0.02em;
 }
@@ -1063,22 +1097,23 @@
 
 .craft-card {
   display: grid;
-  gap: 0.35rem;
-  padding: 0.8rem 0.9rem 0.95rem;
-  border: 1.5px solid color-mix(in srgb, var(--dark) 42%, transparent);
-  border-radius: 0.85rem 0.85rem 0.2rem 0.85rem;
-  background: var(--film);
+  gap: 0.3rem;
+  padding: 0.75rem 0.85rem 0.9rem;
+  border: 1px solid var(--hair);
+  border-radius: 0.35rem;
+  background: var(--face);
 }
 
 .craft-card h3 {
   margin: 0;
-  color: var(--mute);
+  color: rgb(239 236 228 / 0.5);
 }
 
 .craft-card p {
   margin: 0;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   line-height: 1.35;
+  color: rgb(239 236 228 / 0.82);
 }
 
 @media (max-width: 1180px) {

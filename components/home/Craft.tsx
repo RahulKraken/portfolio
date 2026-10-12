@@ -2,7 +2,7 @@ import { craft } from "@/lib/craft";
 
 export function Craft() {
   return (
-    <section className="craft" id="craft" aria-label="Engineering">
+    <section className="craft on-dark" id="craft" aria-label="Engineering">
       <header className="craft-head">
         <h2>
           Engineering

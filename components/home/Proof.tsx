@@ -5,7 +5,7 @@ import { site } from "@/lib/site";
 
 export function Proof() {
   return (
-    <section className="proof on-paper" id="built" data-cursor="iron">
+    <section className="proof on-dark" id="built" data-cursor="iron">
       <header className="proof-head" data-reveal>
         <p className="proof-kicker">
           <Mark />
@@ -15,18 +15,14 @@ export function Proof() {
           What I’ve
           <span className="serif">built</span>
         </h2>
-        <p className="proof-lede">
-          I’m {site.name}. I build things I want to exist. Here’s what’s on the
-          bench.
-        </p>
-        <p className="proof-lede">
-          By day: runtime security for AI agents. Before that, SDE-2 at Palo Alto
-          Networks.
-        </p>
+        <p className="proof-lede">Things I’m building, on my own time.</p>
       </header>
       <ul className="proof-grid">
         {products.map((p, i) => (
-          <li key={p.id} className="proof-card" data-reveal data-tilt style={{ "--i": i } as React.CSSProperties}>
+          <li key={p.id} className="proof-card" data-reveal style={{ "--i": i } as React.CSSProperties}>
+            <span className="proof-no" aria-hidden>
+              {String(i + 1).padStart(2, "0")}
+            </span>
             <div className="proof-art" aria-hidden>
               {vignettes[p.draw]}
             </div>
