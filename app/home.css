@@ -29,7 +29,8 @@
 .proof-kicker,
 .proof-status,
 .proof-link,
-.built-link {
+.built-link,
+.craft-card h3 {
   font-family: var(--sans);
   font-size: 0.75rem;
   font-weight: 600;
@@ -390,6 +391,10 @@
 
 .home h2 .serif {
   display: block;
+}
+
+.craft-head h2 .serif {
+  display: inline;
 }
 
 .has-motion [data-reveal] {
@@ -1021,6 +1026,57 @@
   .built-link:hover {
     color: var(--red);
   }
+}
+
+/* ——— Engineering: compact supporting row under Built ——— */
+.craft {
+  padding: 0 var(--pad) clamp(3.2rem, 8vh, 5rem);
+  background: var(--bone);
+  color: var(--dark);
+}
+
+.craft-head {
+  margin: 0 0 1.1rem;
+}
+
+.craft-head h2 {
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  line-height: 1.1;
+}
+
+.craft-head h2 .serif {
+  display: inline;
+  margin-left: 0.45rem;
+  font-size: 1.05em;
+}
+
+.craft-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.craft-card {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.8rem 0.9rem 0.95rem;
+  border: 1.5px solid color-mix(in srgb, var(--dark) 42%, transparent);
+  border-radius: 0.85rem 0.85rem 0.2rem 0.85rem;
+  background: var(--film);
+}
+
+.craft-card h3 {
+  margin: 0;
+  color: var(--mute);
+}
+
+.craft-card p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.35;
 }
 
 /* ——— Scatter ——— */
@@ -2372,6 +2428,17 @@
 
   .proof-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .craft-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .craft-card {
+    grid-template-columns: minmax(7.5rem, 28%) 1fr;
+    align-items: baseline;
+    gap: 0.7rem;
+    padding: 0.65rem 0.85rem;
   }
 
   .proof-card {
