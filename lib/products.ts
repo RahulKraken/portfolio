@@ -3,7 +3,7 @@ export type Product = {
   name: string;
   line: string;
   status: string;
-  /** Public URL if one exists. Empty means a clearly marked slot. */
+  /** Drop a public URL here later; the card only renders a link when this is set. */
   href?: string;
   hrefLabel?: string;
   draw: "solo" | "coach" | "laptimer" | "plain";

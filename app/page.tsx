@@ -373,9 +373,7 @@ export default function HomePage() {
               <a className="built-link" href={p.href} rel="noreferrer" target="_blank">
                 {p.hrefLabel ?? "Open"}
               </a>
-            ) : (
-              <span className="proof-slot">URL — slot</span>
-            )}
+            ) : null}
           </article>
         ))}
       </Rail>

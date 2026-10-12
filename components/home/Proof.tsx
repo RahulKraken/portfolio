@@ -16,9 +16,12 @@ export function Proof() {
           <span className="serif">built</span>
         </h2>
         <p className="proof-lede">
-          I’m {site.name}. These are mine — named, in progress, not a vibe. I keep
-          the day job at the domain: runtime security for AI agents. Previously
-          SDE-2 at Palo Alto Networks.
+          I’m {site.name}. I build things I want to exist. Here’s what’s on the
+          bench.
+        </p>
+        <p className="proof-lede">
+          By day: runtime security for AI agents. Before that, SDE-2 at Palo Alto
+          Networks.
         </p>
       </header>
       <ul className="proof-grid">
@@ -34,9 +37,7 @@ export function Proof() {
               <a className="proof-link" href={p.href} rel="noreferrer" target="_blank">
                 {p.hrefLabel ?? "Open"}
               </a>
-            ) : (
-              <span className="proof-slot">URL — slot</span>
-            )}
+            ) : null}
           </li>
         ))}
       </ul>
