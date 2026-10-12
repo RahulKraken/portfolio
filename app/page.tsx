@@ -8,6 +8,7 @@ import { LapBoard, LapHud } from "@/components/home/Lap";
 import { Rail } from "@/components/home/Rail";
 import { ToyBox } from "@/components/home/ToyBox";
 import { vignettes, type VignetteName } from "@/components/home/Vignettes";
+import { Craft } from "@/components/home/Craft";
 import { Proof } from "@/components/home/Proof";
 import { WorkScene } from "@/components/home/WorkScene";
 import { Mark } from "@/components/Mark";
@@ -214,6 +215,7 @@ export default function HomePage() {
       </section>
 
       <Proof />
+      <Craft />
 
       {/* Statement: a line drawn by scrolling, then seven words that light up one by one */}
       <section className="statement on-paper" data-scrub data-cursor="pick">
