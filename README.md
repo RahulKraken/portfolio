@@ -1,6 +1,6 @@
 # Rahul Kumar — personal site
 
-A strip of photographs you move through by scrolling.
+Personal site. Homepage copy lives in [`lib/home.ts`](lib/home.ts); every line marked `todo` is a placeholder.
 
 The previous homepage essay, *He doesn’t trust an instrument until he’s built it himself*, now lives at [`/notes/built-it-himself`](/notes/built-it-himself).
 

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Bodoni_Moda, Geist, Geist_Mono } from "next/font/google";
+import { Archivo, Bodoni_Moda, Geist, Geist_Mono, Instrument_Serif, Inter } from "next/font/google";
 import { Cursor } from "@/components/Cursor";
 import { Eyes } from "@/components/home/Eyes";
 import { Motion } from "@/components/home/Motion";
@@ -38,6 +38,20 @@ const mono = Geist_Mono({
   display: "swap",
 });
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const instrument = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-instrument",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: { default: site.title, template: `%s · ${site.title}` },
@@ -70,7 +84,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${mono.variable} ${display.variable} ${serif.variable}`}
+      className={`${sans.variable} ${mono.variable} ${display.variable} ${serif.variable} ${inter.variable} ${instrument.variable}`}
     >
       <body>
         <a className="skip" href="#content">

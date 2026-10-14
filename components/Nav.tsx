@@ -6,10 +6,11 @@ import { Mark } from "@/components/Mark";
 import { site } from "@/lib/site";
 
 const links = [
-  { href: "/#built", label: "Built" },
-  { href: "/#track", label: "On track" },
-  { href: "/#engineering", label: "At work" },
-  { href: "/#hall", label: "Hall of fame" },
+  { href: "/#track", label: "Track" },
+  { href: "/#iron", label: "Iron" },
+  { href: "/#strings", label: "Strings" },
+  { href: "/#coffee", label: "Coffee" },
+  { href: "/#build", label: "Build" },
   { href: "/ride", label: "Ride" },
   { href: "/notes", label: "Notes" },
 ];
@@ -34,8 +35,8 @@ export function Nav() {
           <span className="nav-name">{site.name}</span>
         </Link>
         <div className="nav-tools">
-          <Link className="nav-pill" href="/#built" data-magnet>
-            Built
+          <Link className="nav-pill" href="/#build" data-magnet>
+            Build
           </Link>
           <button
             type="button"

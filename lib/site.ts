@@ -5,6 +5,5 @@ export const site = {
   email: "r.rahul4511@gmail.com",
   github: "https://github.com/RahulKraken",
   url: "https://rahulkraken.com",
-  description:
-    "Rahul Kumar. I build Meusic, Pillar, Apex One, and Am I F*cked?. Runtime security for AI agents, previously SDE-2 at Palo Alto Networks.",
+  description: "Rahul Kumar. Meusic, Pillar, Apex One, and Am I F*cked?.",
 } as const;
