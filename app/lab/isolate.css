@@ -6,21 +6,23 @@ body:has([data-lab]) .cursor {
 }
 
 html:has([data-lab="index"]),
-html:has([data-lab="index"]) body,
-html:has([data-lab="a"]),
-html:has([data-lab="a"]) body {
+html:has([data-lab="index"]) body {
+  background: #f4f2ee;
+}
+
+html:has([data-lab="d"]),
+html:has([data-lab="d"]) body {
+  background: #f4efe4;
+}
+
+html:has([data-lab="e"]),
+html:has([data-lab="e"]) body {
   background: #f3f1ec;
 }
 
-html:has([data-lab="b"]),
-html:has([data-lab="b"]) body {
-  background: #070707;
-  color-scheme: dark;
-}
-
-html:has([data-lab="c"]),
-html:has([data-lab="c"]) body {
-  background: #efe8d8;
+html:has([data-lab="f"]),
+html:has([data-lab="f"]) body {
+  background: #f7f7f5;
 }
 
 .lab-root {
@@ -33,9 +35,9 @@ html:has([data-lab="c"]) body {
 
 .ph {
   font-style: italic;
-  font-weight: 400;
+  font-weight: inherit;
   background: color-mix(in srgb, #c8a24e 22%, transparent);
-  padding: 0 0.22em;
-  border-radius: 2px;
+  padding: 0 0.18em;
+  border-radius: 3px;
   box-decoration-break: clone;
 }
