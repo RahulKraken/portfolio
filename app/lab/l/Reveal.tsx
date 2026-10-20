@@ -100,7 +100,7 @@ export function Reveal() {
       ctx.fillStyle = "#111";
       ctx.fillRect(0, 0, w, h);
       if (!under.complete || !under.naturalWidth) return;
-      const b = contain(under, w, h, 0.82);
+      const b = contain(under, w, h, 1);
       ctx.save();
       ctx.globalCompositeOperation = "screen";
       ctx.drawImage(under, b.dx, b.dy, b.dw, b.dh);
