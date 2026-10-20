@@ -10,31 +10,39 @@ html:has([data-lab="index"]) body {
   background: #f4f2ee;
 }
 
-html:has([data-lab="g"]),
-html:has([data-lab="g"]) body {
-  background: #f3efe6;
-}
-
 html:has([data-lab="h"]),
 html:has([data-lab="h"]) body {
   background: #f7f6f2;
 }
 
-html:has([data-lab="i"]),
-html:has([data-lab="i"]) body {
-  background: #fff;
+html:has([data-lab="k"]),
+html:has([data-lab="k"]) body {
+  background: #111;
 }
 
-html:has([data-lab="j"]),
-html:has([data-lab="j"]) body {
+html:has([data-k="paper"]),
+html:has([data-k="paper"]) body {
+  background: #f3efe6;
+}
+
+html:has([data-lab="l"]),
+html:has([data-lab="l"]) body {
+  background: #0c0c0c;
+}
+
+html:has([data-l="paper"]),
+html:has([data-l="paper"]) body {
+  background: #f6f3ec;
+}
+
+html:has([data-lab="m"]),
+html:has([data-lab="m"]) body {
+  background: #0a0a0a;
+}
+
+html:has([data-m="paper"]),
+html:has([data-m="paper"]) body {
   background: #f4f1ea;
-}
-
-html:has([data-lab="j"].is-dark),
-html:has([data-lab="j"].is-dark) body,
-html:has(.j-dark-page),
-html:has(.j-dark-page) body {
-  background: #121212;
 }
 
 .lab-root {

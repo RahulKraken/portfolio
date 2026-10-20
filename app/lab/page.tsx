@@ -9,28 +9,22 @@ export const metadata: Metadata = {
 
 const directions = [
   {
-    href: "/lab/g",
-    key: "G",
-    name: "One Line",
-    line: "A single stroke is the identity. It draws the racing line, a string, a check.",
+    href: "/lab/k",
+    key: "K",
+    name: "Kit",
+    line: "A hall of his gear. Objects drift. A marquee follows the scroll.",
   },
   {
-    href: "/lab/h",
-    key: "H",
-    name: "The Sentence",
-    line: "One huge sentence. Key nouns open into small pictures.",
+    href: "/lab/l",
+    key: "L",
+    name: "Reveal",
+    line: "Paint a mask to find the image underneath. Then full-bleed chapters.",
   },
   {
-    href: "/lab/i",
-    key: "I",
-    name: "Live Paragraphs",
-    line: "A calm bio with working toys in the words. Chip-style archive.",
-  },
-  {
-    href: "/lab/j",
-    key: "J",
-    name: "Two Worlds",
-    line: "Light for building, dark for life. Scroll flips the page.",
+    href: "/lab/m",
+    key: "M",
+    name: "Speed",
+    line: "Kinetic type, pictures inside letters, products in a sideways run.",
   },
 ] as const;
 
@@ -41,10 +35,11 @@ export default function LabIndexPage() {
         <span>Lab — comparison only</span>
         <Link href="/">Live site</Link>
       </header>
-      <h1>Four new directions</h1>
+      <h1>Three visual-first directions</h1>
       <p className="lab-index-lede">
-        Home is who he is. Blog and List 100 are in the nav. Photos stay
-        supporting. The live site is untouched.
+        Home is images, type, and motion. Blog and List 100 stay text, with
+        the same craft. H remains at{" "}
+        <Link href="/lab/h">/lab/h</Link> as reference. Live site untouched.
       </p>
       <ul className="lab-index-list">
         {directions.map((d) => (
