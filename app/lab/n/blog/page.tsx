@@ -17,13 +17,13 @@ export default function Page() {
       <main className="n-page">
         <h1>Blog</h1>
         {usingSample ? (
-          <p>Two placeholders so an empty archive can be judged. Not his writing.</p>
+          <p className="n-note">Nothing published yet. Two placeholder titles.</p>
         ) : null}
         <ol className="n-archive">
           {items.map((post) => (
             <li key={post.slug}>
               <span className="n-year">
-                {post.sample ? <span className="ph">{post.year}</span> : post.year}
+                {post.sample ? <span className="ph">{post.date}</span> : post.year}
               </span>
               {post.hasPage ? (
                 <Link href="/lab/n/blog/sample">

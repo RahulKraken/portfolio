@@ -21,19 +21,20 @@ export default function Page() {
         <h1>
           <span className="ph">{post.title}</span>
         </h1>
-        <p>
+        <p className="n-note">
           <span className="ph">{post.date}</span>
-          . Sample post. Not his writing.
         </p>
-        {sampleBody.map((para) =>
-          para.startsWith("[") ? (
-            <p key={para}>
-              <span className="ph">{para}</span>
-            </p>
-          ) : (
-            <p key={para}>{para}</p>
-          ),
-        )}
+        {sampleBody
+          .filter((para) => para !== "Sample text. Not his writing.")
+          .map((para) =>
+            para.startsWith("[") ? (
+              <p key={para}>
+                <span className="ph">{para}</span>
+              </p>
+            ) : (
+              <p key={para}>{para}</p>
+            ),
+          )}
       </article>
     </div>
   );

@@ -78,6 +78,7 @@
 .n-line {
   display: block;
   overflow: hidden;
+  padding-block: 0.08em;
 }
 
 .n-line > span {
@@ -88,6 +89,16 @@
 
 .n-name {
   white-space: nowrap;
+  padding-inline: 0.2em;
+}
+
+.n-word {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.n-kumar {
+  margin-left: 0.34em;
 }
 
 .n-roman {
@@ -96,21 +107,23 @@
 }
 
 .n-rest {
-  font-size: 0.78em;
+  font-size: 0.72em;
   letter-spacing: -0.015em;
-}
-
-.n-gap {
-  display: inline-block;
-  width: 0.42em;
 }
 
 .n-script {
   font-family: var(--font-script), "Great Vibes", cursive;
-  font-size: 0.92em;
+  font-size: 1em;
   font-style: normal;
   letter-spacing: 0;
-  line-height: 0;
+  line-height: 1;
+  display: inline-block;
+  padding-right: 0.1em;
+}
+
+.n-script-k {
+  padding-left: 0.14em;
+  padding-right: 0.38em;
 }
 
 @keyframes n-up {
@@ -130,19 +143,20 @@
   padding: 2.4rem var(--pad) 5rem;
 }
 
-.n-head,
-.n-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
-  gap: 1rem;
-  align-items: baseline;
+.n-projects h2 {
+  margin: 0 0 1.6rem;
+  font-family: var(--font-serif), "Bodoni Moda", Didot, serif;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 4.4vw, 3.6rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 
-.n-head {
-  padding: 0 0 0.55rem;
-  border-bottom: 1.5px solid var(--rule);
-  color: var(--mute);
-  font-size: 1rem;
+.n-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: baseline;
 }
 
 .n-projects article {
@@ -169,11 +183,13 @@
 .n-row {
   width: 100%;
   margin: 0;
-  padding: 0.7rem 0;
+  padding: 0.85rem 0;
   border: 0;
   background: none;
   color: inherit;
   font: inherit;
+  font-size: clamp(1.25rem, 2.2vw, 1.85rem);
+  letter-spacing: -0.02em;
   text-align: left;
   cursor: pointer;
   isolation: isolate;
@@ -308,12 +324,12 @@
 }
 
 .n-page h1 {
-  margin: 0 0 1rem;
+  margin: 0 0 0.7rem;
   font-family: var(--font-instrument), Georgia, serif;
   font-weight: 400;
-  font-size: clamp(3rem, 9vw, 6.5rem);
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
   letter-spacing: -0.03em;
-  line-height: 0.92;
+  line-height: 1;
   animation: n-clip 0.75s var(--ease) both;
 }
 
@@ -330,6 +346,12 @@
   margin: 0 0 1.05em;
 }
 
+.n-note {
+  color: var(--mute);
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
 .n-archive,
 .n-list {
   list-style: none;
@@ -339,13 +361,13 @@
 
 .n-archive li {
   display: grid;
-  grid-template-columns: 6rem 1fr;
+  grid-template-columns: 7.5rem 1fr;
   gap: 1rem;
-  padding: 1.15rem 0;
+  padding: 0.95rem 0;
   border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
-  font-size: clamp(1.55rem, 3vw, 2.15rem);
-  letter-spacing: -0.03em;
-  line-height: 1.2;
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  letter-spacing: -0.02em;
+  line-height: 1.35;
 }
 
 .n-year {
@@ -363,31 +385,6 @@
 .n-list a:hover {
   text-decoration: underline;
   text-underline-offset: 0.14em;
-}
-
-.n-score {
-  margin: 0.35rem 0 1.6rem;
-  font-family: var(--font-instrument), Georgia, serif;
-  font-size: clamp(4.4rem, 14vw, 9rem);
-  letter-spacing: -0.05em;
-  line-height: 0.85;
-  animation: n-score 0.7s cubic-bezier(0.22, 1.15, 0.36, 1) both;
-}
-
-.n-score span {
-  font-size: 0.4em;
-  color: var(--mute);
-}
-
-@keyframes n-score {
-  from {
-    transform: translateY(0.35em);
-    opacity: 0;
-  }
-  to {
-    transform: none;
-    opacity: 1;
-  }
 }
 
 .n-list li {
@@ -437,7 +434,6 @@
   .n-line > span,
   .n-text,
   .n-page h1,
-  .n-score,
   .n-strike,
   .n-follow,
   .n-bg {
@@ -472,13 +468,24 @@
     font-size: clamp(2.1rem, 10vw, 3.1rem);
   }
 
-  .n-head,
-  .n-row {
-    grid-template-columns: minmax(0, 1fr) auto;
+  .n-name {
+    white-space: normal;
   }
 
-  .n-wide {
-    display: none;
+  .n-kumar {
+    margin-left: 0.22em;
+  }
+
+  .n-row {
+    grid-template-columns: 1fr;
+    gap: 0.12rem;
+    padding: 0.95rem 0;
+  }
+
+  .n-status {
+    text-align: left;
+    font-size: 0.78em;
+    color: var(--mute);
   }
 
   .n-archive li {

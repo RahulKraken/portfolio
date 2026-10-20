@@ -8,56 +8,20 @@ import { products } from "@/lib/products";
 type Row = {
   id: string;
   name: string;
-  kind: string;
   status: string;
   line: string;
   photo?: Photo;
   slot?: string;
 };
 
-const rows: Row[] = [
-  ...products.map((p) => ({
-    id: p.id,
-    name: p.name,
-    kind: "Product",
-    status: p.status,
-    line: p.line,
-    photo: p.id === "meusic" ? photos.strat016 : undefined,
-    slot: p.id === "pillar" ? slots.squat : p.id === "apex-one" ? slots.apex : undefined,
-  })),
-  {
-    id: "ride",
-    name: "Ride",
-    kind: "Track",
-    status: "MMRT",
-    line: "Panigale V2 S at MMRT",
-    photo: photos.helmet,
-  },
-  {
-    id: "play",
-    name: "Play",
-    kind: "Music",
-    status: "Strat",
-    line: "Gilmour-style on a Fender Strat",
-    photo: photos.strat019,
-  },
-  {
-    id: "lift",
-    name: "Lift",
-    kind: "Gym",
-    status: "Open",
-    line: "[currently: lifting]",
-    slot: slots.squat,
-  },
-  {
-    id: "brew",
-    name: "Brew",
-    kind: "Kitchen",
-    status: "Home",
-    line: "Coffee at home",
-    slot: slots.coffee,
-  },
-];
+const rows: Row[] = products.map((p) => ({
+  id: p.id,
+  name: p.name,
+  status: p.status,
+  line: p.line,
+  photo: p.id === "meusic" ? photos.strat016 : undefined,
+  slot: p.id === "apex-one" ? slots.apex : undefined,
+}));
 
 export function Gallery() {
   const [open, setOpen] = useState<string | null>(null);
@@ -102,12 +66,8 @@ export function Gallery() {
   const active = rows.find((r) => r.id === hover);
 
   return (
-    <section className="n-projects" ref={list} aria-label="Work and pursuits">
-      <div className="n-head">
-        <span>Name</span>
-        <span className="n-wide">Kind</span>
-        <span>Status</span>
-      </div>
+    <section className="n-projects" ref={list} aria-labelledby="n-build">
+      <h2 id="n-build">What I build</h2>
       {rows.map((row) => {
         const expanded = open === row.id;
         return (
@@ -132,17 +92,12 @@ export function Gallery() {
               <span className="n-cell" style={{ "--i": 0 } as React.CSSProperties}>
                 <span className="n-text">{row.name}</span>
               </span>
-              <span className="n-cell n-wide" style={{ "--i": 1 } as React.CSSProperties}>
-                <span className="n-text">{row.kind}</span>
-              </span>
-              <span className="n-cell n-status" style={{ "--i": 2 } as React.CSSProperties}>
+              <span className="n-cell n-status" style={{ "--i": 1 } as React.CSSProperties}>
                 <span className="n-text">{row.status}</span>
               </span>
             </button>
             <div className="n-body" hidden={!expanded}>
-              <p>
-                {row.line.startsWith("[") ? <span className="ph">{row.line}</span> : row.line}
-              </p>
+              <p>{row.line}</p>
               {row.photo ? (
                 <img
                   src={row.photo.src}

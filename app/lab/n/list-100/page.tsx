@@ -14,12 +14,9 @@ export default function Page() {
       <Nav here="list" />
       <main className="n-page">
         <h1>List 100</h1>
-        <p>
-          Sample data. Not his list. As of <span className="ph">{sampleScoreAsOf}</span>.
-        </p>
-        <p className="n-score">
-          {sampleDoneCount}
-          <span>/100</span>
+        <p className="n-note">
+          Sample entries. {sampleDoneCount} of 100, as of{" "}
+          <span className="ph">{sampleScoreAsOf}</span>.
         </p>
         <ol className="n-list">
           {list100.map((item) => (
@@ -33,12 +30,6 @@ export default function Page() {
                 ) : (
                   <span className="ph">{item.title}</span>
                 )}
-                {item.aside ? (
-                  <em>
-                    {" "}
-                    <span className="ph">{item.aside}</span>
-                  </em>
-                ) : null}
                 {item.done ? <span className="n-strike" aria-hidden /> : null}
               </span>
             </li>
