@@ -4,6 +4,7 @@ import { Cursor } from "@/components/Cursor";
 import { Eyes } from "@/components/home/Eyes";
 import { Motion } from "@/components/home/Motion";
 import { Nav } from "@/components/Nav";
+import { SiteChrome } from "@/components/SiteChrome";
 import { site } from "@/lib/site";
 import "./globals.css";
 import "./home.css";
@@ -76,11 +77,15 @@ export default function RootLayout({
         <a className="skip" href="#content">
           Skip to content
         </a>
-        <Nav />
+        <SiteChrome>
+          <Nav />
+        </SiteChrome>
         <div id="content">{children}</div>
-        <Motion />
-        <Eyes />
-        <Cursor />
+        <SiteChrome>
+          <Motion />
+          <Eyes />
+          <Cursor />
+        </SiteChrome>
       </body>
     </html>
   );

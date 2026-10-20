@@ -1,0 +1,111 @@
+.lab-index {
+  --ink: #161615;
+  --mute: #7a7872;
+  --line: color-mix(in srgb, #161615 12%, transparent);
+  --paper: #f4f2ee;
+  min-height: 100svh;
+  background: var(--paper);
+  color: var(--ink);
+  color-scheme: light;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  padding: 1.5rem clamp(1.25rem, 4vw, 3rem) 4rem;
+}
+
+.lab-index-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lab-index-head a {
+  text-decoration: none;
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.lab-index-head a:hover {
+  text-decoration: underline;
+}
+
+.lab-index h1 {
+  margin: 3.5rem 0 0.6rem;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+}
+
+.lab-index-lede {
+  max-width: 28rem;
+  color: var(--mute);
+  margin-bottom: 3rem;
+}
+
+.lab-index-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.lab-index-list a {
+  display: grid;
+  grid-template-columns: 2.5rem 8rem 1fr;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 1.35rem 0;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+  min-height: 2.75rem;
+}
+
+.lab-index-list a:hover .lab-index-name,
+.lab-index-list a:focus-visible .lab-index-name {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.lab-index-key {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+}
+
+.lab-index-name {
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.lab-index-line {
+  color: var(--mute);
+}
+
+.lab-index-foot {
+  margin-top: 3rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: var(--mute);
+}
+
+@media (max-width: 720px) {
+  .lab-index-list a {
+    grid-template-columns: 2rem 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .lab-index-name {
+    grid-column: 2;
+  }
+
+  .lab-index-line {
+    grid-column: 2;
+  }
+}

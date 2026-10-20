@@ -1,0 +1,41 @@
+/* Hide the live-site chrome while any /lab page is mounted. */
+body:has([data-lab]) .nav,
+body:has([data-lab]) .menu,
+body:has([data-lab]) .cursor {
+  display: none !important;
+}
+
+html:has([data-lab="index"]),
+html:has([data-lab="index"]) body,
+html:has([data-lab="a"]),
+html:has([data-lab="a"]) body {
+  background: #f3f1ec;
+}
+
+html:has([data-lab="b"]),
+html:has([data-lab="b"]) body {
+  background: #070707;
+  color-scheme: dark;
+}
+
+html:has([data-lab="c"]),
+html:has([data-lab="c"]) body {
+  background: #efe8d8;
+}
+
+.lab-root {
+  min-height: 100svh;
+}
+
+.lab-root a {
+  color: inherit;
+}
+
+.ph {
+  font-style: italic;
+  font-weight: 400;
+  background: color-mix(in srgb, #c8a24e 22%, transparent);
+  padding: 0 0.22em;
+  border-radius: 2px;
+  box-decoration-break: clone;
+}
