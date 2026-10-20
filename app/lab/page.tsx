@@ -9,22 +9,16 @@ export const metadata: Metadata = {
 
 const directions = [
   {
-    href: "/lab/k",
-    key: "K",
-    name: "Kit",
-    line: "A hall of his gear. Objects drift. A marquee follows the scroll.",
+    href: "/lab/n",
+    key: "N",
+    name: "Larose",
+    line: "Centered display type, hover-invert rows, images that follow the cursor.",
   },
   {
-    href: "/lab/l",
-    key: "L",
-    name: "Reveal",
-    line: "Paint a mask to find the image underneath. Then full-bleed chapters.",
-  },
-  {
-    href: "/lab/m",
-    key: "M",
-    name: "Speed",
-    line: "Kinetic type, pictures inside letters, products in a sideways run.",
+    href: "/lab/o",
+    key: "O",
+    name: "Collier",
+    line: "An explorable room. Hover or tap an object to open that part of his life.",
   },
 ] as const;
 
@@ -35,11 +29,13 @@ export default function LabIndexPage() {
         <span>Lab — comparison only</span>
         <Link href="/">Live site</Link>
       </header>
-      <h1>Three visual-first directions</h1>
+      <h1>Two visual-first directions</h1>
       <p className="lab-index-lede">
-        Home is images, type, and motion. Blog and List 100 stay text, with
-        the same craft. H remains at{" "}
-        <Link href="/lab/h">/lab/h</Link> as reference. Live site untouched.
+        Home is type, objects, and motion. Blog and List 100 stay text, with
+        the same craft. Earlier rounds remain at{" "}
+        <Link href="/lab/k">/lab/k</Link>, <Link href="/lab/l">/lab/l</Link>,{" "}
+        <Link href="/lab/m">/lab/m</Link>, and <Link href="/lab/h">/lab/h</Link>.
+        Live site untouched.
       </p>
       <ul className="lab-index-list">
         {directions.map((d) => (

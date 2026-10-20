@@ -45,6 +45,26 @@ html:has([data-m="paper"]) body {
   background: #f4f1ea;
 }
 
+html:has([data-lab="n"]),
+html:has([data-lab="n"]) body {
+  background: #ebebeb;
+}
+
+html:has([data-n="paper"]),
+html:has([data-n="paper"]) body {
+  background: #f4f1ea;
+}
+
+html:has([data-lab="o"]),
+html:has([data-lab="o"]) body {
+  background: #24501a;
+}
+
+html:has([data-o="paper"]),
+html:has([data-o="paper"]) body {
+  background: #f7f1e4;
+}
+
 .lab-root {
   min-height: 100svh;
 }
