@@ -235,14 +235,14 @@ function House({ hover }: { hover: PlaceId | null }) {
           <path d="M656 292 h40 v8 h-40 z" fill="#111" />
         </g>
         <g className={lit("play")}>
-          <rect x="748" y="360" width="11" height="175" rx="3" fill="#6e3b16" transform="rotate(-12 753 448)" />
+          <rect x="760" y="348" width="10" height="188" rx="3" fill="#5c3414" transform="rotate(-8 765 442)" />
           <path
-            d="M786 328 C808 324 828 338 832 362 C836 388 826 412 804 422 C786 428 772 418 768 402 C752 408 740 392 748 372 C756 348 768 332 786 328 Z"
-            fill="#e6b15c"
-            transform="rotate(-12 786 372)"
+            d="M744 402 C736 372 748 348 772 340 C796 332 818 348 822 376 C826 404 812 428 788 436 C776 440 766 432 762 420 C752 424 744 416 744 402 Z"
+            fill="#d9a24a"
           />
-          <rect x="778" y="352" width="6" height="86" fill="#f3d9a6" transform="rotate(-12 781 395)" />
-          <circle cx="792" cy="368" r="4" fill="#3a2a18" />
+          <path d="M768 348 C774 338 786 336 792 346" fill="none" stroke="#c48a3a" strokeWidth="8" strokeLinecap="round" />
+          <rect x="778" y="360" width="5" height="70" fill="#f0d7a4" />
+          <circle cx="790" cy="378" r="3.5" fill="#2a1c10" />
         </g>
         <g className={lit("build")}>
           <rect x="572" y="468" width="176" height="48" rx="3" fill="#7a4a24" />

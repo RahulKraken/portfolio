@@ -132,7 +132,12 @@
   font-size: 1.0625rem;
   cursor: pointer;
   transform: translate(-50%, -50%);
-  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--cream) 40%, transparent);
+}
+
+.o-hot:hover,
+.o-hot:focus-visible,
+.o-hot.is-on {
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--cream) 70%, transparent);
 }
 
 .o-hot span {
@@ -457,8 +462,7 @@
   }
 
   .o-hot {
-    font-size: 1rem;
-    padding: 0.4rem 0.65rem;
+    display: none;
   }
 
   .o-fallback {

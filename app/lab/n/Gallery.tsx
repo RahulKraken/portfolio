@@ -114,10 +114,16 @@ export function Gallery() {
           <article key={row.id} data-row className={expanded ? "is-open" : undefined}>
             <button
               type="button"
-              className="n-row"
+              className={`n-row${hover === row.id ? " is-hovering" : ""}`}
               aria-expanded={expanded}
               onClick={() => setOpen(expanded ? null : row.id)}
-              onPointerEnter={() => setHover(row.id)}
+              onPointerEnter={(e) => {
+                setHover(row.id);
+                const el = follow.current;
+                if (el) {
+                  el.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
+                }
+              }}
               onPointerLeave={() => setHover((h) => (h === row.id ? null : h))}
               onFocus={() => setHover(row.id)}
               onBlur={() => setHover((h) => (h === row.id ? null : h))}

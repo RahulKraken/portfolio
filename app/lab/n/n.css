@@ -125,8 +125,9 @@
 .n-projects {
   position: relative;
   z-index: 1;
+  min-height: 110svh;
   background: var(--bg);
-  padding: 0 var(--pad) 5rem;
+  padding: 2.4rem var(--pad) 5rem;
 }
 
 .n-head,
@@ -208,18 +209,21 @@
 
 @media (hover: hover) {
   .n-row:hover .n-bg,
-  .n-row:focus-visible .n-bg {
+  .n-row:focus-visible .n-bg,
+  .n-row.is-hovering .n-bg {
     transform: none;
     transition: transform 0.28s cubic-bezier(0.33, 1, 0.68, 1);
   }
 
   .n-row:hover,
-  .n-row:focus-visible {
+  .n-row:focus-visible,
+  .n-row.is-hovering {
     color: var(--bg);
   }
 
   .n-row:hover .n-cell:first-of-type,
-  .n-row:focus-visible .n-cell:first-of-type {
+  .n-row:focus-visible .n-cell:first-of-type,
+  .n-row.is-hovering .n-cell:first-of-type {
     padding-left: 0.7rem;
   }
 }
