@@ -22,6 +22,10 @@
   color: var(--ink);
 }
 
+.lab-l:has([data-l="paper"]) .l-nav {
+  background: none;
+}
+
 .l-nav,
 .l-nav nav {
   display: flex;
@@ -35,6 +39,8 @@
   padding: 1rem var(--pad);
   position: relative;
   z-index: 5;
+  background: linear-gradient(to bottom, rgb(0 0 0 / 0.62), transparent);
+  color: #f6f3ec;
 }
 
 .l-nav a {
@@ -71,7 +77,8 @@
   bottom: 8%;
   margin: 0;
   pointer-events: none;
-  mix-blend-mode: difference;
+  color: #f6f3ec;
+  text-shadow: 0 8px 28px rgb(0 0 0 / 0.45);
   line-height: 0.82;
 }
 
