@@ -29,7 +29,7 @@ export function Reveal() {
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d", { alpha: false });
+        const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -83,12 +83,13 @@ export function Reveal() {
     const frame = () => {
       raf = requestAnimationFrame(frame);
       if (!dirty) return;
-      if (!top.complete || !under.complete) return;
+      if (!top.complete) return;
       dirty = false;
-      ctx.fillStyle = "#111";
-      ctx.fillRect(0, 0, w, h);
-      const b = cover(under, w, h);
-      ctx.drawImage(under, b.dx, b.dy, b.dw, b.dh);
+      ctx.clearRect(0, 0, w, h);
+      if (under.complete) {
+        const b = cover(under, w, h);
+        ctx.drawImage(under, b.dx, b.dy, b.dw, b.dh);
+      }
       if (reduce) {
         ctx.globalAlpha = 0.45;
         const t = cover(top, w, h);

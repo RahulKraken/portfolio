@@ -94,9 +94,12 @@
 }
 
 .k-marquee {
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 72vh;
   z-index: 3;
-  margin: 1.5rem 0 0;
+  margin: 0;
   overflow: hidden;
   border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
@@ -309,6 +312,12 @@
 
   .k-home {
     min-height: 0;
+  }
+
+  .k-marquee {
+    position: relative;
+    top: auto;
+    margin: 0.8rem 0;
   }
 
   .k-hall {
