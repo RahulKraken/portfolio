@@ -13,13 +13,13 @@ Unseen Studio. Build an original scene, not a copy of another site's assets.
 ## Scene
 
 - Wooden desk with black legs, monitor, personal laptop connected to the monitor,
-  separate work laptop, glass coffee mug, and chair.
+  space-grey MacBook Pro for work, rose-gold MacBook Air for personal projects, glass coffee mug, and chair.
 - Work laptop opens professional experience and engineering. Existing source:
   `lib/craft.ts`. Confirm current facts and public-disclosure boundaries.
 - Personal laptop / monitor opens personal projects. Existing source:
   `lib/products.ts`. Confirm status and links.
 - Left of desk: Gen 3 KTM Duke 390 for travel; 2025 Ducati Panigale V2 S for track.
-  Duke colour remains unconfirmed.
+  Duke colour: blue and orange.
 - Right: black Fender Stratocaster, white pickguard, maple neck, Boss Katana amp,
   red instrument cable. Pink Floyd listening requested; playback method undecided.
 - Separate coffee table: Hario Switch, AeroPress, and various bean bags. Exact
@@ -55,8 +55,25 @@ No asset purchase, AI subscription, or external upload has been authorized.
 
 ## Remaining inputs
 
-- Duke colour and personal customizations.
+- Personal customizations beyond the confirmed blue/orange Duke.
 - Coffee equipment and current bean preferences.
 - Public work details and current project links/status.
 - Optional ChatGPT memory brief for voice and personal context.
 - Feedback on the actual prototype before settling its visual finish.
+
+## Version one implemented
+
+The room is built from original Three.js geometry, with no downloaded or paid
+models. It includes both bikes, two laptops and monitor, Strat and amp, brew
+station, chair, plants, window, and desk lamp. These are stylized approximations,
+not exact product replicas. The bikes especially remain candidates for better assets.
+
+All six destinations open readable native-dialog panels. The monitor also opens
+projects. A daylight/night button and clickable lamp change the lighting.
+Optional guitar audio is a synthesized chord; Pink Floyd opens through Spotify.
+No copyrighted recordings are bundled. The scene loads only on the client, renders
+on demand, and has direct navigation outside WebGL.
+
+Current work/project copy is reused from the existing repo and still needs Rahul’s
+review for currency. Travel content is introductory; no trip histories or lap stats
+have been invented. Raw photos were not uploaded to an AI service.

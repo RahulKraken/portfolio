@@ -6,5 +6,5 @@ export const site = {
   github: "https://github.com/RahulKraken",
   url: "https://rahulkraken.com",
   description:
-    "Rahul Kumar. I build Meusic, Pillar, Apex One, and Am I F*cked?. Runtime security for AI agents, previously SDE-2 at Palo Alto Networks.",
+    "Step inside Rahul Kumar’s studio. Engineering, personal projects, motorcycles, guitar, and a good cup of coffee.",
 } as const;

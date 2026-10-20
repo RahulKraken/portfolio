@@ -7,3 +7,6 @@ out
 .env*
 !.env.example
 photos-raw/
+
+# TypeScript incremental build cache
+*.tsbuildinfo

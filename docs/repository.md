@@ -7,7 +7,7 @@ GitHub's default branch is `develop`.
 
 - `develop`: local pointer aligned with `origin/develop` at `950cbc9` during cleanup.
 - `codex/interactive-room`: new working branch from that baseline. Contains
-  organization documentation and the design brief; no 3D implementation yet.
+  organization documentation, the design brief, and version one of the interactive 3D room.
 
 Feature branches should track their own remote branch, not `origin/develop`.
 

@@ -1,7 +1,7 @@
 # Rahul Kumar — personal site
 
-The existing editorial portfolio, now preparing for an interactive workspace redesign.
-The 3D implementation has not started.
+An interactive 3D studio: work, personal projects, motorcycles, guitar, and coffee.
+Version one uses original, code-built models with daylight/night lighting and accessible content panels.
 
 Active branch: `codex/interactive-room`. Shared baseline: `develop`.
 See [repository map](docs/repository.md) for preserved experiments and draft PRs,
@@ -42,8 +42,10 @@ If a Git-authored preview fails on a Hobby private repo, Redeploy from the Verce
 
 ## Copy and assets
 
-The homepage is in `app/page.tsx`, shared UI in `components/`, and existing home
-components in `components/home/`. Site details, projects, and engineering copy live
+The homepage is in `app/page.tsx`. `components/room/RoomExperience.tsx` owns the
+interface and content panels; `RoomScene.tsx` owns the client-loaded 3D scene;
+`content.ts` contains the destinations. Homepage styles live in `app/room.css`.
+Shared UI is in `components/`; `components/home/` supports the retained legacy pages. Site details, projects, and engineering copy live
 in `lib/`. Published images live in `public/photos/`, with current flipbook frames
 under `public/photos/print/seq/`.
 
