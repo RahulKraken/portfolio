@@ -23,13 +23,29 @@ function cover(img: HTMLImageElement, w: number, h: number) {
   return { dx, dy, dw, dh };
 }
 
+function contain(img: HTMLImageElement, w: number, h: number, scale: number) {
+  const ir = img.naturalWidth / img.naturalHeight;
+  const maxW = w * scale;
+  const maxH = h * scale;
+  let dw: number;
+  let dh: number;
+  if (maxW / maxH > ir) {
+    dh = maxH;
+    dw = dh * ir;
+  } else {
+    dw = maxW;
+    dh = dw / ir;
+  }
+  return { dx: (w - dw) / 2, dy: (h - dh) / 2, dw, dh };
+}
+
 export function Reveal() {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
-        const ctx = canvas.getContext("2d", { alpha: true });
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -67,10 +83,10 @@ export function Reveal() {
     };
 
     const paint = (x: number, y: number) => {
-      const r = Math.max(70, Math.min(w, h) * 0.12);
+      const r = Math.max(80, Math.min(w, h) * 0.16);
       const g = mctx.createRadialGradient(x, y, 0, x, y, r);
-      g.addColorStop(0, "rgba(0,0,0,0.85)");
-      g.addColorStop(0.55, "rgba(0,0,0,0.35)");
+      g.addColorStop(0, "rgba(0,0,0,0.92)");
+      g.addColorStop(0.45, "rgba(0,0,0,0.45)");
       g.addColorStop(1, "rgba(0,0,0,0)");
       mctx.globalCompositeOperation = "source-over";
       mctx.fillStyle = g;
@@ -80,18 +96,25 @@ export function Reveal() {
       dirty = true;
     };
 
+    const drawUnder = () => {
+      ctx.fillStyle = "#111";
+      ctx.fillRect(0, 0, w, h);
+      if (!under.complete || !under.naturalWidth) return;
+      const b = contain(under, w, h, 0.82);
+      ctx.save();
+      ctx.globalCompositeOperation = "screen";
+      ctx.drawImage(under, b.dx, b.dy, b.dw, b.dh);
+      ctx.restore();
+    };
+
     const frame = () => {
       raf = requestAnimationFrame(frame);
       if (!dirty) return;
-      if (!top.complete) return;
+      if (!top.complete || !top.naturalWidth) return;
       dirty = false;
-      ctx.clearRect(0, 0, w, h);
-      if (under.complete) {
-        const b = cover(under, w, h);
-        ctx.drawImage(under, b.dx, b.dy, b.dw, b.dh);
-      }
+      drawUnder();
       if (reduce) {
-        ctx.globalAlpha = 0.45;
+        ctx.globalAlpha = 0.5;
         const t = cover(top, w, h);
         ctx.drawImage(top, t.dx, t.dy, t.dw, t.dh);
         ctx.globalAlpha = 1;

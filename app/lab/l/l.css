@@ -24,6 +24,7 @@
 
 .lab-l:has([data-l="paper"]) .l-nav {
   background: none;
+  color: var(--ink);
 }
 
 .l-nav,
@@ -290,6 +291,9 @@
 .l-item {
   position: relative;
   display: inline-block;
+  justify-self: start;
+  width: fit-content;
+  max-width: 100%;
 }
 
 .l-strike {

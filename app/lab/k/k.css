@@ -271,6 +271,9 @@
 .k-item {
   position: relative;
   display: inline-block;
+  justify-self: start;
+  width: fit-content;
+  max-width: 100%;
 }
 
 .k-strike {
