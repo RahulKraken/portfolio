@@ -1,0 +1,481 @@
+/* The paper issue: a stack of coloured sheets, each chapter one sheet, opened by scrolling. */
+
+html:has(.pp),
+body:has(.pp) {
+  background: #16213d;
+}
+
+body:has(.pp) :is(.nav, .menu, .cursor) {
+  display: none !important;
+}
+
+.pp {
+  --cream: #f6efe2;
+  --navy: #1f2a44;
+  --ease-paper: cubic-bezier(0.22, 1, 0.36, 1);
+  color: var(--navy);
+  overflow-x: clip;
+}
+
+/* ——— The funnel ——— */
+.pp-portal {
+  --t: 0;
+  /* ap: the funnel opens out of the page; b: we dive through it */
+  --ap: clamp(0, calc(var(--t) / 0.32), 1);
+  --b: clamp(0, calc((var(--t) - 0.4) / 0.6), 1);
+  position: relative;
+  height: 240vh;
+}
+
+.pp-portal.is-cover {
+  --ap: 1;
+  --b: clamp(0, calc((var(--t) - 0.05) / 0.95), 1);
+  height: 230vh;
+}
+
+.pp-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* the artwork keeps its 16:10 box and covers the screen, so things stay on their ledges */
+.pp-scene {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100vw, 160svh);
+  aspect-ratio: 1600 / 1000;
+  translate: -50% -50%;
+  /* the funnel unfolds down from the top edge, so its mouth is never cut off by the frame */
+  transform-origin: 51% 0%;
+  scale: calc(0.03 + 0.97 * var(--ap) * (2 - var(--ap)));
+}
+
+.pp-layer {
+  position: absolute;
+  inset: 0;
+  transform-origin: 51% 30%;
+  /* outer sheets sit higher: they move more with the pointer and rush past first when you dive */
+  translate: calc(var(--mx, 0) * (9 - min(var(--j), 9)) * -2.2px) calc(var(--my, 0) * (9 - min(var(--j), 9)) * -1.6px);
+  scale: calc(1 + var(--b) * var(--b) * var(--dive));
+  will-change: scale, translate;
+}
+
+.pp-sheet {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+.pp-land {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: var(--land);
+  opacity: clamp(0, calc((var(--b) - 0.6) / 0.3), 1);
+  pointer-events: none;
+}
+
+/* the head: in front of everything, with its own soft shadow on the yellow */
+.pp-head {
+  position: absolute;
+  filter: drop-shadow(10px 16px 14px rgb(140 82 8 / 0.42));
+  pointer-events: none;
+}
+
+/* Things on the headlands: they stand on their sheet, cast a coloured shadow onto the wall behind,
+   lift when you point at them, and take you to their chapter */
+.pp-thing {
+  position: absolute;
+  display: block;
+  translate: -50% -88%;
+  rotate: var(--rot);
+  cursor: pointer;
+  outline: none;
+  filter: drop-shadow(6px 9px 7px rgb(16 24 56 / 0.38));
+  transition:
+    translate 450ms var(--ease-paper),
+    filter 450ms ease;
+}
+
+.pp-thing img,
+.pp-thing svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.pp-thing-label {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 0.4rem);
+  translate: -50% 0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 99px;
+  background: var(--cream);
+  color: var(--navy);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 250ms ease;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .pp-thing:hover,
+  .pp-thing:focus-visible {
+    translate: -50% -100%;
+    filter: drop-shadow(10px 20px 12px rgb(16 24 56 / 0.32));
+  }
+
+  .pp-thing:hover .pp-thing-label {
+    opacity: 1;
+  }
+}
+
+.pp-thing:focus-visible .pp-thing-label {
+  opacity: 1;
+}
+
+/* ——— Chapters ——— */
+.pp-chapter {
+  position: relative;
+  padding: clamp(7rem, 18vh, 12rem) var(--pad) clamp(5rem, 12vh, 9rem);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.pp-head-block {
+  display: grid;
+  gap: 1rem;
+  max-width: 64rem;
+}
+
+.pp-kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pp-kicker span {
+  display: inline-block;
+  margin-right: 0.6rem;
+  padding: 0.15rem 0.45rem;
+  border: 1.5px solid currentColor;
+  border-radius: 99px;
+}
+
+.pp-head-block h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(4.5rem, 15vw, 14rem);
+  line-height: 0.82;
+  letter-spacing: -0.05em;
+}
+
+.pp-stand {
+  max-width: 28ch;
+  margin: 0.5rem 0 0;
+  font-family: var(--serif);
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  line-height: 1.25;
+}
+
+.pp-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: clamp(1rem, 2vw, 2rem);
+  align-items: start;
+  margin-top: clamp(3rem, 9vh, 6rem);
+}
+
+.span-wide {
+  grid-column: 1 / 9;
+}
+
+.span-tall {
+  grid-column: 9 / 13;
+  margin-top: 18vh;
+}
+
+.span-small {
+  grid-column: 3 / 7;
+  margin-top: -4vh;
+}
+
+.pp-grid-coffee .span-tall:first-child {
+  grid-column: 2 / 6;
+  margin-top: 0;
+}
+
+.pp-grid-coffee .span-tall:nth-child(2) {
+  grid-column: 6 / 10;
+  margin-top: 14vh;
+}
+
+/* A photograph printed on paper and cut out with soft, flowing scissor curves */
+.pp-window {
+  margin: 0;
+  filter: drop-shadow(0 14px 16px rgb(25 18 8 / 0.28));
+}
+
+.pp-cut {
+  position: relative;
+  overflow: hidden;
+  background: rgb(0 0 0 / 0.12);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M3 4 C20 1 38 5 55 2 C72 0 86 4 97 2 C99 20 96 38 98 56 C100 72 97 86 98 97 C80 99 62 95 44 98 C27 100 13 96 2 98 C0 80 4 62 1 44 C-1 28 3 14 3 4 Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M3 4 C20 1 38 5 55 2 C72 0 86 4 97 2 C99 20 96 38 98 56 C100 72 97 86 98 97 C80 99 62 95 44 98 C27 100 13 96 2 98 C0 80 4 62 1 44 C-1 28 3 14 3 4 Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+
+.pp-cut img,
+.pp-cut canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: scale 1400ms var(--ease-paper);
+}
+
+.has-motion .pp-window[data-reveal] .pp-cut img {
+  scale: 1.12;
+}
+
+.has-motion .pp-window[data-reveal][data-in] .pp-cut img {
+  scale: 1;
+}
+
+.pp-window figcaption {
+  margin-top: 0.8rem;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+/* The corner, big: pinned while scrolling turns the frames */
+.pp-corner {
+  position: relative;
+  height: 280vh;
+  margin-top: 8vh;
+}
+
+.pp-corner-stage {
+  position: sticky;
+  top: 0;
+  display: grid;
+  place-items: center;
+  height: 100svh;
+}
+
+.pp-corner-window {
+  width: min(90vw, 128svh);
+}
+
+/* A note on paper, pinned to the page */
+.pp-note {
+  padding: clamp(1.25rem, 2.4vw, 2rem);
+  background: var(--cream);
+  color: #1d2b22;
+  border-radius: 0.4rem;
+  box-shadow: 0 16px 30px -12px rgb(0 0 0 / 0.35);
+  rotate: -2deg;
+}
+
+.pp-note h3 {
+  margin: 0.4rem 0 0.6rem;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 2.6rem;
+  letter-spacing: -0.03em;
+}
+
+.pp-note p {
+  margin: 0 0 1rem;
+  line-height: 1.45;
+}
+
+.pp-note a {
+  color: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pp-cutout {
+  grid-column: 10 / 13;
+  width: 100%;
+  margin-top: 34vh;
+  filter: drop-shadow(0 18px 18px rgb(40 15 5 / 0.35));
+  rotate: 6deg;
+}
+
+/* Build: four sheets of paper on the deep blue */
+.pp-products {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  max-width: 76rem;
+  margin: clamp(3rem, 9vh, 6rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pp-product {
+  position: relative;
+  display: grid;
+  gap: 0.6rem;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  background: var(--cream);
+  color: var(--navy);
+  border-radius: 0.4rem;
+  box-shadow: 0 22px 36px -16px rgb(0 0 0 / 0.5);
+}
+
+.pp-product:nth-child(odd) {
+  rotate: -1.2deg;
+}
+
+.pp-product:nth-child(even) {
+  rotate: 1deg;
+  margin-top: 4rem;
+}
+
+.pp-product-no {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+.pp-product h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+
+.pp-product p {
+  margin: 0;
+  max-width: 34ch;
+  line-height: 1.45;
+}
+
+.pp-product-status {
+  justify-self: start;
+  margin-top: 0.6rem;
+  padding: 0.25rem 0.6rem;
+  border: 1.5px solid currentColor;
+  border-radius: 99px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* The last page */
+.pp-end {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2.5rem;
+  min-height: 90svh;
+  text-align: center;
+}
+
+.pp-masthead-end {
+  font-size: clamp(3rem, 10vw, 11rem);
+}
+
+.pp-end-links {
+  display: flex;
+  gap: 2rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pp-end-links a {
+  color: inherit;
+}
+
+.pp-colophon {
+  margin: 0;
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+@media (max-width: 900px) {
+  .pp-bar-links {
+    display: none;
+  }
+
+  .pp-portal {
+    height: 210vh;
+  }
+
+  .pp-masthead {
+    white-space: normal;
+  }
+
+  .pp-lines {
+    display: none;
+  }
+
+  .pp-grid,
+  .pp-products {
+    grid-template-columns: 1fr;
+  }
+
+  .pp-grid > *,
+  .pp-grid-coffee > * {
+    grid-column: 1 / -1 !important;
+    margin-top: 0 !important;
+  }
+
+  .pp-cutout {
+    width: 50%;
+    justify-self: end;
+  }
+
+  .pp-product:nth-child(even) {
+    margin-top: 0;
+  }
+
+  .pp-corner {
+    height: 200vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pp-portal,
+  .pp-portal.is-cover {
+    --b: 0;
+    height: 100svh;
+  }
+
+  .pp-portal:not(.is-cover) {
+    --a: 1;
+  }
+
+  .pp-layer {
+    translate: none;
+  }
+
+  .pp-scroll {
+    animation: none;
+  }
+}
