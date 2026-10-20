@@ -1,4 +1,4 @@
-# Rahul Kumar — personal site
+# Personal site
 
 A strip of photographs you move through by scrolling.
 

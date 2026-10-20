@@ -1,27 +1,20 @@
-import { Mark } from "@/components/Mark";
 import { vignettes } from "@/components/home/Vignettes";
 import { products } from "@/lib/products";
-import { site } from "@/lib/site";
 
 export function Proof() {
   return (
     <section className="proof on-dark" id="built" data-cursor="iron">
       <header className="proof-head" data-reveal>
-        <p className="proof-kicker">
-          <Mark />
-          First person
-        </p>
         <h2 data-lean>
           What I’ve
           <span className="serif">built</span>
         </h2>
-        <p className="proof-lede">Things I’m building, on my own time.</p>
       </header>
       <ul className="proof-grid">
         {products.map((p, i) => (
           <li key={p.id} className="proof-card" data-reveal style={{ "--i": i } as React.CSSProperties}>
             <span className="proof-no" aria-hidden>
-              {String(i + 1).padStart(2, "0")}
+              P/N {String(i + 1).padStart(3, "0")}
             </span>
             <div className="proof-art" aria-hidden>
               {vignettes[p.draw]}
@@ -37,12 +30,6 @@ export function Proof() {
           </li>
         ))}
       </ul>
-      <p className="proof-sign">
-        <span className="proof-sign-name">{site.name}</span>
-        <a href={site.github} rel="noreferrer" target="_blank">
-          GitHub
-        </a>
-      </p>
     </section>
   );
 }

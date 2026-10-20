@@ -12,7 +12,7 @@ export type LapState = {
 const KEY = "lap-best";
 const EVENT = "lap";
 // A sector ends when the top of each of these crosses the middle of the screen
-const MARKS = ["#track", "#hall", ".outro"];
+const MARKS = ["#track", "#off", ".outro"];
 
 export const formatLap = (ms: number) => {
   const tenths = Math.floor(ms / 100);

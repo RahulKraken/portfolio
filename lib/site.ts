@@ -1,10 +1,8 @@
 export const site = {
-  name: "Rahul Kumar",
-  /** Tab title and link previews. The visual mark is still the helmet in components/Mark.tsx. */
-  title: "Rahul Kumar",
+  /** Tab title and link previews. No name anywhere; the visual mark is the helmet (components/Mark.tsx). */
+  title: "Tarmac, packets, iron",
   email: "r.rahul4511@gmail.com",
   github: "https://github.com/RahulKraken",
   url: "https://rahulkraken.com",
-  description:
-    "Rahul Kumar. I build Meusic, Pillar, Apex One, and Am I F*cked?. Runtime security for AI agents, previously SDE-2 at Palo Alto Networks.",
+  description: "Meusic, Pillar, Apex One and Am I F*cked?. Track days, strings and coffee in between.",
 } as const;

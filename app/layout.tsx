@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Bodoni_Moda, Geist, Geist_Mono } from "next/font/google";
 import { Cursor } from "@/components/Cursor";
-import { Eyes } from "@/components/home/Eyes";
 import { Motion } from "@/components/home/Motion";
 import { Nav } from "@/components/Nav";
 import { site } from "@/lib/site";
@@ -79,7 +78,6 @@ export default function RootLayout({
         <Nav />
         <div id="content">{children}</div>
         <Motion />
-        <Eyes />
         <Cursor />
       </body>
     </html>

@@ -4,10 +4,7 @@ export function Craft() {
   return (
     <section className="craft on-dark" id="craft" aria-label="Engineering">
       <header className="craft-head">
-        <h2>
-          Engineering
-          <span className="serif">kinds of systems</span>
-        </h2>
+        <h2>Engineering</h2>
       </header>
       <ul className="craft-grid">
         {craft.map((item) => (

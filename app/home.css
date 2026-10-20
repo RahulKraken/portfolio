@@ -514,120 +514,6 @@
   }
 }
 
-.hero-orbit {
-  position: absolute;
-  inset: 0;
-}
-
-.orbit-item {
-  position: absolute;
-  left: var(--x);
-  top: var(--y);
-  width: var(--w);
-  rotate: var(--r);
-  translate: calc(var(--lx) * var(--d) * 1px) calc(var(--ly) * var(--d) * 0.7px);
-  animation: orbit-in 900ms var(--ease-out) calc(1300ms + var(--i) * 70ms) both;
-}
-
-.orbit-item .art {
-  display: block;
-  width: 100%;
-  height: auto;
-  animation: sway calc(4s + var(--i) * 0.45s) ease-in-out calc(var(--i) * -0.7s) infinite alternate;
-}
-
-.orbit-item.is-spin .art {
-  animation: turn 14s linear infinite;
-}
-
-.orbit-item:nth-child(4n + 1) {
-  --tint: var(--red);
-}
-
-.orbit-item:nth-child(4n + 2) {
-  --tint: var(--sun);
-}
-
-.orbit-item:nth-child(4n + 3) {
-  --tint: var(--blue);
-}
-
-.orbit-item:nth-child(4n) {
-  --tint: var(--mint);
-}
-
-@keyframes orbit-in {
-  from {
-    opacity: 0;
-    scale: 0.6;
-  }
-}
-
-/* ——— One corner, full screen ——— */
-.corner {
-  --p: 0;
-  /* 0→1 while pinned (the section is three screens tall) */
-  --q: clamp(0, calc((var(--p) - 0.25) / 0.5), 1);
-  /* 0→1 as it arrives */
-  --a: clamp(0, calc(var(--p) / 0.25), 1);
-  position: relative;
-  height: 300vh;
-  background: var(--mint);
-}
-
-.corner-stage {
-  position: sticky;
-  top: 0;
-  display: grid;
-  place-items: center;
-  height: 100svh;
-  overflow: hidden;
-}
-
-.corner-frame {
-  position: relative;
-  z-index: 1;
-  width: min(92vw, 128svh);
-  border: 3px solid var(--dark);
-  border-radius: 2rem;
-  overflow: hidden;
-  background: var(--bone);
-  scale: calc(0.72 + var(--a) * 0.28);
-  rotate: calc((1 - var(--a)) * -5deg + var(--mx, 0) * 0.6deg);
-  box-shadow: 0.6rem 0.6rem 0 var(--dark);
-}
-
-.corner-frame .flipbook {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 3 / 2;
-}
-
-.corner-tag {
-  position: absolute;
-  left: 1rem;
-  bottom: 1rem;
-  display: flex;
-  gap: 0.75rem;
-  padding: 0.4rem 0.8rem;
-  border: 2px solid var(--dark);
-  border-radius: 99px;
-  background: var(--sun);
-  font-size: 0.75rem;
-}
-
-/* the lap line: fills as the corner plays */
-.corner-frame::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  height: 0.5rem;
-  background: var(--red);
-  transform-origin: left;
-  scale: var(--q) 1;
-}
-
 .hero-frame .contours {
   stroke: rgb(239 236 228 / 0.13);
 }
@@ -710,25 +596,6 @@
 }
 
 /* A drawn object stuck onto a section */
-.sticker {
-  position: absolute;
-  top: var(--y);
-  left: var(--x);
-  z-index: 0;
-  width: var(--w);
-  min-width: 1.75rem;
-  color: var(--ink);
-  rotate: var(--r);
-  /* slides with the scroll at its own rate, and away from the pointer */
-  translate: calc(var(--mx, 0) * var(--d) * 1px)
-    calc((var(--p, 0.5) - 0.5) * var(--s) * -1vh + var(--my, 0) * var(--d) * 1px);
-  pointer-events: none;
-}
-
-.sticker.is-spin .art {
-  animation: turn 14s linear infinite;
-}
-
 /* A veil of halftone dots across one corner */
 .tone::after {
   content: "";
@@ -740,59 +607,6 @@
   mask-image: linear-gradient(115deg, transparent 45%, #000);
   border-radius: inherit;
   pointer-events: none;
-}
-
-/* A small drawing riding in front of each word */
-.word-art {
-  --accent: var(--red);
-  --pop: var(--dark);
-  display: inline-block;
-  width: 0.78em;
-  height: 0.78em;
-  margin-right: 0.12em;
-  vertical-align: -0.04em;
-  color: var(--dark);
-  scale: clamp(0.2, calc((var(--p) * 2.1 - 0.42) * var(--n) - var(--i)), 1);
-  rotate: calc((1 - clamp(0, calc((var(--p) * 2.1 - 0.42) * var(--n) - var(--i)), 1)) * -40deg);
-}
-
-.word-art .art {
-  width: 100%;
-  height: 100%;
-}
-
-.statement :is(.badge, .statement-text),
-.hall :is(.hall-head, .hall-grid),
-.fan :is(.fan-hand, .fan-links),
-.scatter-item {
-  z-index: 1;
-}
-
-.statement :is(.badge, .statement-text),
-.hall :is(.hall-head, .hall-grid),
-.fan :is(.fan-hand, .fan-links) {
-  position: relative;
-}
-
-.hall {
-  position: relative;
-  overflow: hidden;
-}
-
-.hall-number {
-  top: 1%;
-  right: -2%;
-  font-size: min(46vw, 40rem);
-  translate: calc(var(--mx, 0) * -1.5vw) calc((var(--p, 0.5) - 0.5) * 30vh);
-  -webkit-text-stroke-color: rgb(35 39 51 / 0.25);
-}
-
-.fan-number {
-  top: 50%;
-  left: 50%;
-  font-size: min(58vw, 46rem);
-  -webkit-text-stroke-color: rgb(17 18 16 / 0.22);
-  translate: calc(-50% + var(--mx, 0) * -2vw) calc(-56% + (var(--p, 0.5) - 0.5) * -14vh);
 }
 
 .outro-panel > :is(.outro-number, .outro-helmet) {
@@ -827,59 +641,6 @@
   transition:
     translate 700ms var(--ease-out),
     scale 900ms var(--ease-out);
-}
-
-/* ——— Statement ——— */
-.statement {
-  --p: 0;
-  position: relative;
-  display: grid;
-  justify-items: center;
-  gap: clamp(1.5rem, 4vh, 3rem);
-  padding: clamp(8rem, 26vh, 16rem) var(--pad) clamp(7rem, 22vh, 14rem);
-  background: var(--butter);
-  color: var(--dark);
-  overflow: hidden;
-}
-
-/* The racing line draws itself as you arrive */
-.scribble {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 34vh;
-  fill: none;
-  stroke: var(--red);
-  stroke-width: 7;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: calc(1 - clamp(0, calc(var(--p) * 2.4), 1));
-}
-
-.badge {
-  display: grid;
-  place-items: center;
-  width: 3.5rem;
-  aspect-ratio: 1;
-  font-size: 3.2rem;
-}
-
-.statement-text {
-  max-width: 13em;
-  margin: 0;
-  text-align: center;
-  font-family: var(--display);
-  font-weight: 800;
-  font-size: clamp(2.6rem, 8vw, 8rem);
-  line-height: 0.96;
-  letter-spacing: -0.035em;
-  text-transform: uppercase;
-}
-
-/* Each word waits its turn: dim until the scroll reaches it */
-.statement-text span {
-  opacity: clamp(0.14, calc((var(--p) * 2.1 - 0.42) * var(--n) - var(--i)), 1);
 }
 
 /* ——— Built + Engineering: one dark instrument band under the hero ——— */
@@ -1122,952 +883,6 @@
   }
 }
 
-/* ——— Scatter ——— */
-.scatter {
-  --p: 0.5;
-  position: relative;
-  height: 250vh;
-  overflow: hidden;
-}
-
-.scatter-sun {
-  --accent: var(--red);
-  position: absolute;
-  top: 34%;
-  left: 50%;
-  width: min(60vw, 46rem);
-  translate: calc(-50% + var(--mx, 0) * -1.5vw) calc((var(--p) - 0.5) * -20vh + var(--my, 0) * -1.5vw);
-  --tint: var(--sun);
-}
-
-.scatter-item {
-  position: absolute;
-  margin: 0;
-  /* scroll moves it up at its own speed; the pointer nudges it by the same measure */
-  translate: calc(var(--mx, 0) * var(--speed) * -0.012vw)
-    calc((var(--p) - 0.5) * var(--speed) * -1vh / 10 + var(--my, 0) * var(--speed) * -0.012vw);
-}
-
-.scatter-item > div {
-  position: relative;
-  overflow: hidden;
-}
-
-.scatter-item img {
-  object-fit: cover;
-  transition: scale 900ms var(--ease-out);
-}
-
-.scatter figcaption {
-  margin-bottom: 0.5rem;
-  font-size: 0.6875rem;
-}
-
-.has-motion .scatter-item [data-reveal] {
-  translate: 0 0;
-  clip-path: inset(100% 0 0 0);
-  transition: clip-path 1100ms cubic-bezier(0.77, 0, 0.175, 1);
-}
-
-.has-motion .scatter-item [data-reveal][data-in] {
-  clip-path: inset(0);
-}
-
-.s1 {
-  top: 6%;
-  left: 46%;
-  width: 46vw;
-}
-
-.s2 {
-  top: 14%;
-  left: 12%;
-  width: 15vw;
-}
-
-.s3 {
-  top: 36%;
-  left: 5%;
-  width: 34vw;
-}
-
-.s4 {
-  top: 44%;
-  left: 68%;
-  width: 20vw;
-}
-
-.s5 {
-  top: 68%;
-  left: 34%;
-  width: 40vw;
-}
-
-.s6 {
-  top: 76%;
-  left: 8%;
-  width: 17vw;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .scatter-item:hover img {
-    scale: 1.06;
-  }
-}
-
-/* A drawing on a flat ground, used wherever a print would otherwise go */
-.plate {
-  --accent: var(--red);
-  --pop: var(--dark);
-  display: grid;
-  place-items: center;
-  padding: 16%;
-  background: var(--dark);
-  color: var(--bone);
-}
-
-.plate-red {
-  --accent: var(--bone);
-  --pop: var(--bone);
-  background: var(--red);
-  color: var(--dark);
-}
-
-.plate-blue {
-  --accent: var(--bone);
-  --pop: var(--blue);
-  background: var(--blue);
-}
-
-.plate > .art {
-  width: 100%;
-  height: 100%;
-}
-
-/* ——— On track / off track / at work ——— */
-.split {
-  display: flex;
-  gap: 0.75rem;
-  padding: clamp(4rem, 12vh, 8rem) var(--pad);
-  background: var(--bone);
-  border-radius: 2rem 2rem 0 0;
-}
-
-.panel {
-  position: relative;
-  flex: 1;
-  display: grid;
-  align-content: end;
-  gap: 1rem;
-  height: 78svh;
-  min-height: 26rem;
-  padding: clamp(1.25rem, 3vw, 2.5rem);
-  border-radius: 1.5rem;
-  overflow: hidden;
-  color: var(--bone);
-  text-decoration: none;
-  transition: flex-grow 700ms var(--ease-out);
-}
-
-.panel > :is(h2, .panel-go) {
-  position: relative;
-  z-index: 1;
-}
-
-.panel-on {
-  background: var(--mint);
-  color: var(--dark);
-}
-
-.panel-on .serif {
-  color: var(--red);
-}
-
-.float-flag {
-  top: 6%;
-  left: 10%;
-  width: 34%;
-  rotate: -8deg;
-}
-
-.float-lights {
-  top: 8%;
-  right: 8%;
-  width: 30%;
-  animation-duration: 7s;
-}
-
-.float-cone {
-  top: 40%;
-  left: 40%;
-  width: 20%;
-  animation-duration: 5s;
-  animation-direction: alternate-reverse;
-}
-
-.float-tyres {
-  top: 34%;
-  left: 8%;
-  width: 18%;
-  animation-duration: 8s;
-}
-
-.panel-off {
-  background: var(--sun);
-  color: var(--dark);
-}
-
-.panel-off .serif {
-  color: var(--red);
-}
-
-.panel-art {
-  --accent: var(--bone);
-  --pop: var(--bone);
-  position: absolute;
-  inset: 0;
-  color: var(--dark);
-}
-
-.float {
-  position: absolute;
-  animation: bob 6s ease-in-out infinite alternate;
-}
-
-.panel-work {
-  background: var(--sky);
-  color: var(--dark);
-}
-
-.panel-work .serif {
-  color: var(--red);
-}
-
-.panel-work .panel-art {
-  --accent: var(--bone);
-  --pop: var(--blue);
-  color: var(--bone);
-}
-
-.float-terminal {
-  top: 8%;
-  left: 10%;
-  width: 46%;
-}
-
-.float-shield {
-  top: 34%;
-  right: 10%;
-  width: 24%;
-  animation-duration: 7s;
-  animation-direction: alternate-reverse;
-}
-
-.float-chip.float-chip {
-  top: 46%;
-  left: 14%;
-  width: 30%;
-}
-
-.float-plate {
-  top: 8%;
-  left: 8%;
-  width: 26%;
-  animation: turn 9s linear infinite;
-}
-
-.float-guitar {
-  top: 4%;
-  right: 10%;
-  width: 17%;
-  rotate: 14deg;
-}
-
-.float-chip {
-  top: 44%;
-  left: 34%;
-  width: 26%;
-  animation-duration: 7s;
-  animation-direction: alternate-reverse;
-}
-
-.float-dripper {
-  top: 30%;
-  left: 4%;
-  width: 16%;
-  animation-duration: 8s;
-}
-
-.float-books {
-  top: 38%;
-  right: 30%;
-  width: 14%;
-  animation-duration: 5s;
-}
-
-@keyframes bob {
-  from {
-    translate: 0 -0.8rem;
-  }
-
-  to {
-    translate: 0 0.8rem;
-  }
-}
-
-@keyframes turn {
-  to {
-    rotate: 360deg;
-  }
-}
-
-.panel-go {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  width: fit-content;
-  min-height: 2.75rem;
-  padding: 0 1.1rem;
-  border-radius: 0.7rem;
-  background: var(--bone);
-  color: var(--dark);
-}
-
-.panel-go::after {
-  content: "→";
-  transition: translate 300ms var(--ease-out);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .panel:hover {
-    flex-grow: 1.5;
-  }
-
-  .panel:hover .flipbook {
-    scale: 1.05;
-  }
-
-  .panel:hover .panel-go::after {
-    translate: 0.3rem 0;
-  }
-}
-
-/* ——— At work / after hours: a rail of things built ——— */
-.rail {
-  --rail: 0;
-  position: relative;
-  background-color: var(--sky);
-  /* a drafting grid */
-  background-image:
-    linear-gradient(rgb(35 39 51 / 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(35 39 51 / 0.07) 1px, transparent 1px);
-  background-size: 2rem 2rem;
-  color: var(--dark);
-  border-radius: 2rem 2rem 0 0;
-}
-
-.rail-stage {
-  padding: clamp(5rem, 14vh, 8rem) 0 clamp(3rem, 8vh, 5rem);
-  overflow-x: auto;
-}
-
-.rail.is-live .rail-stage {
-  position: sticky;
-  top: 0;
-  display: grid;
-  align-content: center;
-  height: 100svh;
-  padding: 0;
-  overflow: hidden;
-}
-
-.rail-row {
-  display: flex;
-  align-items: stretch;
-  gap: 1rem;
-  width: max-content;
-  padding: 0 var(--pad);
-  will-change: transform;
-}
-
-/* How far along the rail you are */
-.rail-bar {
-  position: absolute;
-  left: var(--pad);
-  right: var(--pad);
-  bottom: 1.5rem;
-  height: 2px;
-  background: rgb(35 39 51 / 0.2);
-}
-
-.rail-bar::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--dark);
-  transform-origin: left;
-  scale: var(--rail) 1;
-}
-
-.rail:not(.is-live) .rail-bar {
-  display: none;
-}
-
-.rail-title {
-  display: grid;
-  align-content: end;
-  gap: 1rem;
-  width: min(74vw, 24rem);
-  padding: 0 1rem 0.5rem 0;
-}
-
-.rail-title h2 {
-  font-size: clamp(3.4rem, 9vw, 8rem);
-}
-
-.rail-title .serif {
-  color: var(--red);
-}
-
-.rail-title p {
-  max-width: 22rem;
-  margin: 0;
-  font-size: 0.875rem;
-  opacity: 0.8;
-}
-
-.rail-title-after {
-  padding-left: clamp(2rem, 8vw, 8rem);
-  width: min(86vw, 34rem);
-}
-
-/* One thing built: a moving drawing, a number, a title, one line */
-.built {
-  --ink: var(--dark);
-  --accent: var(--red);
-  position: relative;
-  display: grid;
-  grid-template-rows: 1fr auto auto auto;
-  gap: 0.6rem;
-  width: min(80vw, 23rem);
-  height: min(68svh, 34rem);
-  padding: 1.25rem;
-  border: 1.5px solid var(--dark);
-  border-radius: 1.4rem 1.4rem 0.3rem 1.4rem;
-  background: var(--bone);
-  color: var(--ink);
-  transform: perspective(1000px) rotateY(calc(var(--tx, 0) * 7deg)) rotateX(calc(var(--ty, 0) * -7deg));
-  transition:
-    transform 500ms var(--ease-out),
-    border-color 300ms ease;
-}
-
-.built-wide {
-  display: grid;
-  place-items: center;
-  width: min(150vw, 62rem);
-  padding: 1.5rem;
-}
-
-.built-paper {
-  --ink: var(--dark);
-  --accent: var(--red);
-  background: var(--mint);
-  border-color: var(--dark);
-}
-
-.built-art {
-  display: grid;
-  place-items: center;
-  min-height: 0;
-  translate: calc(var(--tx, 0) * 4%) calc(var(--ty, 0) * 4%);
-  transition: translate 500ms var(--ease-out);
-}
-
-.built-no {
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  opacity: 0.7;
-}
-
-.built h3 {
-  margin: 0;
-  font-family: var(--display);
-  font-weight: 800;
-  font-size: clamp(1.5rem, 2.4vw, 2rem);
-  line-height: 0.98;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-}
-
-.built h3 .serif {
-  color: var(--accent);
-  text-transform: none;
-  font-size: 1.12em;
-}
-
-.built p {
-  margin: 0;
-  max-width: 30ch;
-  font-size: 0.9375rem;
-  line-height: 1.45;
-  opacity: 0.86;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .built:hover {
-    border-color: var(--accent);
-  }
-}
-
-/* The small drawings */
-.vig {
-  display: block;
-  width: 100%;
-  max-height: 100%;
-  fill: none;
-  stroke: var(--ink);
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  overflow: visible;
-}
-
-.vig .f {
-  fill: var(--ink);
-  stroke: none;
-}
-
-.vig .a {
-  fill: var(--accent);
-  stroke: none;
-}
-
-.vig .sa {
-  stroke: var(--accent);
-}
-
-.vig-text {
-  fill: var(--ink);
-  stroke: none;
-  font-family: var(--mono);
-  font-size: 15px;
-  letter-spacing: 0.02em;
-}
-
-.vig-window,
-.vig-node {
-  fill: var(--bone);
-}
-
-.built-paper :is(.vig-window, .vig-node) {
-  fill: var(--mint);
-}
-
-.vig .flow {
-  stroke-width: 2;
-  stroke-dasharray: 2 9;
-  animation: wire-flow 1s linear infinite;
-}
-
-.vig .dot {
-  offset-rotate: 0deg;
-  animation: packet 2.8s linear infinite;
-  animation-delay: var(--d, 0s);
-}
-
-.vig .blink {
-  animation: vig-blink 3.6s ease-in-out infinite;
-  animation-delay: var(--d, 0s);
-}
-
-.vig .grow,
-.vig .grow-up {
-  transform-box: fill-box;
-  transform-origin: left;
-  animation: vig-grow 3.6s var(--ease-out) infinite both;
-  animation-delay: var(--d, 0s);
-}
-
-.vig .grow-up {
-  transform-origin: bottom;
-  animation-name: vig-grow-up;
-}
-
-.vig-lean {
-  transform-box: fill-box;
-  transform-origin: bottom;
-  animation: vig-lean 3.2s ease-in-out infinite alternate;
-}
-
-.vig-lift {
-  animation: vig-lift 3s ease-in-out infinite alternate;
-}
-
-.vig-arm,
-.vig-forearm {
-  transform-box: view-box;
-  transform-origin: 95px 206px;
-  animation: vig-arm 4s ease-in-out infinite alternate;
-}
-
-.vig-forearm {
-  transform-origin: 150px 110px;
-  animation-duration: 2.6s;
-}
-
-@keyframes vig-blink {
-  0%,
-  100% {
-    opacity: 0.25;
-  }
-
-  20%,
-  45% {
-    opacity: 1;
-  }
-}
-
-@keyframes vig-grow {
-  0% {
-    scale: 0 1;
-  }
-
-  35%,
-  90% {
-    scale: 1 1;
-  }
-
-  100% {
-    scale: 1 1;
-    opacity: 0;
-  }
-}
-
-@keyframes vig-grow-up {
-  0% {
-    scale: 1 0;
-  }
-
-  35%,
-  100% {
-    scale: 1 1;
-  }
-}
-
-@keyframes vig-lean {
-  from {
-    rotate: -8deg;
-  }
-
-  to {
-    rotate: 52deg;
-  }
-}
-
-@keyframes vig-lift {
-  from {
-    translate: 0 0;
-  }
-
-  to {
-    translate: 0 -18px;
-  }
-}
-
-@keyframes vig-arm {
-  from {
-    rotate: -8deg;
-  }
-
-  to {
-    rotate: 12deg;
-  }
-}
-
-.work-scene {
-  display: block;
-  width: 100%;
-  height: auto;
-  fill: none;
-  stroke: var(--dark);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.work-scene .fill {
-  fill: var(--dark);
-  stroke: none;
-}
-
-.work-scene .node > :is(circle:first-child, rect) {
-  fill: var(--bone);
-}
-
-.work-scene .wire {
-  stroke-width: 2;
-  stroke-dasharray: 2 10;
-  animation: wire-flow 1.2s linear infinite;
-}
-
-@keyframes wire-flow {
-  to {
-    stroke-dashoffset: -12;
-  }
-}
-
-.work-scene .gate path:first-child {
-  fill: var(--sun);
-  stroke: var(--dark);
-}
-
-.work-scene .gate .tick {
-  stroke: var(--dark);
-  stroke-width: 9;
-}
-
-/* Packets ride the wires; the bad one turns red and is stopped short of the gate */
-.work-scene .packet {
-  fill: var(--dark);
-  stroke: none;
-  offset-rotate: 0deg;
-  animation: packet 3.3s linear infinite;
-}
-
-.work-scene .packet.is-bad {
-  fill: var(--red);
-  animation-name: packet-stopped;
-}
-
-@keyframes packet {
-  from {
-    offset-distance: 0%;
-  }
-
-  to {
-    offset-distance: 100%;
-  }
-}
-
-@keyframes packet-stopped {
-  0% {
-    offset-distance: 0%;
-    r: 9px;
-    opacity: 1;
-  }
-
-  62% {
-    offset-distance: 74%;
-    r: 9px;
-    opacity: 1;
-  }
-
-  78% {
-    offset-distance: 74%;
-    r: 26px;
-    opacity: 1;
-  }
-
-  100% {
-    offset-distance: 74%;
-    r: 40px;
-    opacity: 0;
-  }
-}
-
-/* The trace fills in span by span, then starts over */
-.work-scene .span {
-  fill: var(--dark);
-  stroke: none;
-  transform-box: fill-box;
-  transform-origin: left;
-  animation: span 4.2s var(--ease-out) infinite both;
-}
-
-.work-scene .span.is-bad {
-  fill: var(--red);
-}
-
-.work-scene .tickmark {
-  stroke-width: 1.5;
-  opacity: 0.5;
-}
-
-@keyframes span {
-  0% {
-    scale: 0 1;
-  }
-
-  30%,
-  90% {
-    scale: 1 1;
-  }
-
-  100% {
-    scale: 1 1;
-    opacity: 0;
-  }
-}
-
-/* ——— Hall of fame ——— */
-.hall {
-  padding: clamp(3rem, 10vh, 7rem) var(--pad) clamp(8rem, 22vh, 14rem);
-  background: var(--mint);
-  color: var(--dark);
-}
-
-.hall-head {
-  margin-bottom: clamp(3rem, 9vh, 6rem);
-}
-
-.hall-grid {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin: 0;
-  padding: 0;
-}
-
-/* Alternate columns hang lower, so the grid reads as a wall, not a table */
-.hall-card:nth-child(even) {
-  translate: 0 5rem;
-}
-
-.has-motion .hall-card[data-reveal]:nth-child(even) {
-  translate: 0 7.5rem;
-}
-
-.has-motion .hall-card[data-reveal][data-in]:nth-child(even) {
-  translate: 0 5rem;
-}
-
-.hall-card {
-  --accent: var(--red);
-  --pop: var(--dark);
-  position: relative;
-  display: grid;
-  place-items: center;
-  aspect-ratio: 1 / 1.08;
-  min-height: 0;
-  padding: 14% 14% 20%;
-  overflow: hidden;
-  border: 1.5px solid var(--dark);
-  /* one corner cut square, like a tab */
-  border-radius: 1.1rem 1.1rem 0.2rem 1.1rem;
-  color: var(--dark);
-  transition:
-    opacity 900ms var(--ease-out),
-    translate 900ms var(--ease-out),
-    background-color 300ms ease,
-    border-color 300ms ease;
-  transition-delay: calc(var(--i, 0) * 80ms), calc(var(--i, 0) * 80ms), 0ms, 0ms;
-  background: var(--bone);
-}
-
-/* Whatever its shape, a thing is fitted whole inside the same box */
-.hall-thing {
-  position: absolute;
-  inset: 13% 13% 20%;
-  transition:
-    scale 600ms var(--ease-out),
-    rotate 600ms var(--ease-out);
-}
-
-.hall-thing > :is(img, .art) {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.hall-label {
-  position: absolute;
-  right: 1rem;
-  bottom: 0.9rem;
-  display: flex;
-  gap: 0.6rem;
-}
-
-.hall-label b {
-  color: var(--red);
-  font-variant-numeric: tabular-nums;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .hall-card:hover {
-    background: var(--lift);
-    border-color: var(--red);
-  }
-
-  .hall-card:hover .hall-thing {
-    scale: 1.1;
-    rotate: -5deg;
-  }
-}
-
-/* ——— Fan ——— */
-.fan {
-  --p: 0.5;
-  display: grid;
-  justify-items: center;
-  gap: clamp(2rem, 6vh, 4rem);
-  padding: clamp(5rem, 16vh, 10rem) var(--pad) clamp(4rem, 12vh, 8rem);
-  border-radius: 2rem 2rem 0 0;
-  margin-top: -2rem;
-  position: relative;
-  background: var(--butter);
-  overflow: hidden;
-}
-
-.fan-hand {
-  display: grid;
-  place-items: center;
-  height: clamp(18rem, 44vw, 34rem);
-  /* the whole hand swings as the page moves */
-  rotate: calc((var(--p) - 0.5) * 16deg + var(--mx, 0) * 9deg);
-}
-
-.fan-card {
-  grid-area: 1 / 1;
-  position: relative;
-  width: clamp(9rem, 20vw, 17rem);
-  aspect-ratio: 3 / 4.2;
-  border-radius: 1.2rem;
-  overflow: hidden;
-  background: var(--dark);
-  transform-origin: 50% 190%;
-  rotate: calc(var(--i) * 13deg);
-  transition:
-    translate 400ms var(--ease-out),
-    scale 400ms var(--ease-out);
-}
-
-.fan-card img {
-  object-fit: cover;
-}
-
-.fan-card.plate {
-  padding: 18%;
-}
-
-/* the card's own dark ground must not win over a coloured plate */
-.fan-card.plate-red {
-  background: var(--red);
-}
-
-.fan-card.plate-blue {
-  background: var(--blue);
-}
-
-.fan-links {
-  display: flex;
-  gap: 1.75rem;
-}
-
-.fan-links a,
 .outro-links a {
   display: inline-flex;
   align-items: center;
@@ -2302,43 +1117,6 @@
   z-index: 2;
 }
 
-/* ——— Click the diagram to attack the agent ——— */
-.attack {
-  position: relative;
-  width: 100%;
-}
-
-.attack-hit {
-  display: block;
-  width: 100%;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  cursor: crosshair;
-}
-
-.attack-count {
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.attack-count b {
-  color: var(--red);
-  font-variant-numeric: tabular-nums;
-}
-
-/* a packet you fired: it runs once, swells at the gate and is gone */
-.work-scene .packet.is-shot {
-  fill: var(--red);
-  animation: packet-stopped 1.5s linear 1 both;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .loader {
     display: none;
@@ -2528,77 +1306,577 @@
   }
 }
 
-/* ——— Drawing style: rounded, outlined, cheerful ——— */
-.home .art :is(.i, .r, .p) {
-  stroke: var(--dark);
-  stroke-width: 2.5px;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
+/* ——— Refined home: one print language, fewer and bigger moments ——— */
+
+/* The cover's only words: a hint that the page is a lap */
+.hero-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 1.5rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  translate: -50% 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(251 246 236 / 0.72);
+  opacity: clamp(0, calc(1 - var(--q, 0) * 5), 1);
+  animation: hero-in 900ms var(--ease-out) 1700ms both;
 }
 
-.home .art .i {
-  fill: var(--body);
+.hero-hint-dot {
+  width: 0.5rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 0 0 rgb(255 90 60 / 0.6);
+  animation: hint-pulse 1.8s ease-out infinite;
 }
 
-.home .art .r {
-  fill: var(--tint, var(--red));
+@keyframes hint-pulse {
+  70% {
+    box-shadow: 0 0 0 0.6rem rgb(255 90 60 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(255 90 60 / 0);
+  }
 }
 
-.home .art .p {
-  fill: var(--dark);
+/* Chapters on paper */
+.track,
+.off {
+  position: relative;
+  padding: clamp(6rem, 16vh, 10rem) var(--pad) clamp(4rem, 10vh, 7rem);
+  background: var(--bone);
+  color: var(--dark);
+  scroll-margin-top: 4rem;
 }
 
-/* line-only parts keep the widths they were drawn with (handles, trunks, cables) */
-.home .art :is(.s, .sp) {
-  stroke: var(--dark);
+.off {
+  padding-top: clamp(3rem, 8vh, 5rem);
+  padding-bottom: clamp(7rem, 18vh, 11rem);
 }
 
-.home .art .sr {
-  stroke: var(--tint, var(--red));
+.chapter-head {
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: clamp(2.5rem, 7vh, 4.5rem);
 }
 
-/* a different accent for each neighbour, so a group reads as a crowd */
-.home :is(.toy, .hall-card, .sticker):nth-child(4n + 1) {
-  --tint: var(--red);
+.chapter-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--red);
 }
 
-.home :is(.toy, .hall-card, .sticker):nth-child(4n + 2) {
-  --tint: var(--sun);
+.chapter-kicker .mark {
+  height: 1.4rem;
 }
 
-.home :is(.toy, .hall-card, .sticker):nth-child(4n + 3) {
-  --tint: var(--blue);
+/* One corner, pinned while scrolling turns the frames */
+.lean {
+  --p: 0;
+  --a: clamp(0, calc(var(--p) / 0.2), 1);
+  position: relative;
+  height: 300vh;
 }
 
-.home :is(.toy, .hall-card, .sticker):nth-child(4n) {
-  --tint: var(--mint);
+.lean-stage {
+  position: sticky;
+  top: 0;
+  display: grid;
+  place-items: center;
+  height: 100svh;
 }
 
-/* everything drawn breathes a little */
-.home :is(.hall-thing, .sticker) .art {
-  animation: sway 5s ease-in-out infinite alternate;
+.lean-frame {
+  --k: 0;
+  position: relative;
+  width: min(86vw, 118svh);
+  aspect-ratio: 3 / 2;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: var(--bone);
+  box-shadow: 0 40px 70px -40px rgb(35 39 51 / 0.55);
+  scale: calc(0.84 + 0.16 * var(--a));
+  /* the whole print leans a little with the bike */
+  rotate: calc(sin(var(--k) * 180deg) * -1.6deg);
 }
 
-.home .hall-card:nth-child(odd) .art {
-  animation-duration: 6.5s;
-  animation-direction: alternate-reverse;
+.lean-frame .flipbook {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.lean-hud {
+  position: absolute;
+  inset: auto 1rem 1.3rem;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.lean-hud span {
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.5rem;
+  background: var(--dark);
+  color: rgb(251 246 236 / 0.7);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lean-hud b {
+  color: var(--bone);
+  font-weight: 600;
+}
+
+.lean-line {
+  position: absolute;
+  inset: auto 0 0;
+  height: 0.35rem;
+  background: var(--red);
+  transform-origin: left;
+  scale: var(--k) 1;
+}
+
+/* Prints */
+.print-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.6rem;
+  background: var(--bone);
+}
+
+.print-card .print-frame img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: scale 900ms var(--ease-out);
+}
+
+.print-card {
+  margin: 0;
+  transition: rotate 600ms var(--ease-out);
+}
+
+.print-card figcaption {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.print-card figcaption b {
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--red);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .print-card:hover {
+    rotate: -1.2deg;
+  }
+
+  .print-card:nth-child(even):hover {
+    rotate: 1.2deg;
+  }
+
+  .print-card:hover .print-frame img {
+    scale: 1.045;
+  }
+}
+
+/* A print 'prints in': its halftone dots grow from nothing until they join up */
+@property --dot {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 10px;
+}
+
+.has-motion .print-card[data-reveal] .print-frame {
+  --dot: 0px;
+  -webkit-mask: radial-gradient(circle, #000 var(--dot), transparent calc(var(--dot) + 0.6px)) 0 0 / 13px 13px;
+  mask: radial-gradient(circle, #000 var(--dot), transparent calc(var(--dot) + 0.6px)) 0 0 / 13px 13px;
+  transition: --dot 1300ms var(--ease-out) calc(var(--i, 0) * 140ms + 150ms);
+}
+
+.has-motion .print-card[data-reveal][data-in] .print-frame {
+  --dot: 10px;
+}
+
+.print-row {
+  display: grid;
+  grid-template-columns: 1.25fr 1.25fr 0.8fr;
+  gap: clamp(1rem, 2.2vw, 2rem);
+  align-items: end;
+  margin-top: clamp(1rem, 4vh, 3rem);
+}
+
+.off-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 1.75rem);
+  align-items: start;
+}
+
+.off-grid .off-wide {
+  grid-column: 1 / 8;
+}
+
+.off-grid .off-tall:nth-child(2) {
+  grid-column: 9 / 12;
+  margin-top: 12vh;
+}
+
+.off-grid .off-low {
+  grid-column: 2 / 5;
+  margin-top: -6vh;
+}
+
+.off-grid .off-tall:nth-child(4) {
+  grid-column: 6 / 9;
+  margin-top: 4vh;
+}
+
+@media (max-width: 900px) {
+  /* the lap clock sits at the bottom on a phone; the hint moves up out of its way */
+  .hero-hint {
+    bottom: 4.6rem;
+  }
+
+  .lean {
+    height: 220vh;
+  }
+
+  .lean-frame {
+    width: 94vw;
+    border-radius: 0.9rem;
+  }
+
+  .lean-hud span {
+    font-size: 0.62rem;
+  }
+
+  .print-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .print-row .print-card:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .off-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .off-grid > * {
+    grid-column: auto !important;
+    margin-top: 0 !important;
+  }
+
+  .off-grid .off-wide {
+    grid-column: 1 / -1 !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .home :is(.hall-thing, .sticker) .art {
+  .lean-frame {
+    rotate: none;
+    scale: 1;
+  }
+
+  .hero-hint-dot {
     animation: none;
   }
 }
 
-/* the giant outlined helmets behind the fan and the footer */
-.fan-number {
-  --mark-stroke: rgb(35 39 51 / 0.22);
+/* ——— Three worlds: a workshop, the Isle of Man, a stamp album ——— */
+
+/* Built: an engineering drawing. A title block, part numbers, crop marks on every card */
+.proof {
+  position: relative;
 }
 
-.outro-number {
-  --mark-stroke: rgb(251 246 236 / 0.3);
+.title-block {
+  position: absolute;
+  top: clamp(5rem, 14vh, 8.5rem);
+  right: var(--pad);
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  margin: 0;
+  border: 1px solid var(--hair);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-:is(.fan-number, .outro-number) .mark {
-  height: 1em;
+.title-block div {
+  padding: 0.45rem 0.8rem 0.5rem;
+  border-left: 1px solid var(--hair);
+}
+
+.title-block div:first-child {
+  border-left: 0;
+}
+
+.title-block dt {
+  color: rgb(239 236 228 / 0.42);
+}
+
+.title-block dd {
+  margin: 0.2rem 0 0;
+  color: var(--bone);
+}
+
+.proof-card::before,
+.proof-card::after {
+  content: "";
+  position: absolute;
+  width: 0.9rem;
+  height: 0.9rem;
+  pointer-events: none;
+  opacity: 0.75;
+  transition: translate 400ms var(--ease-out), opacity 300ms ease;
+}
+
+.proof-card::before {
+  top: -0.45rem;
+  left: -0.45rem;
+  border-top: 1px solid var(--red);
+  border-left: 1px solid var(--red);
+}
+
+.proof-card::after {
+  right: -0.45rem;
+  bottom: -0.45rem;
+  border-right: 1px solid var(--red);
+  border-bottom: 1px solid var(--red);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .proof-card:hover::before {
+    translate: -0.2rem -0.2rem;
+    opacity: 1;
+  }
+
+  .proof-card:hover::after {
+    translate: 0.2rem 0.2rem;
+    opacity: 1;
+  }
+}
+
+/* On track: the Isle of Man. The helmet's blue, and the three legs, spinning */
+.track {
+  --iom: #2f5fd0;
+}
+
+.track .chapter-kicker,
+.track .chapter-head .serif,
+.track .print-card figcaption b {
+  color: var(--iom);
+}
+
+.track .lean-line {
+  background: var(--iom);
+}
+
+.chapter-head.has-mark {
+  position: relative;
+}
+
+.trisk {
+  display: block;
+  color: var(--iom, var(--red));
+}
+
+.trisk-head {
+  position: absolute;
+  left: clamp(11rem, 25vw, 23rem);
+  bottom: 0.2rem;
+  width: clamp(6rem, 11vw, 10rem);
+  height: auto;
+  animation: trisk-spin 7s linear infinite;
+}
+
+@keyframes trisk-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* Off track: a stamp album. Perforated edges, a denomination, and a postmark across each set */
+.stamp-album {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: start;
+}
+
+.stamp-set {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(0.8rem, 1.8vw, 1.6rem);
+  padding-top: 2.5rem;
+}
+
+.stamp-set-coffee {
+  margin-top: 12vh;
+}
+
+.stamp {
+  flex: 1 1 0;
+  margin: 0;
+  rotate: var(--tilt);
+  filter: drop-shadow(0 12px 14px rgb(35 39 51 / 0.2));
+  transition: rotate 500ms var(--ease-out), translate 500ms var(--ease-out);
+}
+
+.stamp:first-child {
+  flex-grow: 1.35;
+}
+
+.stamp-paper {
+  --h: 6.5px;
+  padding: 0.85rem 0.85rem 0;
+  background: #fffaf1;
+  /* perforations: half-holes punched along every edge */
+  -webkit-mask:
+    radial-gradient(circle 4.6px, #0000 95%, #000) 0 calc(var(--h) * -1) / 13px 13px repeat-x,
+    radial-gradient(circle 4.6px, #0000 95%, #000) 0 calc(100% + var(--h)) / 13px 13px repeat-x,
+    radial-gradient(circle 4.6px, #0000 95%, #000) calc(var(--h) * -1) 0 / 13px 13px repeat-y,
+    radial-gradient(circle 4.6px, #0000 95%, #000) calc(100% + var(--h)) 0 / 13px 13px repeat-y,
+    linear-gradient(#000 0 0) var(--h) var(--h) / calc(100% - 2 * var(--h)) calc(100% - 2 * var(--h)) no-repeat;
+  mask:
+    radial-gradient(circle 4.6px, #0000 95%, #000) 0 calc(var(--h) * -1) / 13px 13px repeat-x,
+    radial-gradient(circle 4.6px, #0000 95%, #000) 0 calc(100% + var(--h)) / 13px 13px repeat-x,
+    radial-gradient(circle 4.6px, #0000 95%, #000) calc(var(--h) * -1) 0 / 13px 13px repeat-y,
+    radial-gradient(circle 4.6px, #0000 95%, #000) calc(100% + var(--h)) 0 / 13px 13px repeat-y,
+    linear-gradient(#000 0 0) var(--h) var(--h) / calc(100% - 2 * var(--h)) calc(100% - 2 * var(--h)) no-repeat;
+}
+
+.stamp-face {
+  position: relative;
+  overflow: hidden;
+  outline: 1px solid rgb(35 39 51 / 0.12);
+}
+
+.stamp-face img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.stamp-value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.5rem 0.1rem 0.85rem;
+}
+
+.stamp-value b {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 900;
+  font-stretch: 125%;
+  font-size: clamp(1.5rem, 2.4vw, 2.2rem);
+  line-height: 0.9;
+  color: var(--red);
+}
+
+.stamp-value span {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.postmark {
+  position: absolute;
+  top: 0;
+  right: -2.5rem;
+  width: clamp(10rem, 17vw, 15rem);
+  rotate: -10deg;
+  fill: none;
+  stroke: var(--dark);
+  stroke-width: 2;
+  opacity: 0.78;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.postmark text {
+  fill: var(--dark);
+  stroke: none;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.postmark .postmark-mid {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .stamp:hover {
+    rotate: 0deg;
+    translate: 0 -0.4rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .title-block {
+    position: static;
+    width: fit-content;
+    margin-top: 0.8rem;
+  }
+
+  .trisk-head {
+    left: auto;
+    right: 0.4rem;
+    width: 4.2rem;
+  }
+
+  .stamp-album {
+    grid-template-columns: 1fr;
+  }
+
+  .stamp-set-coffee {
+    margin-top: 0;
+  }
+
+  .postmark {
+    right: -0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trisk-head {
+    animation: none;
+  }
 }

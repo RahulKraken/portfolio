@@ -7,9 +7,9 @@ import { site } from "@/lib/site";
 
 const links = [
   { href: "/#built", label: "Built" },
+  { href: "/#craft", label: "Work" },
   { href: "/#track", label: "On track" },
-  { href: "/#engineering", label: "At work" },
-  { href: "/#hall", label: "Hall of fame" },
+  { href: "/#off", label: "Off track" },
   { href: "/ride", label: "Ride" },
   { href: "/notes", label: "Notes" },
 ];
@@ -29,14 +29,10 @@ export function Nav() {
   return (
     <>
       <header className="nav">
-        <Link className="nav-mark" href="/" aria-label={`${site.name} — Home`} onClick={() => setOpen(false)}>
+        <Link className="nav-mark" href="/" aria-label="Home" onClick={() => setOpen(false)}>
           <Mark />
-          <span className="nav-name">{site.name}</span>
         </Link>
         <div className="nav-tools">
-          <Link className="nav-pill" href="/#built" data-magnet>
-            Built
-          </Link>
           <button
             type="button"
             className="nav-burger"

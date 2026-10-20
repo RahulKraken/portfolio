@@ -62,6 +62,7 @@ export function Flipbook({ base, count, fps = 12, alt, scrub = false, width = 90
       if (i === shown) return;
       shown = i;
       draw(i);
+      canvas.dispatchEvent(new CustomEvent("flip", { detail: { i, count }, bubbles: true }));
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(turn);
