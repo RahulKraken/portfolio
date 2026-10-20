@@ -9,22 +9,28 @@ export const metadata: Metadata = {
 
 const directions = [
   {
-    href: "/lab/d",
-    key: "D",
-    name: "Letter",
-    line: "A note. Photos hide until you find them.",
+    href: "/lab/g",
+    key: "G",
+    name: "One Line",
+    line: "A single stroke is the identity. It draws the racing line, a string, a check.",
   },
   {
-    href: "/lab/e",
-    key: "E",
-    name: "Playful",
-    line: "Color fields. One tile per part of his life.",
+    href: "/lab/h",
+    key: "H",
+    name: "The Sentence",
+    line: "One huge sentence. Key nouns open into small pictures.",
   },
   {
-    href: "/lab/f",
-    key: "F",
-    name: "Crafted",
-    line: "Like a small product. Interactive, precise.",
+    href: "/lab/i",
+    key: "I",
+    name: "Live Paragraphs",
+    line: "A calm bio with working toys in the words. Chip-style archive.",
+  },
+  {
+    href: "/lab/j",
+    key: "J",
+    name: "Two Worlds",
+    line: "Light for building, dark for life. Scroll flips the page.",
   },
 ] as const;
 
@@ -35,10 +41,10 @@ export default function LabIndexPage() {
         <span>Lab — comparison only</span>
         <Link href="/">Live site</Link>
       </header>
-      <h1>Three new directions</h1>
+      <h1>Four new directions</h1>
       <p className="lab-index-lede">
-        Home is who he is. Blog is a real page. Photos stay supporting. The
-        live site is untouched.
+        Home is who he is. Blog and List 100 are in the nav. Photos stay
+        supporting. The live site is untouched.
       </p>
       <ul className="lab-index-list">
         {directions.map((d) => (

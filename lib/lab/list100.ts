@@ -17,13 +17,62 @@ export type ListItem = {
   done: boolean;
   /** Placeholder date — not a real completion. */
   doneDate?: string;
+  /** Placeholder note — not his words. */
+  note?: string;
+  /** Placeholder aside — not his joke. */
+  aside?: string;
+  /** When true, the item links to the labelled sample post. */
+  hasStory?: boolean;
 };
 
 /**
  * Obviously-fake sample rows so the List 100 layouts can be judged.
  * None of these are Rahul's real list.
  */
-const doneNs = new Set([1, 7, 14, 22, 41, 48, 63, 71, 88]);
+const extraByN: Partial<
+  Record<number, Pick<ListItem, "doneDate" | "note" | "aside" | "hasStory">>
+> = {
+  1: {
+    doneDate: "[date]",
+    note: "placeholder: what happened",
+    hasStory: true,
+  },
+  7: {
+    doneDate: "[date]",
+    note: "placeholder: what happened",
+    aside: "placeholder: a funny aside",
+  },
+  14: {
+    doneDate: "[date]",
+    note: "placeholder: what happened",
+  },
+  22: {
+    doneDate: "[date]",
+    note: "placeholder: what happened",
+  },
+  41: {
+    doneDate: "[date]",
+    note: "placeholder: what happened",
+    hasStory: true,
+  },
+  48: {
+    doneDate: "[date]",
+    note: "placeholder: what happened",
+  },
+  63: {
+    doneDate: "[date]",
+    note: "placeholder: what happened",
+    aside: "placeholder: a funny aside",
+  },
+  71: {
+    doneDate: "[date]",
+    note: "placeholder: what happened",
+  },
+  88: {
+    doneDate: "[date]",
+    note: "placeholder: what happened",
+  },
+};
 
 function chapterOf(n: number): ChapterId {
   const found = chapters.find((c) => n >= c.from && n <= c.to);
@@ -32,14 +81,20 @@ function chapterOf(n: number): ChapterId {
 
 export const list100: ListItem[] = Array.from({ length: LIST_SIZE }, (_, i) => {
   const n = i + 1;
-  const done = doneNs.has(n);
+  const extra = extraByN[n];
   return {
     n,
-    title: `Sample item ${String(n).padStart(2, "0")}`,
+    title: `placeholder: sample item ${String(n).padStart(2, "0")}`,
     chapter: chapterOf(n),
-    done,
-    doneDate: done ? "[date]" : undefined,
+    done: Boolean(extra),
+    doneDate: extra?.doneDate,
+    note: extra?.note,
+    aside: extra?.aside,
+    hasStory: extra?.hasStory,
   };
 });
 
-export const sampleDoneCount = doneNs.size;
+export const sampleDoneCount = list100.filter((item) => item.done).length;
+
+/** Date is a placeholder — not a real as-of. */
+export const sampleScoreAsOf = "[date]";

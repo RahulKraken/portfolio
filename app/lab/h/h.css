@@ -1,0 +1,316 @@
+.lab-h {
+  --paper: #f7f6f2;
+  --ink: #111;
+  --mute: #5a5a5a;
+  --pad: clamp(1.15rem, 4vw, 2.75rem);
+  min-height: 100svh;
+  background: var(--paper);
+  color: var(--ink);
+  color-scheme: light;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.45;
+}
+
+.h-nav,
+.h-nav nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 1.15rem;
+}
+
+.h-nav {
+  justify-content: space-between;
+  padding: 1rem var(--pad);
+}
+
+.h-nav a {
+  text-decoration: none;
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  font-size: 1.0625rem;
+}
+
+.h-nav a[aria-current="page"],
+.h-nav a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.h-main {
+  padding: 1.25rem var(--pad) 5rem;
+}
+
+.h-sentence {
+  margin: 1rem 0 2.5rem;
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-weight: 650;
+  font-size: clamp(1.85rem, 4.6vw, 3.35rem);
+  letter-spacing: -0.045em;
+  line-height: 1.22;
+  max-width: 68rem;
+}
+
+.h-lead {
+  font-family: var(--font-instrument), Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+.h-chip {
+  position: relative;
+  display: inline;
+  white-space: nowrap;
+}
+
+.h-chip button {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.28em;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.12em;
+  white-space: nowrap;
+}
+
+.h-chip-pic {
+  display: inline-grid;
+  place-items: center;
+  width: 1.2em;
+  height: 1.2em;
+  overflow: hidden;
+  border-radius: 0.28em;
+  background: #ece8df;
+  color: #111;
+  vertical-align: -0.18em;
+  transform: translateY(0.12em);
+}
+
+.h-chip-pic img,
+.h-chip-pic svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.h-chip-pic svg {
+  padding: 0.12em;
+}
+
+.h-panel {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 0.45rem);
+  z-index: 6;
+  width: min(16.5rem, 72vw);
+  padding: 0.55rem;
+  background: #111;
+  color: #f4f4f4;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 1rem;
+  font-weight: 450;
+  letter-spacing: 0;
+  line-height: 1.4;
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.22);
+  animation: h-open 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: top left;
+  white-space: normal;
+}
+
+@keyframes h-open {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.h-panel img,
+.h-panel-slot {
+  display: block;
+  width: 100%;
+  height: 8.5rem;
+  object-fit: cover;
+  margin-bottom: 0.45rem;
+  background: #2a2a2a;
+}
+
+.h-panel-slot {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 0.6rem;
+  color: #bbb;
+}
+
+.h-now,
+.h-lede,
+.h-read p {
+  max-width: 38rem;
+  margin: 0 0 1em;
+  font-size: 1.1875rem;
+  line-height: 1.55;
+}
+
+.h-now {
+  font-family: var(--font-news), Georgia, serif;
+  font-size: 1.35rem;
+  max-width: 42rem;
+}
+
+.h-main h1 {
+  margin: 0 0 0.8rem;
+  font-size: clamp(2.4rem, 7vw, 4.5rem);
+  font-weight: 650;
+  letter-spacing: -0.05em;
+}
+
+.h-titles {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+}
+
+.h-titles li {
+  margin: 0;
+}
+
+.h-titles a,
+.h-dead {
+  display: block;
+  padding: 0.35rem 0 1.1rem;
+  text-decoration: none;
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-size: clamp(2.4rem, 8vw, 5.6rem);
+  font-weight: 650;
+  letter-spacing: -0.055em;
+  line-height: 0.95;
+}
+
+.h-year {
+  display: inline-block;
+  margin-right: 0.45rem;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  vertical-align: super;
+  color: var(--mute);
+}
+
+.h-dek {
+  display: block;
+  max-height: 0;
+  overflow: hidden;
+  margin-top: 0;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 1.125rem;
+  font-weight: 450;
+  letter-spacing: 0;
+  line-height: 1.4;
+  color: var(--mute);
+  opacity: 0;
+  transition: max-height 0.28s ease, opacity 0.28s ease, margin 0.28s ease;
+}
+
+.h-titles a:hover .h-dek,
+.h-titles a:focus-visible .h-dek {
+  max-height: 4rem;
+  margin-top: 0.55rem;
+  opacity: 1;
+}
+
+.h-read h1 {
+  font-size: clamp(2.6rem, 8vw, 5.2rem);
+  line-height: 0.95;
+}
+
+.h-stack {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+}
+
+.h-stack li {
+  display: grid;
+  grid-template-columns: 3.2rem 1fr;
+  gap: 0.6rem 1rem;
+  align-items: baseline;
+  padding: 0.7rem 0.4rem;
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-size: clamp(1.5rem, 3.4vw, 2.4rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.h-stack .h-n {
+  color: var(--mute);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.h-stack a {
+  text-decoration: none;
+}
+
+.h-stack .is-on {
+  background: #111;
+  color: #f6f6f6;
+}
+
+.h-stack .is-on .h-n,
+.h-stack .is-on .ph {
+  color: inherit;
+  background: transparent;
+}
+
+.h-note {
+  grid-column: 2;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 450;
+  letter-spacing: 0;
+  color: #d8d8d8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .h-dek,
+  .h-stack li,
+  .h-panel {
+    transition: none;
+    animation: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .h-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .h-sentence {
+    font-size: 1.85rem;
+  }
+
+  .h-titles a,
+  .h-dead {
+    font-size: 2.1rem;
+  }
+}

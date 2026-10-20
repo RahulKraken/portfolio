@@ -22,7 +22,7 @@ export const lives: Life[] = [
     id: "ride",
     label: "Ride",
     line: "Panigale V2 S at MMRT",
-    photo: photos.track337,
+    photo: photos.helmet,
   },
   {
     id: "lift",

@@ -1,6 +1,10 @@
 import { notes, type Note } from "@/lib/notes";
 
-export type SamplePost = Note & { sample: true; hasPage: boolean };
+export type SamplePost = Note & {
+  sample: true;
+  hasPage: boolean;
+  year: string;
+};
 
 /**
  * Sample entries so Blog can be judged with 0 published posts.
@@ -12,6 +16,7 @@ export const samplePosts: SamplePost[] = [
     title: "[title: a sample post]",
     dek: "[dek: one sentence]",
     date: "[date]",
+    year: "[year]",
     chapter: "track",
     sample: true,
     hasPage: true,
@@ -21,13 +26,14 @@ export const samplePosts: SamplePost[] = [
     title: "[title: another sample]",
     dek: "[dek: one sentence]",
     date: "[date]",
+    year: "[year]",
     chapter: "music",
     sample: true,
     hasPage: false,
   },
 ];
 
-export type LabPost = (Note & { sample?: false; hasPage?: boolean }) | SamplePost;
+export type LabPost = (Note & { sample?: false; hasPage?: boolean; year?: string }) | SamplePost;
 
 export function labPosts(): { items: LabPost[]; usingSample: boolean } {
   if (notes.length > 0) {
@@ -44,3 +50,5 @@ export const sampleBody = [
   "Donec euismod, nisl eget consectetur sagittis, nisl nisl consectetur nisl, eget consectetur nisl nisl eget nisl. Mauris in leo non nisl tincidunt tincidunt.",
   "[paragraph: the rest, in his words]",
 ] as const;
+
+export const sampleSidenote = "placeholder: a sidenote";

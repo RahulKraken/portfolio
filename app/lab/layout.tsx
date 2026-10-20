@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
-import { Newsreader } from "next/font/google";
+import { Instrument_Serif, Newsreader } from "next/font/google";
 import "./isolate.css";
 
 const news = Newsreader({
   subsets: ["latin"],
   style: ["normal", "italic"],
   variable: "--font-news",
+  display: "swap",
+});
+
+const instrument = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-instrument",
   display: "swap",
 });
 
@@ -16,5 +24,9 @@ export const metadata: Metadata = {
 };
 
 export default function LabLayout({ children }: { children: React.ReactNode }) {
-  return <div className={`lab-root ${news.variable}`}>{children}</div>;
+  return (
+    <div className={`lab-root ${news.variable} ${instrument.variable}`}>
+      {children}
+    </div>
+  );
 }

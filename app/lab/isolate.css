@@ -10,19 +10,31 @@ html:has([data-lab="index"]) body {
   background: #f4f2ee;
 }
 
-html:has([data-lab="d"]),
-html:has([data-lab="d"]) body {
-  background: #f4efe4;
+html:has([data-lab="g"]),
+html:has([data-lab="g"]) body {
+  background: #f3efe6;
 }
 
-html:has([data-lab="e"]),
-html:has([data-lab="e"]) body {
-  background: #f3f1ec;
+html:has([data-lab="h"]),
+html:has([data-lab="h"]) body {
+  background: #f7f6f2;
 }
 
-html:has([data-lab="f"]),
-html:has([data-lab="f"]) body {
-  background: #f7f7f5;
+html:has([data-lab="i"]),
+html:has([data-lab="i"]) body {
+  background: #fff;
+}
+
+html:has([data-lab="j"]),
+html:has([data-lab="j"]) body {
+  background: #f4f1ea;
+}
+
+html:has([data-lab="j"].is-dark),
+html:has([data-lab="j"].is-dark) body,
+html:has(.j-dark-page),
+html:has(.j-dark-page) body {
+  background: #121212;
 }
 
 .lab-root {
