@@ -260,68 +260,21 @@ function PanelBody({ id, playSound }: { id: RoomItem; playSound: () => void }) {
     </>
   );
 }
-function Dialog({
-  id,
-  onClose,
-  children,
-}: {
-  id: RoomItem;
-  onClose: () => void;
-  children: ReactNode;
-}) {
-  const ref = useRef<HTMLDialogElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    const dialog = ref.current!;
-    const previous = document.activeElement as HTMLElement | null;
-    dialog.showModal();
-    closeRef.current?.focus();
-    return () => {
-      dialog.close();
-      previous?.focus();
-    };
-  }, []);
+function ObjectInfo({ id, children }: { id: RoomItem; children: ReactNode }) {
   const item = roomItems.find((x) => x.id === id)!;
   return (
-    <dialog
-      ref={ref}
-      className="room-dialog"
-      onCancel={(e) => {
-        e.preventDefault();
-        onClose();
-      }}
-      onClick={(e) => {
-        if (e.target === ref.current) onClose();
-      }}
-      aria-labelledby="room-panel-title"
-    >
-      <div className="panel-inner">
-        <header className="panel-topline">
-          <span>
-            <Icon id={id} />
-            {item.object}
-          </span>
-          <button
-            ref={closeRef}
-            onClick={onClose}
-            aria-label="Back to the room"
-          >
-            ✕
-          </button>
-        </header>
-        <div className="panel-scroll" key={id}>
-          <span className="panel-eyebrow">
-            A LITTLE MORE ABOUT ME / {item.label.toUpperCase()}
-          </span>
-          <h2 id="room-panel-title">{item.title}</h2>
-          <p className="panel-intro">{item.intro}</p>
-          {children}
-          <footer className="panel-footer">
-            One corner of my world.<span>RAHUL KUMAR</span>
-          </footer>
-        </div>
+    <details className="object-info" key={id}>
+      <summary>
+        <Icon id={id} />
+        <span>{item.object}</span>
+        <span className="object-info-plus">+</span>
+      </summary>
+      <div className="object-info-content">
+        <h2>{item.title}</h2>
+        <p className="panel-intro">{item.intro}</p>
+        {children}
       </div>
-    </dialog>
+    </details>
   );
 }
 export default function RoomExperience() {
@@ -329,6 +282,8 @@ export default function RoomExperience() {
   const [entered, setEntered] = useState(false);
   const [arrived, setArrived] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [viewRevision, setViewRevision] = useState(0);
+  const [panMode, setPanMode] = useState(false);
   const [night, setNight] = useState(false);
   const [ready, setReady] = useState(false);
   const [sceneFailed, setSceneFailed] = useState(false);
@@ -428,6 +383,8 @@ export default function RoomExperience() {
       >
         <RoomScene
           selected={selected}
+          viewRevision={viewRevision}
+          panMode={panMode}
           entered={entered}
           arrived={arrived}
           night={night}
@@ -471,6 +428,27 @@ export default function RoomExperience() {
             ←
           </button>
           <div>
+            <button
+              onClick={() => setViewRevision((value) => value + 1)}
+              aria-label="Reset camera view"
+              title="Reset camera view"
+            >
+              ↺
+            </button>
+            <button
+              onClick={() => setPanMode((value) => !value)}
+              aria-label={
+                panMode ? "Switch to rotate mode" : "Switch to pan mode"
+              }
+              aria-pressed={panMode}
+              title={
+                panMode
+                  ? "Pan: drag to move. Click to rotate."
+                  : "Rotate: drag to orbit. Scroll to zoom. Right-drag to pan."
+              }
+            >
+              {panMode ? "✥" : "⤢"}
+            </button>
             <button
               onClick={toggle}
               aria-label={night ? "Switch to daylight" : "Switch to night"}
@@ -536,10 +514,10 @@ export default function RoomExperience() {
           {screenContent}
         </div>
       )}
-      {selected && !computer && arrived && (
-        <Dialog id={selected} onClose={back}>
+      {selected && !computer && arrived && !menuOpen && (
+        <ObjectInfo id={selected}>
           <PanelBody id={selected} playSound={playSound} />
-        </Dialog>
+        </ObjectInfo>
       )}
     </main>
   );

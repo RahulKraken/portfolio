@@ -113,3 +113,25 @@ Shared layout coordinates drive both object placement and camera destinations.
 The distant opening remains; the first click now approaches a wider exploration
 view that keeps every object available to click. Laptop camera framing remains
 unchanged. Gear opens the existing track section. All added geometry is original.
+
+## Object inspection cameras
+
+Each non-computer destination now has a separate approach direction and framing
+size. Guitar uses a front-facing view aligned with its inward rotation; bikes
+use a front/side angle; coffee approaches its inward-facing shelves. Distance
+adapts to viewport aspect ratio. Transitions are quicker. Camera controls remain
+active on selected objects: drag to orbit, wheel to dolly, right-drag to pan, or
+switch the toolbar to pan mode. Touch supports one-finger orbit and two-finger
+pinch/pan. Reset returns to the selected object's intended view. Orbit can circle
+the object but stops above the ground. Laptop reading views retain fixed cameras.
+
+Automatic modal dialogs no longer cover or disable the scene. Other destinations
+use an optional collapsed information card; opening it leaves the rest of the
+scene interactive. Dragging over interactive objects does not activate their
+click actions.
+
+Follow-up fixes: one-finger touch was mapped to camera-controls' ZOOM flag (32) rather
+than TOUCH_ROTATE (64) in this library version, so phone drags zoomed instead of orbiting;
+the scene now uses named action constants. The closest zoom on a selected object stops
+before the camera enters it. The Ducati is approached from a high front three-quarter so
+neither the gear rail nor the Duke blocks it.

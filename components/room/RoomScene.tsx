@@ -19,6 +19,8 @@ type SceneProps = {
   entered: boolean;
   arrived: boolean;
   screenContent: ReactNode;
+  viewRevision: number;
+  panMode: boolean;
   onArrive: () => void;
   onEnter: () => void;
   night: boolean;
@@ -320,7 +322,7 @@ function Desk({
       position={[0, 0, -0.7]}
       onClick={(e) => {
         e.stopPropagation();
-        onEnter();
+        if (e.delta < 4) onEnter();
       }}
     >
       <Box
@@ -352,7 +354,7 @@ function Desk({
         position={[-0.2, 1.99, -0.32]}
         onClick={(e) => {
           e.stopPropagation();
-          onSelect("projects");
+          if (e.delta < 4) onSelect("projects");
         }}
         onPointerOver={() => {
           document.body.style.cursor = "pointer";
@@ -945,7 +947,7 @@ function Lamp({ night, onToggle }: { night: boolean; onToggle: () => void }) {
       position={[1, 1.28, -1.03]}
       onClick={(e) => {
         e.stopPropagation();
-        onToggle();
+        if (e.delta < 4) onToggle();
       }}
       onPointerOver={() => {
         document.body.style.cursor = "pointer";
@@ -1029,15 +1031,31 @@ const targets: Record<RoomItem, V3> = {
   travel: [layout.duke[0], 0.65, layout.duke[2]],
   track: [layout.ducati[0], 0.7, layout.ducati[2]],
   music: [layout.music[0], 0.8, layout.music[2]],
-  coffee: [layout.coffee[0], 1, layout.coffee[2]],
+  coffee: [layout.coffee[0], 0.78, layout.coffee[2]],
 };
+// camera-controls 3.x action flags (CameraControls.ACTION); named here so the numbers can't drift
+const ACTION = {
+  NONE: 0,
+  ROTATE: 1,
+  TRUCK: 2,
+  DOLLY: 16,
+  TOUCH_ROTATE: 64,
+  TOUCH_TRUCK: 128,
+  TOUCH_DOLLY_TRUCK: 4096,
+} as const;
+
 // Independent camera staging: an establishing view, a desk view, then an object view.
 function CameraRig({
   selected,
   entered,
   reduced,
   onArrive,
-}: Pick<SceneProps, "selected" | "entered" | "reduced" | "onArrive">) {
+  viewRevision,
+  panMode,
+}: Pick<
+  SceneProps,
+  "selected" | "entered" | "reduced" | "onArrive" | "viewRevision" | "panMode"
+>) {
   const controls = useRef<CameraControls>(null);
   const { size, camera } = useThree();
   useEffect(() => {
@@ -1079,39 +1097,78 @@ function CameraRig({
       target = center.toArray() as V3;
       eye = center.clone().addScaledVector(normal, distance).toArray() as V3;
     } else if (selected) {
-      target = targets[selected];
-      eye = [
-        target[0] + (selected === "coffee" ? -3.6 : 3.6),
-        target[1] + 2.3,
-        target[2] + 4.8,
-      ];
+      const profiles = {
+        music: { direction: [-0.56, 0.22, 1], width: 1.85, height: 2.0 },
+        coffee: { direction: [-1, 0.55, 0.75], width: 1.9, height: 2.05 },
+        travel: { direction: [1, 0.4, 1], width: 2.25, height: 1.85 },
+        // the Ducati sits between the gear rail and the Duke: a high front three-quarter clears both
+        track: { direction: [-0.4, 0.75, 1], width: 2.25, height: 1.85 },
+      };
+      const profile = profiles[selected];
+      target =
+        selected === "music"
+          ? [layout.music[0] + 0.25, 0.86, layout.music[2] + 0.16]
+          : targets[selected];
+      const aspect = size.width / size.height;
+      const fov = THREE.MathUtils.degToRad(
+        (camera as THREE.PerspectiveCamera).fov,
+      );
+      const distance =
+        (Math.max(profile.height, profile.width / aspect) /
+          (2 * Math.tan(fov / 2))) *
+        1.2;
+      const direction = new THREE.Vector3(...profile.direction).normalize();
+      eye = new THREE.Vector3(...target)
+        .addScaledVector(direction, distance)
+        .toArray() as V3;
     } else {
       target = [-0.6, 0.8, 1];
       eye = mobile ? [8, 15, 43] : [4, 8, 18];
     }
-    c.smoothTime = reduced ? 0 : 1.05;
+    c.smoothTime = reduced ? 0 : selected ? 0.65 : 0.85;
     void c.setLookAt(...eye, ...target, !reduced).then(() => {
       if (!cancelled) onArrive();
     });
     return () => {
       cancelled = true;
     };
-  }, [selected, entered, reduced, onArrive, size.width, size.height, camera]);
+  }, [
+    selected,
+    entered,
+    reduced,
+    onArrive,
+    viewRevision,
+    size.width,
+    size.height,
+    camera,
+  ]);
   return (
     <CameraControls
       ref={controls}
       makeDefault
-      enabled={entered && !selected}
-      minPolarAngle={0.65}
-      maxPolarAngle={1.42}
-      minAzimuthAngle={-0.65}
-      maxAzimuthAngle={1.2}
-      minDistance={0.3}
-      maxDistance={70}
+      enabled={entered && selected !== "projects" && selected !== "work"}
+      onControlStart={onArrive}
+      minPolarAngle={0.12}
+      maxPolarAngle={Math.PI / 2 - 0.035}
+      minDistance={selected ? 1.1 : 2}
+      maxDistance={!entered ? 100 : 55}
       dollyToCursor={false}
-      truckSpeed={0}
-      mouseButtons={{ left: 1, middle: 0, right: 0, wheel: 0 }}
-      touches={{ one: 32, two: 0, three: 0 }}
+      azimuthRotateSpeed={0.65}
+      polarRotateSpeed={0.65}
+      dollySpeed={0.7}
+      truckSpeed={1}
+      draggingSmoothTime={0.15}
+      mouseButtons={{
+        left: panMode ? ACTION.TRUCK : ACTION.ROTATE,
+        middle: ACTION.DOLLY,
+        right: ACTION.TRUCK,
+        wheel: ACTION.DOLLY,
+      }}
+      touches={{
+        one: panMode ? ACTION.TOUCH_TRUCK : ACTION.TOUCH_ROTATE,
+        two: ACTION.TOUCH_DOLLY_TRUCK,
+        three: ACTION.TOUCH_TRUCK,
+      }}
     />
   );
 }
@@ -1122,6 +1179,8 @@ function Room({
   onArrive,
   onEnter,
   screenContent,
+  viewRevision,
+  panMode,
   night,
   reduced,
   onSelect,
@@ -1267,6 +1326,8 @@ function Room({
         entered={entered}
         reduced={reduced}
         onArrive={onArrive}
+        viewRevision={viewRevision}
+        panMode={panMode}
       />
     </>
   );
