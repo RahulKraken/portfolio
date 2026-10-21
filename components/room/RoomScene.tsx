@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Canvas,
-  useFrame,
-  useThree,
-  type ThreeEvent,
-} from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { CameraControls, Html, RoundedBox } from "@react-three/drei";
 import {
   Component,
@@ -13,7 +8,6 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
   type ReactNode,
 } from "react";
 import * as THREE from "three";
@@ -22,10 +16,16 @@ import type { RoomItem } from "./content";
 type V3 = [number, number, number];
 type SceneProps = {
   selected: RoomItem | null;
+  entered: boolean;
+  arrived: boolean;
+  screenContent: ReactNode;
+  onArrive: () => void;
+  onEnter: () => void;
   night: boolean;
   reduced: boolean;
   onSelect: (id: RoomItem) => void;
   onReady: () => void;
+  onFailure: () => void;
 };
 const ink = "#292d30";
 
@@ -161,24 +161,13 @@ function Screen({
       g.beginPath();
       g.arc(630, 220, 155, 0, Math.PI * 2);
       g.fill();
-      g.fillStyle = "#343b30";
-      g.font = "bold 76px Georgia";
-      g.fillText(
-        kind === "monitor" ? "Make something." : "Hello, world.",
-        65,
-        130,
-      );
-      g.font = "25px monospace";
-      g.fillText("a little curiosity goes a long way", 68, 190);
-      g.fillStyle = "#313d32";
-      g.fillRect(65, 345, 420, 185);
-      g.fillStyle = "#e7dfc8";
-      g.font = "24px monospace";
-      g.fillText("MEUSIC / PILLAR", 90, 400);
-      g.fillText("APEX ONE / EXPERIMENTS", 90, 448);
-      g.fillStyle = "#454f3f";
-      g.font = "20px monospace";
-      g.fillText("RAHUL KUMAR                  PERSONAL COMPUTER", 65, 600);
+      // Quiet wallpaper: the readable interface is mounted in the physical screen on approach.
+      g.fillStyle = "#c7cebb";
+      g.fillRect(220, 530, 580, 65);
+      ["#8b9e75", "#b8a17d", "#6e8d7f", "#b98365"].forEach((color, i) => {
+        g.fillStyle = color;
+        g.fillRect(290 + i * 115, 542, 42, 42);
+      });
     }
     const t = new THREE.CanvasTexture(c);
     t.colorSpace = THREE.SRGBColorSpace;
@@ -196,10 +185,14 @@ function Laptop({
   at,
   personal = false,
   rotation = 0,
+  screenContent,
+  interactive = false,
 }: {
   at: V3;
   personal?: boolean;
   rotation?: number;
+  screenContent?: ReactNode;
+  interactive?: boolean;
 }) {
   const color = personal ? "#bb9182" : "#666c72";
   return (
@@ -211,15 +204,32 @@ function Laptop({
         metalness={0.65}
       />
       <Box size={[0.69, 0.007, 0.25]} at={[0, 0.046, -0.075]} color="#303337" />
-      {Array.from({ length: 5 }, (_, i) => (
-        <Box
-          key={i}
-          at={[0, 0.052, -0.16 + i * 0.045]}
-          size={[0.64, 0.004, 0.008]}
-          color="#8d9294"
-          round={0}
-        />
-      ))}
+      {Array.from({ length: 5 }, (_, row) =>
+        Array.from({ length: row === 4 ? 8 : 12 }, (_, column) => (
+          <Box
+            key={`${row}-${column}`}
+            at={[
+              -0.292 + column * (row === 4 ? 0.081 : 0.053),
+              0.052,
+              -0.167 + row * 0.045,
+            ]}
+            size={[row === 4 ? 0.066 : 0.044, 0.006, 0.033]}
+            color="#252b2e"
+            round={0.005}
+          />
+        )),
+      )}
+      {[-0.365, 0.365].map((x) =>
+        Array.from({ length: 14 }, (_, i) => (
+          <Box
+            key={`${x}-${i}`}
+            at={[x, 0.052, -0.18 + i * 0.016]}
+            size={[0.025, 0.003, 0.004]}
+            color="#7d7d79"
+            round={0.001}
+          />
+        )),
+      )}
       <Box
         at={[0, 0.047, 0.14]}
         size={[0.26, 0.004, 0.12]}
@@ -233,6 +243,32 @@ function Laptop({
           width={0.75}
           height={0.475}
         />
+        {screenContent && (
+          <Html
+            transform
+            position={[0, 0, 0.047]}
+            distanceFactor={0.27272727}
+            className="physical-screen"
+            style={{
+              width: 1100,
+              height: 696,
+              pointerEvents: interactive ? "auto" : "none",
+              opacity: interactive ? 1 : 0,
+              transition: "opacity 220ms ease",
+            }}
+            zIndexRange={[30, 20]}
+          >
+            <div
+              inert={!interactive}
+              aria-hidden={!interactive}
+              onPointerDown={(e) => e.stopPropagation()}
+              onPointerUp={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {screenContent}
+            </div>
+          </Html>
+        )}
       </group>
     </group>
   );
@@ -264,9 +300,21 @@ function Mug({ at }: { at: V3 }) {
     </group>
   );
 }
-function Desk({ onSelect }: { onSelect: SceneProps["onSelect"] }) {
+function Desk({
+  onSelect,
+  onEnter,
+}: {
+  onSelect: SceneProps["onSelect"];
+  onEnter: () => void;
+}) {
   return (
-    <group position={[0, 0, -0.7]}>
+    <group
+      position={[0, 0, -0.7]}
+      onClick={(e) => {
+        e.stopPropagation();
+        onEnter();
+      }}
+    >
       <Box
         at={[0, 1.22, 0]}
         size={[2.8, 0.12, 1.18]}
@@ -305,7 +353,7 @@ function Desk({ onSelect }: { onSelect: SceneProps["onSelect"] }) {
           document.body.style.cursor = "";
         }}
       >
-        <Box size={[1.4, 0.85, 0.055]} color="#272d2c" />
+        <Box size={[1.4, 0.85, 0.045]} color="#272d2c" />
         <Screen kind="monitor" width={1.32} height={0.765} />
       </group>
       <Mug at={[-1.06, 1.39, 0.2]} />
@@ -654,44 +702,6 @@ function Amp() {
     </group>
   );
 }
-function Plant({ at, scale = 1 }: { at: V3; scale?: number }) {
-  return (
-    <group position={at} scale={scale}>
-      <Cylinder
-        at={[0, 0.19, 0]}
-        radius={0.21}
-        top={0.26}
-        height={0.38}
-        color="#c4b9a1"
-      />
-      {Array.from({ length: 8 }, (_, i) => {
-        const a = i * 2.4;
-        const x = Math.sin(a) * 0.28,
-          z = Math.cos(a) * 0.25,
-          h = 0.5 + (i % 3) * 0.15;
-        return (
-          <group key={i}>
-            <Rod
-              from={[0, 0.35, 0]}
-              to={[x, h, z]}
-              radius={0.01}
-              color="#56664a"
-            />
-            <mesh
-              position={[x, h, z]}
-              rotation={[0.3, a, 0.6]}
-              scale={[0.13, 0.25, 0.04]}
-              castShadow
-            >
-              <sphereGeometry args={[1, 12, 8]} />
-              <meshStandardMaterial color={i % 2 ? "#6c8057" : "#8d9e70"} />
-            </mesh>
-          </group>
-        );
-      })}
-    </group>
-  );
-}
 function Coffee() {
   return (
     <group position={[3.25, 0, -1.25]}>
@@ -832,10 +842,8 @@ function Lamp({ night, onToggle }: { night: boolean; onToggle: () => void }) {
 function Pickable({
   id,
   at,
-  label,
   children,
   onSelect,
-  selected,
 }: {
   id: RoomItem;
   at: V3;
@@ -844,39 +852,20 @@ function Pickable({
   onSelect: SceneProps["onSelect"];
   selected: RoomItem | null;
 }) {
-  const [hover, setHover] = useState(false);
-  const ref = useRef<THREE.Group>(null);
-  const invalidate = useThree((s) => s.invalidate);
   useEffect(
     () => () => {
       document.body.style.cursor = "";
     },
     [],
   );
-  useFrame((_, dt) => {
-    if (ref.current) {
-      const y = hover && selected !== id ? 0.045 : 0;
-      ref.current.position.y = THREE.MathUtils.damp(
-        ref.current.position.y,
-        at[1] + y,
-        9,
-        dt,
-      );
-      if (Math.abs(ref.current.position.y - at[1] - y) > 0.0001) invalidate();
-    }
-  });
-  const over = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation();
-    setHover(true);
-    document.body.style.cursor = "pointer";
-  };
   return (
     <group
-      ref={ref}
       position={at}
-      onPointerOver={over}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = "pointer";
+      }}
       onPointerOut={() => {
-        setHover(false);
         document.body.style.cursor = "";
       }}
       onClick={(e) => {
@@ -885,14 +874,6 @@ function Pickable({
       }}
     >
       {children}
-      {hover && !selected && (
-        <Html position={[0, 1.65, 0]} center style={{ pointerEvents: "none" }}>
-          <span className="object-label">
-            {label}
-            <span>↗</span>
-          </span>
-        </Html>
-      )}
     </group>
   );
 }
@@ -904,50 +885,79 @@ const targets: Record<RoomItem, V3> = {
   music: [2.2, 0.8, 0.6],
   coffee: [3.25, 1, -1.25],
 };
+// Independent camera staging: an establishing view, a desk view, then an object view.
 function CameraRig({
   selected,
+  entered,
   reduced,
-}: {
-  selected: RoomItem | null;
-  reduced: boolean;
-}) {
+  onArrive,
+}: Pick<SceneProps, "selected" | "entered" | "reduced" | "onArrive">) {
   const controls = useRef<CameraControls>(null);
-  const { size } = useThree();
+  const { size, camera } = useThree();
   useEffect(() => {
     const c = controls.current;
     if (!c) return;
-    const mobile = window.matchMedia("(max-width: 700px)").matches;
-    const target = selected ? targets[selected] : [0, 0.8, -0.2];
-    const offset = selected ? [7, 5, 9] : [10, 8, 13];
-    c.smoothTime = reduced ? 0 : 0.85;
-    void c.setLookAt(
-      target[0] + offset[0],
-      target[1] + offset[1],
-      target[2] + offset[2],
-      ...(target as V3),
-      !reduced,
-    );
-    void c.zoomTo(
-      selected
-        ? mobile
-          ? 65
-          : 88
-        : mobile
-          ? Math.min(window.innerWidth / 12.5, size.height / 10)
-          : Math.min(size.width / 16, size.height / 9, 85),
-      !reduced,
-    );
-  }, [selected, reduced, size.width, size.height]);
+    let cancelled = false;
+    const mobile = size.width < 700;
+    let eye: V3, target: V3;
+    if (!entered) {
+      target = [0, 0.7, -0.3];
+      const distance = mobile ? 1.65 : 1;
+      eye = [18 * distance, 13 * distance, 24 * distance];
+    } else if (selected === "projects" || selected === "work") {
+      const personal = selected === "projects";
+      const rotation = personal ? 0.07 : -0.17;
+      const center = new THREE.Vector3(0, 0, 0.047)
+        .applyEuler(new THREE.Euler(-0.17, 0, 0))
+        .add(new THREE.Vector3(0, 0.33, -0.235))
+        .applyAxisAngle(new THREE.Vector3(0, 1, 0), rotation)
+        .add(
+          new THREE.Vector3(
+            personal ? -0.42 : 0.9,
+            1.29 - 0.08,
+            personal ? -0.31 : -0.56,
+          ),
+        );
+      const normal = new THREE.Vector3(0, 0, 1)
+        .applyEuler(new THREE.Euler(-0.17, 0, 0))
+        .applyAxisAngle(new THREE.Vector3(0, 1, 0), rotation);
+      const distance =
+        (Math.max(0.475, 0.75 / (size.width / size.height)) /
+          (2 *
+            Math.tan(
+              THREE.MathUtils.degToRad(
+                (camera as THREE.PerspectiveCamera).fov,
+              ) / 2,
+            ))) *
+        1.25;
+      target = center.toArray() as V3;
+      eye = center.clone().addScaledVector(normal, distance).toArray() as V3;
+    } else if (selected) {
+      target = targets[selected];
+      eye = [target[0] + 3.6, target[1] + 2.3, target[2] + 4.8];
+    } else {
+      target = [0, 1, -0.65];
+      eye = mobile ? [5.4, 4, 8] : [3.8, 3.1, 5.8];
+    }
+    c.smoothTime = reduced ? 0 : 1.05;
+    void c.setLookAt(...eye, ...target, !reduced).then(() => {
+      if (!cancelled) onArrive();
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [selected, entered, reduced, onArrive, size.width, size.height, camera]);
   return (
     <CameraControls
       ref={controls}
       makeDefault
+      enabled={entered && !selected}
       minPolarAngle={0.65}
-      maxPolarAngle={1.25}
-      minAzimuthAngle={-0.3}
+      maxPolarAngle={1.42}
+      minAzimuthAngle={-0.65}
       maxAzimuthAngle={1.2}
-      minZoom={28}
-      maxZoom={120}
+      minDistance={0.3}
+      maxDistance={70}
       dollyToCursor={false}
       truckSpeed={0}
       mouseButtons={{ left: 1, middle: 0, right: 0, wheel: 0 }}
@@ -957,6 +967,11 @@ function CameraRig({
 }
 function Room({
   selected,
+  entered,
+  arrived,
+  onArrive,
+  onEnter,
+  screenContent,
   night,
   reduced,
   onSelect,
@@ -968,7 +983,7 @@ function Room({
   }, [onReady]);
   return (
     <>
-      <color attach="background" args={[night ? "#20292a" : "#eeeae1"]} />
+      <color attach="background" args={[night ? "#20292a" : "#e7e6e2"]} />
       <ambientLight intensity={night ? 0.6 : 1.25} />
       <hemisphereLight
         args={[
@@ -990,73 +1005,7 @@ function Room({
         shadow-normalBias={0.04}
       />
       <group position={[0, -0.08, 0]}>
-        <Box
-          at={[0, -0.08, -0.25]}
-          size={[10.3, 0.25, 6.5]}
-          color={night ? "#a39b82" : "#d5ccb5"}
-          round={0.1}
-        />
-        {Array.from({ length: 18 }, (_, i) => (
-          <Box
-            key={i}
-            at={[-4.83 + i * 0.57, 0.051, -0.25]}
-            size={[0.012, 0.002, 6.2]}
-            color="#bdb39b"
-            round={0}
-          />
-        ))}
-        <Box at={[0, 1.55, -3.45]} size={[10.3, 3.2, 0.16]} color="#ded8c8" />
-        <Box
-          at={[-5.08, 1.55, -0.25]}
-          size={[0.14, 3.2, 6.5]}
-          color="#d4cfbf"
-        />
-        <Box at={[0, 0.16, -3.34]} size={[10.1, 0.17, 0.05]} color="#b8b39e" />
-        <group position={[-1.6, 1.9, -3.32]}>
-          <Box size={[2.9, 1.72, 0.07]} color="#b5af99" />
-          <Box
-            at={[0, 0, 0.05]}
-            size={[2.7, 1.54, 0.04]}
-            color={night ? "#536c7c" : "#c1d1cf"}
-          />
-          <Box at={[0, 0, 0.09]} size={[0.06, 1.58, 0.05]} color="#eeeadc" />
-          <Box at={[0, 0, 0.1]} size={[2.74, 0.055, 0.05]} color="#eeeadc" />
-          <Box at={[0, -0.88, 0.08]} size={[3.1, 0.09, 0.23]} color="#eee8d8" />
-          {[-0.8, 0.45].map((x) => (
-            <Box
-              key={x}
-              at={[x, 0.1, 0.078]}
-              size={[0.28, 1.2, 0.006]}
-              color={night ? "#405967" : "#b7cbc4"}
-            />
-          ))}
-        </group>
-        <Box at={[2.55, 2.05, -3.32]} size={[1.3, 1.1, 0.04]} color="#343d37" />
-        <Box
-          at={[2.55, 2.05, -3.28]}
-          size={[1.15, 0.95, 0.015]}
-          color="#e1d2af"
-        />
-        <mesh position={[2.55, 2.08, -3.26]}>
-          <circleGeometry args={[0.3, 40]} />
-          <meshStandardMaterial color="#b9583a" />
-        </mesh>
-        <Box
-          at={[0.4, 0.07, 0.85]}
-          size={[3.35, 0.025, 2.55]}
-          color="#b1b59a"
-          round={0.04}
-        />
-        {Array.from({ length: 12 }, (_, i) => (
-          <Box
-            key={i}
-            at={[-1.12 + i * 0.27, 0.085, 0.85]}
-            size={[0.025, 0.002, 2.5]}
-            color="#bfc1a9"
-            round={0}
-          />
-        ))}
-        <Desk onSelect={onSelect} />
+        <Desk onSelect={onSelect} onEnter={onEnter} />
         <Chair />
         <Pickable
           id="projects"
@@ -1065,7 +1014,13 @@ function Room({
           onSelect={onSelect}
           selected={selected}
         >
-          <Laptop at={[0, 0, 0]} personal rotation={0.07} />
+          <Laptop
+            at={[0, 0, 0]}
+            personal
+            rotation={0.07}
+            screenContent={selected === "projects" ? screenContent : null}
+            interactive={arrived}
+          />
         </Pickable>
         <Pickable
           id="work"
@@ -1074,11 +1029,16 @@ function Room({
           onSelect={onSelect}
           selected={selected}
         >
-          <Laptop at={[0, 0, 0]} rotation={-0.17} />
+          <Laptop
+            at={[0, 0, 0]}
+            rotation={-0.17}
+            screenContent={selected === "work" ? screenContent : null}
+            interactive={arrived}
+          />
         </Pickable>
         <Pickable
           id="travel"
-          at={[-3.15, 0.05, 0.58]}
+          at={[-3.15, -0.04, 0.58]}
           label="On the road · KTM"
           onSelect={onSelect}
           selected={selected}
@@ -1089,7 +1049,7 @@ function Room({
         </Pickable>
         <Pickable
           id="track"
-          at={[-3.6, 0.05, -1.28]}
+          at={[-3.6, -0.04, -1.28]}
           label="On the track · Ducati"
           onSelect={onSelect}
           selected={selected}
@@ -1100,13 +1060,13 @@ function Room({
         </Pickable>
         <Pickable
           id="music"
-          at={[2.2, 0.7, 0.6]}
+          at={[2.2, 0.585, 0.6]}
           label="A little Pink Floyd?"
           onSelect={onSelect}
           selected={selected}
         >
           <Guitar />
-          <group position={[0.72, -0.36, -0.1]}>
+          <group position={[0.72, -0.32, -0.1]}>
             <Amp />
           </group>
           <Rod
@@ -1131,45 +1091,41 @@ function Room({
         >
           <Coffee />
         </Pickable>
-        <Plant at={[4.3, 0.08, -2.6]} scale={1.6} />
-        <Plant at={[-4.3, 0.08, 2]} scale={1.1} />
         <Lamp night={night} onToggle={onToggle} />
-        <group position={[0.2, 2.25, -3.23]}>
-          <Box size={[0.7, 0.045, 0.24]} color="#98744e" />
-          <Box at={[-0.2, 0.19, 0]} size={[0.08, 0.32, 0.17]} color="#b96743" />
-          <Box
-            at={[-0.08, 0.17, 0]}
-            size={[0.12, 0.28, 0.17]}
-            color="#757f62"
-          />
-          <Box at={[0.07, 0.18, 0]} size={[0.1, 0.3, 0.17]} color="#dfd6b8" />
-        </group>
       </group>
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -0.24, 0]}
+        position={[0, -0.085, 0]}
         receiveShadow
       >
         <planeGeometry args={[200, 200]} />
         <shadowMaterial transparent opacity={night ? 0.15 : 0.12} />
       </mesh>
-      <CameraRig selected={selected} reduced={reduced} />
+      <CameraRig
+        selected={selected}
+        entered={entered}
+        reduced={reduced}
+        onArrive={onArrive}
+      />
     </>
   );
 }
 class SceneBoundary extends Component<
-  { children: ReactNode },
+  { children: ReactNode; onFailure: () => void },
   { failed: boolean }
 > {
   state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
   }
+  componentDidCatch() {
+    this.props.onFailure();
+  }
   render() {
     return this.state.failed ? (
       <div className="scene-fallback">
         <p>The room couldn’t load on this device.</p>
-        <span>You can still explore everything using the menu below.</span>
+        <span>You can still explore everything using the studio menu.</span>
       </div>
     ) : (
       this.props.children
@@ -1180,13 +1136,12 @@ export default function RoomScene(
   props: SceneProps & { onToggle: () => void },
 ) {
   return (
-    <SceneBoundary>
+    <SceneBoundary onFailure={props.onFailure}>
       <Canvas
         frameloop="demand"
-        orthographic
         shadows
         dpr={[1, 1.75]}
-        camera={{ position: [10, 8, 13], zoom: 70, near: 0.1, far: 100 }}
+        camera={{ position: [18, 13, 24], fov: 40, near: 0.02, far: 150 }}
         gl={{
           antialias: true,
           alpha: false,

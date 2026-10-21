@@ -49,7 +49,7 @@ validate composition before investing in detailed assets.
 Proposed stack: retain Next.js/React/TypeScript; add Three.js, React Three Fiber,
 and Drei when implementing. Use GLB models as appropriate. Simple objects can
 be code-built; complex assets may use licensed models or tested AI generation.
-Manual cleanup/Blender depends on results. No 3D dependencies installed yet.
+Manual cleanup/Blender depends on results. Three.js, React Three Fiber, and Drei are installed.
 
 No asset purchase, AI subscription, or external upload has been authorized.
 
@@ -77,3 +77,25 @@ on demand, and has direct navigation outside WebGL.
 Current work/project copy is reused from the existing repo and still needs Rahul’s
 review for currency. Travel content is introductory; no trip histories or lap stats
 have been invented. Raw photos were not uploaded to an AI service.
+
+## Version two: space and screen interactions
+
+Rahul approved a small scene floating in empty space, without opening text.
+The header, hero copy, destination dock, and footer are removed. The walls,
+window, plants, art, and platform are removed so the belongings define the scene.
+A first click approaches the desk; clicking a laptop moves the perspective camera
+straight onto its screen. Native interactive HTML sits inside each physical
+screen on desktop. Personal projects have an index and detail views; work uses
+the existing engineering content. Escape / the back arrow returns to the desk,
+then to the distant opening. An icon menu appears after entering, with a separate
+keyboard navigation path. Phone screens open a readable computer overlay.
+
+Models remain original procedural geometry. Laptops now have individual keys,
+speaker grilles, bezels, hinges, and trackpads. Other objects keep their existing
+content dialogs and simplified models for the next visual review. No source or
+assets from Henry Heffernan's repository were copied; it was inspected only as
+a reference for camera staging and screen interaction concepts.
+
+Daylight remains the default; the lamp or sun icon switches to night. The blank
+opening is intentional. Loading is indicated by a small spinner; browser
+accessibility labels remain available without adding visible landing-page copy.

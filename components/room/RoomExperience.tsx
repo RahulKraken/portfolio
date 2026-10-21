@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import Image from "next/image";
 import {
   useCallback,
@@ -10,10 +9,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { products } from "@/lib/products";
-import { craft } from "@/lib/craft";
 import { site } from "@/lib/site";
 import { roomItems, type RoomItem } from "./content";
+import LaptopDesktop from "./LaptopDesktop";
 
 const RoomScene = dynamic(() => import("./RoomScene"), {
   ssr: false,
@@ -124,75 +122,6 @@ function strum() {
   return audio;
 }
 function PanelBody({ id, playSound }: { id: RoomItem; playSound: () => void }) {
-  if (id === "work")
-    return (
-      <>
-        <p className="panel-caption">THE SPACE-GREY MACBOOK PRO</p>
-        <div className="work-list">
-          {craft.map((item, i) => (
-            <article key={item.id}>
-              <span>{String(i + 1).padStart(2, "0")}</span>
-              <div>
-                <h3>{item.label}</h3>
-                <p>{item.line}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-        <a className="room-text-link" href={`mailto:${site.email}`}>
-          Let’s talk engineering <Arrow />
-        </a>
-      </>
-    );
-  if (id === "projects")
-    return (
-      <>
-        <p className="panel-caption">THE ROSE-GOLD MACBOOK AIR</p>
-        <div className="project-list">
-          {products.map((p, i) => (
-            <article key={p.id}>
-              <div className={`project-art project-art-${i}`} aria-hidden>
-                {i === 0 ? (
-                  <div className="waveform">
-                    {Array.from({ length: 23 }, (_, j) => (
-                      <i
-                        key={j}
-                        style={{
-                          height: 12 + Math.abs(Math.sin(j * 1.7)) * 40,
-                        }}
-                      />
-                    ))}
-                  </div>
-                ) : i === 1 ? (
-                  <div className="tiny-phone">
-                    <i />
-                    <i />
-                    <i />
-                  </div>
-                ) : i === 2 ? (
-                  <div className="telemetry">
-                    <span>APEX ONE</span>
-                    <svg viewBox="0 0 120 45">
-                      <path d="M2 38 20 34 35 10 50 28 67 18 85 24 118 4" />
-                    </svg>
-                  </div>
-                ) : (
-                  <span className="question-mark">?</span>
-                )}
-              </div>
-              <span className="project-status">{p.status}</span>
-              <h3>{p.name}</h3>
-              <p>{p.line}</p>
-              {p.href && (
-                <a href={p.href} target="_blank" rel="noreferrer">
-                  Explore <Arrow />
-                </a>
-              )}
-            </article>
-          ))}
-        </div>
-      </>
-    );
   if (id === "track")
     return (
       <>
@@ -397,138 +326,218 @@ function Dialog({
 }
 export default function RoomExperience() {
   const [selected, setSelected] = useState<RoomItem | null>(null);
+  const [entered, setEntered] = useState(false);
+  const [arrived, setArrived] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [night, setNight] = useState(false);
   const [ready, setReady] = useState(false);
+  const [sceneFailed, setSceneFailed] = useState(false);
   const [reduced, setReduced] = useState(false);
-  const [sound, setSound] = useState(false);
   const audio = useRef<AudioContext | null>(null);
   const soundTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onReady = useCallback(() => setReady(true), []);
+  const onArrive = useCallback(() => setArrived(true), []);
+  const onFailure = useCallback(() => {
+    setSceneFailed(true);
+    setReady(true);
+    setEntered(true);
+    setArrived(true);
+    setMenuOpen(true);
+  }, []);
   const toggle = useCallback(() => setNight((v) => !v), []);
-  const close = useCallback(() => setSelected(null), []);
+  const enter = useCallback(() => {
+    setArrived(false);
+    setSelected(null);
+    setEntered(true);
+  }, []);
+  const select = useCallback(
+    (id: RoomItem) => {
+      if (id === selected) return;
+      setArrived(sceneFailed);
+      setMenuOpen(false);
+      setEntered(true);
+      setSelected(id);
+    },
+    [sceneFailed, selected],
+  );
+  const back = useCallback(() => {
+    setArrived(false);
+    setMenuOpen(false);
+    if (selected) setSelected(null);
+    else setEntered(false);
+  }, [selected]);
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setReduced(media.matches);
     update();
     media.addEventListener("change", update);
-    const select = (e: Event) => {
-      const id = (e as CustomEvent<RoomItem>).detail;
-      if (roomItems.some((item) => item.id === id)) setSelected(id);
-    };
-    window.addEventListener("room-select", select);
     return () => {
       media.removeEventListener("change", update);
-      window.removeEventListener("room-select", select);
       audio.current?.close();
       if (soundTimer.current) clearTimeout(soundTimer.current);
     };
   }, []);
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (menuOpen) setMenuOpen(false);
+        else if (entered) back();
+      }
+    };
+    const navigate = (e: Event) => {
+      const id = (e as CustomEvent<RoomItem>).detail;
+      if (roomItems.some((item) => item.id === id)) select(id);
+    };
+    window.addEventListener("keydown", key);
+    window.addEventListener("room-select", navigate);
+    return () => {
+      window.removeEventListener("keydown", key);
+      window.removeEventListener("room-select", navigate);
+    };
+  }, [back, entered, menuOpen, select]);
   const playSound = () => {
     audio.current?.close();
     if (soundTimer.current) clearTimeout(soundTimer.current);
     audio.current = strum();
-    setSound(true);
-    soundTimer.current = setTimeout(() => {
-      audio.current?.close();
-      setSound(false);
-    }, 2500);
+    soundTimer.current = setTimeout(() => audio.current?.close(), 2500);
   };
+  const computer = selected === "projects" || selected === "work";
+  useEffect(() => {
+    if (!computer || !arrived) return;
+    const frame = requestAnimationFrame(() => {
+      const controls = Array.from(
+        document.querySelectorAll<HTMLButtonElement>(".computer-exit"),
+      );
+      controls
+        .find((button) => button.getClientRects().length > 0)
+        ?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [computer, arrived]);
+  const screenContent = computer ? (
+    <LaptopDesktop work={selected === "work"} onBack={back} />
+  ) : null;
   return (
-    <main className={`room-experience${night ? " room-night" : ""}`}>
-      <header className="room-header">
-        <Link className="room-brand" href="/" aria-label="Rahul Kumar home">
-          <span className="brand-dot" />
-          Rahul Kumar<span className="brand-slash">/</span>
-          <span className="brand-sub">a work in progress</span>
-        </Link>
-        <a className="room-contact" href={`mailto:${site.email}`}>
-          Say hello <Arrow />
-        </a>
-      </header>
-      <div className="room-heading">
-        <p className="room-eyebrow">
-          <span />
-          ENGINEERING, MUSIC & OTHER CURIOSITIES.
-        </p>
-        <h1>
-          Make yourself
-          <br />
-          <em>at home.</em>
-        </h1>
-        <p>
-          A few things I build. A few things I love.
-          <br />
-          Come have a look around.
-        </p>
-      </div>
+    <main
+      className={`room-experience quiet-studio${night ? " room-night" : ""}`}
+    >
+      <h1 className="sr-only">Rahul Kumar’s interactive studio</h1>
       <div
         className="room-scene"
-        aria-label="Interactive 3D studio. Use the buttons below to explore work, projects, motorcycles, music, and coffee."
+        aria-label="Interactive studio with a desk, two laptops, motorcycles, guitar, and coffee setup."
       >
         <RoomScene
           selected={selected}
+          entered={entered}
+          arrived={arrived}
           night={night}
           reduced={reduced}
-          onSelect={setSelected}
+          onSelect={select}
           onReady={onReady}
+          onFailure={onFailure}
           onToggle={toggle}
+          onArrive={onArrive}
+          onEnter={enter}
+          screenContent={screenContent}
         />
       </div>
+      {!entered && (
+        <button
+          className="studio-entry"
+          onClick={enter}
+          aria-label="Enter the studio and approach the desk"
+          disabled={!ready}
+        >
+          <span className="sr-only">Enter the studio</span>
+        </button>
+      )}
       {!ready && (
-        <div className="room-loading" role="status">
+        <div
+          className="studio-loading"
+          role="status"
+          aria-label="Loading the studio"
+        >
           <span />
-          Opening the studio…
         </div>
       )}
-      <aside className="room-side-note">
-        <span>01 — THE STUDIO</span>
-        <p>
-          Usually building something.
-          <br />
-          Probably needs another coffee.
-        </p>
-      </aside>
-      <div className="room-tools">
-        <button
-          onClick={toggle}
-          aria-label={night ? "Switch to daylight" : "Switch to night"}
-          aria-pressed={night}
-        >
-          <Sun night={night} />
-          <span>{night ? "Late night" : "Daylight"}</span>
-        </button>
-        <span className="tools-divider" />
-        <span className="sound-status">
-          {sound ? "Playing a chord" : "Sound off"}
-        </span>
-      </div>
-      <footer className="room-footer">
-        <div className="explore-caption">
-          <span className="explore-circle">↖</span>
-          <p>
-            Follow your curiosity.<span>Click an object, or start here.</span>
-          </p>
-        </div>
-        <nav className="room-dock" aria-label="Explore the studio">
-          {roomItems.map((item) => (
+      {entered && !computer && (
+        <div className="studio-controls">
+          <button
+            onClick={back}
+            aria-label={
+              selected ? "Back to the desk" : "Return to the distant view"
+            }
+          >
+            ←
+          </button>
+          <div>
             <button
-              key={item.id}
-              onClick={() => setSelected(item.id)}
-              aria-label={`Explore ${item.label}: ${item.object}`}
+              onClick={toggle}
+              aria-label={night ? "Switch to daylight" : "Switch to night"}
+              aria-pressed={night}
             >
+              <Sun night={night} />
+            </button>
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label="Explore the studio"
+              aria-expanded={menuOpen}
+              aria-controls="studio-menu"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden
+              >
+                {[5, 13].flatMap((x) =>
+                  [5, 13].map((y) => (
+                    <circle key={`${x}-${y}`} cx={x} cy={y} r="1.6" />
+                  )),
+                )}
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+      {menuOpen && (
+        <nav
+          id="studio-menu"
+          className="studio-menu"
+          aria-label="Studio destinations"
+        >
+          {roomItems.map((item) => (
+            <button key={item.id} onClick={() => select(item.id)}>
               <Icon id={item.id} />
-              <span>{item.label}</span>
+              {item.label}
+              <span>↗</span>
             </button>
           ))}
+          <a href={`mailto:${site.email}`}>
+            Contact <Arrow />
+          </a>
         </nav>
-        <span className="room-edition">
-          PERSONAL SPACE
-          <br />
-          VOL. 01 / 2026
-        </span>
-      </footer>
-      {selected && (
-        <Dialog id={selected} onClose={close}>
+      )}
+      <nav
+        className="studio-accessibility"
+        aria-label="Accessible studio navigation"
+      >
+        {roomItems.map((item) => (
+          <button key={item.id} onClick={() => select(item.id)}>
+            {item.label}
+          </button>
+        ))}
+      </nav>
+      {computer && arrived && (
+        <div
+          className={`mobile-computer${sceneFailed ? " computer-fallback" : ""}`}
+        >
+          {screenContent}
+        </div>
+      )}
+      {selected && !computer && arrived && (
+        <Dialog id={selected} onClose={back}>
           <PanelBody id={selected} playSound={playSound} />
         </Dialog>
       )}
