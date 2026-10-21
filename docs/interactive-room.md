@@ -135,3 +135,20 @@ than TOUCH_ROTATE (64) in this library version, so phone drags zoomed instead of
 the scene now uses named action constants. The closest zoom on a selected object stops
 before the camera enters it. The Ducati is approached from a high front three-quarter so
 neither the gear rail nor the Duke blocks it.
+
+## Version four: generated models
+
+The procedural stand-ins are replaced by image-to-3D meshes in `public/models/`
+(fal.ai: Hunyuan 3D Pro for most objects, Meshy 7.1 multi-image for the KTM, helmet and
+boots). Bikes, guitar, amp and riding gear come from official product photos of the actual
+gear; the desk, chair, monitor and laptops from generated reference images. Sources and raw
+outputs live in the git-ignored `references/3d/`. Each mesh is simplified and
+WebP/meshopt-compressed with glTF-Transform (about 0.4–1.6 MB each; 1024 px textures except
+the bikes, helmet and laptops).
+
+`Model` fits each mesh to a footprint, so the floor plan and cameras are unchanged except
+for one deliberate fix: the bikes and riding gear were drawn about 0.6× the desk's scale;
+everything now shares the desk's (1.28 units = 75 cm), with the Ducati and gear rail moved
+outward and the bike close-ups widened. Laptop and monitor screens are pinned to each lid's
+measured front plane, over a flat bezel that hides the generated glass. A locally generated
+room environment lights the PBR materials. Coffee table models are pending review.

@@ -10,3 +10,9 @@ photos-raw/
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# reference images for 3D generation (internet product photos; never committed)
+references/
+
+# local model viewer for reviewing generated GLBs
+public/models/_viewer.html

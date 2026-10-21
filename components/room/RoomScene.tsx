@@ -11,7 +11,9 @@ import {
   type ReactNode,
 } from "react";
 import * as THREE from "three";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import type { RoomItem } from "./content";
+import { Model } from "./Model";
 
 type V3 = [number, number, number];
 type SceneProps = {
@@ -30,14 +32,34 @@ type SceneProps = {
   onFailure: () => void;
 };
 const ink = "#292d30";
-// Floor-plan coordinates: +z is forward, toward the visitor.
+// Floor-plan coordinates: +z is forward, toward the visitor. One scale throughout:
+// the desk top (1.28) is 75 cm, so 1 m ≈ 1.7 units.
 const layout = {
   duke: [-4.35, -0.04, -0.35] as V3,
-  ducati: [-5.9, -0.04, -0.35] as V3,
-  gear: [-7.05, -0.04, -0.35] as V3,
+  ducati: [-6.15, -0.04, -0.35] as V3,
+  gear: [-7.8, -0.04, -0.35] as V3,
   music: [3.05, 0.585, 0.05] as V3,
   coffee: [5.45, 0, 4.15] as V3,
 };
+// Each laptop is a generated model; `lid` is its screen's pose, measured from the mesh's
+// lid front face (centre height, depth and lean), in scene units after fitting to 0.82 wide.
+const laptops = {
+  work: {
+    model: "laptop-pro",
+    at: [0.9, 1.28, -0.56] as V3,
+    turn: -0.17,
+    lid: { y: 0.314, z: -0.214, tilt: -0.314 },
+  },
+  projects: {
+    model: "laptop-air",
+    at: [-0.42, 1.28, -0.31] as V3,
+    turn: 0.07,
+    lid: { y: 0.317, z: -0.176, tilt: -0.094 },
+  },
+} as const;
+// the generated lids are lumpy glass, so a flat bezel sits under the screen
+const screen = { width: 0.76, height: 0.48 };
+const bezel = { width: 0.79, height: 0.505 };
 
 function Box({
   at = [0, 0, 0],
@@ -135,6 +157,7 @@ function Screen({
   width: number;
   height: number;
 }) {
+  // the plane floats just proud of the model's own (black) panel
   const texture = useMemo(() => {
     const c = document.createElement("canvas");
     c.width = 1024;
@@ -185,79 +208,37 @@ function Screen({
   }, [kind]);
   useEffect(() => () => texture.dispose(), [texture]);
   return (
-    <mesh position={[0, 0, 0.04]}>
+    <mesh position={[0, 0, 0.004]}>
       <planeGeometry args={[width, height]} />
       <meshBasicMaterial map={texture} toneMapped={false} />
     </mesh>
   );
 }
 function Laptop({
-  at,
-  personal = false,
-  rotation = 0,
+  id,
   screenContent,
   interactive = false,
 }: {
-  at: V3;
-  personal?: boolean;
-  rotation?: number;
+  id: keyof typeof laptops;
   screenContent?: ReactNode;
   interactive?: boolean;
 }) {
-  const color = personal ? "#bb9182" : "#666c72";
+  const { model, turn, lid } = laptops[id];
   return (
-    <group position={at} rotation={[0, rotation, 0]}>
-      <Box
-        size={[0.82, 0.035, 0.56]}
-        at={[0, 0.025, 0]}
-        color={color}
-        metalness={0.65}
-      />
-      <Box size={[0.69, 0.007, 0.25]} at={[0, 0.046, -0.075]} color="#303337" />
-      {Array.from({ length: 5 }, (_, row) =>
-        Array.from({ length: row === 4 ? 8 : 12 }, (_, column) => (
-          <Box
-            key={`${row}-${column}`}
-            at={[
-              -0.292 + column * (row === 4 ? 0.081 : 0.053),
-              0.052,
-              -0.167 + row * 0.045,
-            ]}
-            size={[row === 4 ? 0.066 : 0.044, 0.006, 0.033]}
-            color="#252b2e"
-            round={0.005}
-          />
-        )),
-      )}
-      {[-0.365, 0.365].map((x) =>
-        Array.from({ length: 14 }, (_, i) => (
-          <Box
-            key={`${x}-${i}`}
-            at={[x, 0.052, -0.18 + i * 0.016]}
-            size={[0.025, 0.003, 0.004]}
-            color="#7d7d79"
-            round={0.001}
-          />
-        )),
-      )}
-      <Box
-        at={[0, 0.047, 0.14]}
-        size={[0.26, 0.004, 0.12]}
-        color={personal ? "#caa99c" : "#85898c"}
-      />
-      <group position={[0, 0.33, -0.235]} rotation={[-0.17, 0, 0]}>
-        <Box size={[0.83, 0.57, 0.027]} color={color} />
-        <Box at={[0, 0, 0.017]} size={[0.79, 0.53, 0.007]} color="#101516" />
-        <Screen
-          kind={personal ? "projects" : "work"}
-          width={0.75}
-          height={0.475}
-        />
+    <group rotation={[0, turn, 0]}>
+      <Model name={model} fit={["x", 0.82]} native />
+      <group position={[0, lid.y, lid.z]} rotation={[lid.tilt, 0, 0]}>
+        <mesh position={[0, 0, 0.002]}>
+          <planeGeometry args={[bezel.width, bezel.height]} />
+          <meshStandardMaterial color="#0c0e0f" roughness={0.3} />
+        </mesh>
+        <Screen kind={id} width={screen.width} height={screen.height} />
         {screenContent && (
           <Html
             transform
-            position={[0, 0, 0.047]}
-            distanceFactor={0.27272727}
+            position={[0, 0, 0.007]}
+            // drei sizes a transformed element at distanceFactor / 400 units per px
+            distanceFactor={(screen.width * 400) / 1100}
             className="physical-screen"
             style={{
               width: 1100,
@@ -281,6 +262,18 @@ function Laptop({
         )}
       </group>
     </group>
+  );
+}
+function Cable({ points }: { points: V3[] }) {
+  const curve = useMemo(
+    () => new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p))),
+    [points],
+  );
+  return (
+    <mesh castShadow>
+      <tubeGeometry args={[curve, 64, 0.011, 8, false]} />
+      <meshStandardMaterial color="#b74631" roughness={0.55} />
+    </mesh>
   );
 }
 function Mug({ at }: { at: V3 }) {
@@ -325,33 +318,10 @@ function Desk({
         if (e.delta < 4) onEnter();
       }}
     >
-      <Box
-        at={[0, 1.22, 0]}
-        size={[2.8, 0.12, 1.18]}
-        color="#b5895a"
-        round={0.035}
-      />
-      {[-1.23, 1.23].map((x) => (
-        <group key={x}>
-          <Rod from={[x, 0.06, 0.48]} to={[x, 1.16, -0.4]} radius={0.035} />
-          <Rod from={[x, 0.06, -0.4]} to={[x, 1.16, 0.48]} radius={0.035} />
-        </group>
-      ))}
-      <Box at={[0, 0.55, -0.4]} size={[2.5, 0.045, 0.045]} color={ink} />
-      <Cylinder
-        at={[-0.2, 1.32, -0.28]}
-        radius={0.17}
-        height={0.04}
-        color="#555957"
-      />
-      <Rod
-        from={[-0.2, 1.32, -0.28]}
-        to={[-0.2, 1.64, -0.3]}
-        radius={0.04}
-        color="#6d716e"
-      />
+      {/* stretched to the floor plan's footprint so the laptops keep their places */}
+      <Model name="desk" fit={{ x: 2.8, y: 1.28, z: 1.18 }} />
       <group
-        position={[-0.2, 1.99, -0.32]}
+        position={[-0.2, 1.28, -0.3]}
         onClick={(e) => {
           e.stopPropagation();
           if (e.delta < 4) onSelect("projects");
@@ -363,18 +333,22 @@ function Desk({
           document.body.style.cursor = "";
         }}
       >
-        <Box size={[1.4, 0.85, 0.045]} color="#272d2c" />
-        <Screen kind="monitor" width={1.32} height={0.765} />
+        <Model name="monitor" fit={["x", 1.4]} native />
+        {/* panel centre and face, measured from the mesh at this fit */}
+        <group position={[0, 0.81, 0.078]}>
+          <Screen kind="monitor" width={1.3} height={0.73} />
+        </group>
       </group>
       <Mug at={[-1.06, 1.39, 0.2]} />
       <Box
-        at={[-1.08, 1.29, -0.3]}
+        at={[-1.08, 1.3, -0.3]}
         size={[0.28, 0.045, 0.18]}
         color="#e4dfcc"
       />
+      {/* the personal laptop drives the monitor */}
       <Rod
-        from={[-0.2, 1.5, -0.34]}
-        to={[0.5, 1.3, -0.4]}
+        from={[-0.2, 1.29, -0.22]}
+        to={[-0.42, 1.29, 0.17]}
         radius={0.008}
         color="#454a43"
       />
@@ -382,362 +356,17 @@ function Desk({
   );
 }
 function Chair() {
+  // turned to face the desk
   return (
     <group position={[0.12, 0, 1.05]}>
-      <Cylinder at={[0, 0.34, 0]} radius={0.045} height={0.5} color="#646965" />
-      {Array.from({ length: 5 }, (_, i) => {
-        const a = (i * Math.PI * 2) / 5;
-        return (
-          <group key={i}>
-            <Rod
-              from={[0, 0.12, 0]}
-              to={[Math.cos(a) * 0.43, 0.09, Math.sin(a) * 0.43]}
-              radius={0.026}
-              color="#555c59"
-            />
-            <Cylinder
-              at={[Math.cos(a) * 0.43, 0.065, Math.sin(a) * 0.43]}
-              radius={0.055}
-              height={0.06}
-              color="#252b2a"
-              rotation={[Math.PI / 2, 0, a]}
-            />
-          </group>
-        );
-      })}
-      <Box
-        at={[0, 0.69, 0]}
-        size={[0.72, 0.13, 0.7]}
-        color="#778378"
-        round={0.09}
-      />
-      <Box
-        at={[0, 1.12, 0.33]}
-        size={[0.69, 0.73, 0.12]}
-        color="#778378"
-        rotation={[-0.1, 0, 0]}
-        round={0.07}
-      />
-      {[-0.42, 0.42].map((x) => (
-        <group key={x}>
-          <Rod from={[x, 0.64, 0.16]} to={[x, 0.97, 0.16]} radius={0.025} />
-          <Box
-            at={[x, 0.98, 0.03]}
-            size={[0.095, 0.055, 0.43]}
-            color="#39413b"
-          />
-        </group>
-      ))}
-    </group>
-  );
-}
-function Wheel({ at, sport = false }: { at: V3; sport?: boolean }) {
-  return (
-    <group position={at}>
-      <mesh castShadow>
-        <torusGeometry args={[0.32, sport ? 0.095 : 0.075, 12, 40]} />
-        <meshStandardMaterial color="#25282b" roughness={0.92} />
-      </mesh>
-      <mesh>
-        <torusGeometry args={[0.255, 0.026, 8, 40]} />
-        <meshStandardMaterial
-          color={sport ? "#353a3b" : "#ef672f"}
-          metalness={0.5}
-        />
-      </mesh>
-      <Cylinder
-        at={[0, 0, 0]}
-        radius={0.19}
-        height={0.035}
-        color="#888b85"
-        rotation={[Math.PI / 2, 0, 0]}
-      />
-      {Array.from({ length: 6 }, (_, i) => {
-        const a = (i * Math.PI) / 3;
-        return (
-          <Rod
-            key={i}
-            from={[0, 0, 0]}
-            to={[Math.cos(a) * 0.255, Math.sin(a) * 0.255, 0]}
-            radius={0.016}
-            color="#434a49"
-          />
-        );
-      })}
-      <Cylinder
-        at={[0, 0, 0]}
-        radius={0.065}
-        height={0.19}
-        color="#555c58"
-        rotation={[Math.PI / 2, 0, 0]}
-      />
-    </group>
-  );
-}
-function Bike({ sport = false }: { sport?: boolean }) {
-  const paint = sport ? "#cf352a" : "#315b93";
-  return (
-    <group rotation={[0, 0, -0.055]}>
-      <Wheel at={[-0.7, 0.43, 0]} sport={sport} />
-      <Wheel at={[0.72, 0.43, 0]} sport={sport} />
-      <Rod
-        from={[-0.7, 0.43, 0]}
-        to={[-0.2, 0.7, 0]}
-        radius={0.065}
-        color="#555b59"
-      />
-      {[-0.13, 0.13].map((y) => (
-        <group key={y}>
-          <Rod
-            from={[-0.65, 0.46, y]}
-            to={[0.18, 1.02, y]}
-            color={sport ? "#303a3b" : "#ed6a2a"}
-            radius={0.036}
-          />
-          <Rod
-            from={[-0.5, 0.93, y]}
-            to={[0.18, 0.57, y]}
-            color={sport ? "#303a3b" : "#ed6a2a"}
-            radius={0.03}
-          />
-          <Rod
-            from={[0.72, 0.43, y]}
-            to={[0.46, 1.12, y]}
-            radius={0.037}
-            color={sport ? "#d4ad52" : "#7d8585"}
-          />
-        </group>
-      ))}
-      <Box
-        at={[-0.4, 1.02, 0]}
-        size={[0.64, 0.11, 0.32]}
-        color="#292e30"
-        rotation={[0, 0, -0.05]}
-      />
-      <Box
-        at={[-0.76, 1.08, 0]}
-        size={[0.35, 0.13, 0.26]}
-        color={paint}
-        rotation={[0, 0, -0.15]}
-      />
-      <Box
-        at={[-0.01, 0.91, 0]}
-        size={[0.62, 0.39, 0.38]}
-        color={paint}
-        rotation={[0, 0, -0.2]}
-        round={0.11}
-      />
-      <Cylinder
-        at={[-0.04, 0.63, 0]}
-        radius={0.19}
-        height={0.32}
-        color="#555a55"
-        rotation={[Math.PI / 2, 0, 0]}
-      />
-      {sport ? (
-        <>
-          <Box
-            at={[0.26, 0.69, 0]}
-            size={[0.65, 0.49, 0.41]}
-            color={paint}
-            rotation={[0, 0, 0.32]}
-            round={0.09}
-          />
-          <Box
-            at={[0.55, 1.05, 0]}
-            size={[0.4, 0.3, 0.38]}
-            color={paint}
-            rotation={[0, 0, -0.25]}
-            round={0.08}
-          />
-          <Box
-            at={[0.45, 1.26, 0]}
-            size={[0.23, 0.22, 0.28]}
-            color="#8eabaf"
-            rotation={[0, 0, 0.45]}
-            round={0.05}
-          />
-          <Box
-            at={[0.73, 1.085, 0.14]}
-            size={[0.1, 0.045, 0.08]}
-            color="#fff1c8"
-          />
-        </>
-      ) : (
-        <>
-          <Box
-            at={[0.55, 1.08, 0]}
-            size={[0.16, 0.3, 0.22]}
-            color="#3b4144"
-            rotation={[0, 0, 0.15]}
-          />
-          <Box at={[0.64, 1.08, 0]} size={[0.025, 0.2, 0.17]} color="#d9e9e4" />
-          <Box
-            at={[0.18, 0.77, 0.195]}
-            size={[0.24, 0.09, 0.025]}
-            color="#f57937"
-            rotation={[0, 0, -0.25]}
-          />
-        </>
-      )}
-      <Rod from={[0.39, 1.18, -0.3]} to={[0.39, 1.18, 0.3]} radius={0.026} />
-      <Rod
-        from={[-0.2, 0.48, 0.2]}
-        to={[-0.65, 0.56, 0.24]}
-        radius={0.055}
-        color="#6a6b61"
-      />
-      <Rod from={[-0.2, 0.65, 0.1]} to={[-0.25, 0.04, 0.36]} radius={0.018} />
-    </group>
-  );
-}
-function Guitar() {
-  const shape = useMemo(() => {
-    const s = new THREE.Shape();
-    s.moveTo(-0.08, 0.25);
-    s.bezierCurveTo(-0.1, 0.52, -0.3, 0.49, -0.22, 0.17);
-    s.bezierCurveTo(-0.5, 0.15, -0.47, -0.18, -0.25, -0.29);
-    s.bezierCurveTo(-0.05, -0.43, 0.27, -0.32, 0.3, -0.15);
-    s.bezierCurveTo(0.44, 0.1, 0.15, 0.2, 0.2, 0.4);
-    s.bezierCurveTo(0.12, 0.52, 0.11, 0.27, 0.08, 0.25);
-    s.closePath();
-    return s;
-  }, []);
-  return (
-    <group rotation={[0, -0.25, -0.12]}>
-      <mesh castShadow>
-        <extrudeGeometry
-          args={[
-            shape,
-            {
-              depth: 0.075,
-              bevelEnabled: true,
-              bevelSize: 0.025,
-              bevelThickness: 0.025,
-              bevelSegments: 2,
-              steps: 1,
-            },
-          ]}
-        />
-        <meshStandardMaterial color="#171f24" roughness={0.24} />
-      </mesh>
-      <mesh position={[0, 0, 0.102]} scale={[0.74, 0.77, 0.2]}>
-        <extrudeGeometry args={[shape, { depth: 0.03, bevelEnabled: false }]} />
-        <meshStandardMaterial color="#f1e8cd" />
-      </mesh>
-      <Box
-        at={[0, 0.65, 0.03]}
-        size={[0.085, 0.88, 0.045]}
-        color="#c69c59"
-        round={0.008}
-      />
-      <Box
-        at={[0.025, 1.16, 0.03]}
-        size={[0.16, 0.24, 0.045]}
-        color="#d6b375"
-        rotation={[0, 0, -0.14]}
-      />
-      {Array.from({ length: 15 }, (_, i) => (
-        <Box
-          key={i}
-          at={[0, 0.26 + i * 0.051, 0.056]}
-          size={[0.083, 0.005, 0.004]}
-          color="#bdb5a0"
-          round={0}
-        />
-      ))}
-      {[-0.12, 0.015, 0.14].map((y) => (
-        <Box
-          key={y}
-          at={[0, y, 0.14]}
-          size={[0.1, 0.035, 0.02]}
-          color="#e9dec0"
-          rotation={[0, 0, y === -0.12 ? -0.1 : 0]}
-        />
-      ))}
-      {Array.from({ length: 6 }, (_, i) => (
-        <Rod
-          key={i}
-          from={[-0.03 + i * 0.012, -0.2, 0.151]}
-          to={[-0.03 + i * 0.012, 1.22, 0.064]}
-          radius={0.0015}
-          color="#b5b9a9"
-        />
-      ))}
-      <Box at={[0, -0.21, 0.14]} size={[0.12, 0.07, 0.025]} color="#9c9d92" />
-      {[0, 0.1, 0.2].map((y) => (
-        <Cylinder
-          key={y}
-          at={[0.17, -0.09 + y, 0.135]}
-          radius={0.018}
-          height={0.022}
-          rotation={[Math.PI / 2, 0, 0]}
-          color="#ece3c7"
-        />
-      ))}
-      <Rod from={[0, -0.35, 0]} to={[0, -0.56, -0.1]} radius={0.025} />
-      <Rod
-        from={[-0.26, -0.59, 0.16]}
-        to={[0.26, -0.59, 0.16]}
-        radius={0.025}
-      />
-    </group>
-  );
-}
-function Amp() {
-  return (
-    <group>
-      <Box size={[0.67, 0.54, 0.35]} color="#242b29" round={0.035} />
-      <Box at={[0, -0.025, 0.181]} size={[0.6, 0.42, 0.012]} color="#4c5149" />
-      {Array.from({ length: 15 }, (_, i) => (
-        <Box
-          key={i}
-          at={[-0.28 + i * 0.04, -0.025, 0.19]}
-          size={[0.005, 0.38, 0.004]}
-          color="#77796c"
-          round={0}
-        />
-      ))}
-      <Box at={[0, 0.3, 0]} size={[0.25, 0.035, 0.05]} color="#323a35" />
-      {Array.from({ length: 6 }, (_, i) => (
-        <Cylinder
-          key={i}
-          at={[-0.24 + i * 0.09, 0.279, 0.05]}
-          radius={0.014}
-          height={0.014}
-          color="#a5a28d"
-        />
-      ))}
-      <Box at={[0, 0.09, 0.2]} size={[0.17, 0.06, 0.005]} color="#d4d3bd" />
-    </group>
-  );
-}
-function Helmet({ at, color }: { at: V3; color: string }) {
-  return (
-    <group position={at}>
-      <mesh castShadow scale={[0.21, 0.24, 0.25]}>
-        <sphereGeometry args={[1, 24, 20]} />
-        <meshStandardMaterial color={color} roughness={0.28} />
-      </mesh>
-      <Box
-        at={[0, 0.025, 0.205]}
-        size={[0.34, 0.115, 0.095]}
-        color="#242e35"
-        round={0.045}
-      />
-      <Box
-        at={[0, -0.105, 0.2]}
-        size={[0.29, 0.07, 0.1]}
-        color={color}
-        round={0.025}
-      />
-      <Box at={[0, -0.11, 0.255]} size={[0.1, 0.025, 0.008]} color="#303839" />
+      <Model name="chair" fit={["y", 1.5]} turn={[0, Math.PI, 0]} />
     </group>
   );
 }
 function RidingGear() {
+  // drawn at the old 0.65 scale, then brought up to the room's
   return (
-    <group>
+    <group scale={1.55}>
       {/* A freestanding rail keeps the leathers readable without adding a wall. */}
       {[-0.37, 0.37].map((x) => (
         <group key={x}>
@@ -779,60 +408,8 @@ function RidingGear() {
         radius={0.018}
         color="#b4946e"
       />
-      <Box
-        at={[0, 1.4, -0.81]}
-        size={[0.44, 0.55, 0.18]}
-        color="#262b2f"
-        round={0.075}
-      />
-      <Box
-        at={[0, 1.54, -0.71]}
-        size={[0.32, 0.15, 0.012]}
-        color="#e2dfd2"
-        round={0.03}
-      />
-      <Rod
-        from={[0, 1.65, -0.706]}
-        to={[0, 1.13, -0.706]}
-        radius={0.007}
-        color="#b7b8ad"
-      />
-      {[-1, 1].map((side) => (
-        <group key={side}>
-          <Box
-            at={[side * 0.29, 1.36, -0.8]}
-            size={[0.16, 0.51, 0.17]}
-            rotation={[0, 0, side * 0.24]}
-            color="#303439"
-            round={0.06}
-          />
-          <Box
-            at={[side * 0.25, 1.59, -0.705]}
-            size={[0.12, 0.11, 0.02]}
-            color="#b44b3c"
-            round={0.03}
-          />
-          <Box
-            at={[side * 0.125, 0.76, -0.81]}
-            size={[0.19, 0.77, 0.18]}
-            rotation={[0, 0, side * 0.045]}
-            color="#282d31"
-            round={0.06}
-          />
-          <Box
-            at={[side * 0.135, 0.63, -0.71]}
-            size={[0.12, 0.13, 0.035]}
-            color="#dad8ce"
-            round={0.045}
-          />
-          <Box
-            at={[side * 0.2, 0.15, -0.75]}
-            size={[0.17, 0.29, 0.23]}
-            color="#282e30"
-            round={0.035}
-          />
-        </group>
-      ))}
+      {/* the one-piece hangs from the hanger, clear of the floor */}
+      <Model name="suit" fit={["y", 1.62]} position={[0, 0.13, -0.85]} />
       <Box at={[0, 0.73, 0.97]} size={[0.76, 0.06, 0.48]} color="#ac8a63" />
       {[-0.3, 0.3].flatMap((x) =>
         [-0.16, 0.16].map((z) => (
@@ -845,8 +422,25 @@ function RidingGear() {
         )),
       )}
       <Box at={[0, 0.24, 0.97]} size={[0.69, 0.04, 0.4]} color="#ac8a63" />
-      <Helmet at={[-0.17, 0.99, 0.98]} color="#dcdcd3" />
-      <Helmet at={[0.17, 0.49, 0.98]} color="#30383b" />
+      <Model
+        name="helmet"
+        fit={["y", 0.32]}
+        position={[0, 0.76, 0.97]}
+        rotation={[0, 0.35, 0]}
+        gloss={0.22}
+      />
+      {/* one generated boot, mirrored for the pair */}
+      {[-1, 1].map((side) => (
+        <Model
+          key={side}
+          name="boots"
+          fit={["y", 0.42]}
+          turn={[0, Math.PI / 2, 0]}
+          position={[side * 0.13, 0.26, 0.97]}
+          scale={[side, 1, 1]}
+          gloss={0.45}
+        />
+      ))}
     </group>
   );
 }
@@ -987,6 +581,24 @@ function Lamp({ night, onToggle }: { night: boolean; onToggle: () => void }) {
     </group>
   );
 }
+function StudioEnvironment({ night }: { night: boolean }) {
+  const gl = useThree((s) => s.gl);
+  const get = useThree((s) => s.get);
+  const texture = useMemo(() => {
+    const pmrem = new THREE.PMREMGenerator(gl);
+    const environment = new RoomEnvironment();
+    const map = pmrem.fromScene(environment, 0.04).texture;
+    environment.dispose();
+    pmrem.dispose();
+    return map;
+  }, [gl]);
+  useEffect(() => () => texture.dispose(), [texture]);
+  useEffect(() => {
+    get().scene.environmentIntensity = night ? 0.12 : 0.45;
+    get().invalidate();
+  }, [night, get]);
+  return <primitive object={texture} attach="environment" />;
+}
 function Pickable({
   id,
   at,
@@ -1028,8 +640,8 @@ function Pickable({
 const targets: Record<RoomItem, V3> = {
   work: [0.85, 1.5, -0.5],
   projects: [-0.35, 1.5, -0.3],
-  travel: [layout.duke[0], 0.65, layout.duke[2]],
-  track: [layout.ducati[0], 0.7, layout.ducati[2]],
+  travel: [layout.duke[0], 0.95, layout.duke[2]],
+  track: [layout.ducati[0], 0.95, layout.ducati[2]],
   music: [layout.music[0], 0.8, layout.music[2]],
   coffee: [layout.coffee[0], 0.78, layout.coffee[2]],
 };
@@ -1069,24 +681,19 @@ function CameraRig({
       const distance = mobile ? 1.85 : 1;
       eye = [11 * distance, 16 * distance, 32 * distance];
     } else if (selected === "projects" || selected === "work") {
-      const personal = selected === "projects";
-      const rotation = personal ? 0.07 : -0.17;
-      const center = new THREE.Vector3(0, 0, 0.047)
-        .applyEuler(new THREE.Euler(-0.17, 0, 0))
-        .add(new THREE.Vector3(0, 0.33, -0.235))
-        .applyAxisAngle(new THREE.Vector3(0, 1, 0), rotation)
-        .add(
-          new THREE.Vector3(
-            personal ? -0.42 : 0.9,
-            1.29 - 0.08,
-            personal ? -0.31 : -0.56,
-          ),
-        );
+      const { at, turn, lid } = laptops[selected];
+      const up = new THREE.Vector3(0, 1, 0);
+      const tilt = new THREE.Euler(lid.tilt, 0, 0);
+      const center = new THREE.Vector3(0, 0, 0.007)
+        .applyEuler(tilt)
+        .add(new THREE.Vector3(0, lid.y, lid.z))
+        .applyAxisAngle(up, turn)
+        .add(new THREE.Vector3(at[0], at[1] - 0.08, at[2]));
       const normal = new THREE.Vector3(0, 0, 1)
-        .applyEuler(new THREE.Euler(-0.17, 0, 0))
-        .applyAxisAngle(new THREE.Vector3(0, 1, 0), rotation);
+        .applyEuler(tilt)
+        .applyAxisAngle(up, turn);
       const distance =
-        (Math.max(0.475, 0.75 / (size.width / size.height)) /
+        (Math.max(screen.height, screen.width / (size.width / size.height)) /
           (2 *
             Math.tan(
               THREE.MathUtils.degToRad(
@@ -1100,9 +707,9 @@ function CameraRig({
       const profiles = {
         music: { direction: [-0.56, 0.22, 1], width: 1.85, height: 2.0 },
         coffee: { direction: [-1, 0.55, 0.75], width: 1.9, height: 2.05 },
-        travel: { direction: [1, 0.4, 1], width: 2.25, height: 1.85 },
+        travel: { direction: [1, 0.4, 1], width: 4.2, height: 2.8 },
         // the Ducati sits between the gear rail and the Duke: a high front three-quarter clears both
-        track: { direction: [-0.4, 0.75, 1], width: 2.25, height: 1.85 },
+        track: { direction: [-0.4, 0.75, 1], width: 4.4, height: 3 },
       };
       const profile = profiles[selected];
       target =
@@ -1213,38 +820,27 @@ function Room({
         shadow-camera-bottom={-9}
         shadow-normalBias={0.04}
       />
+      <StudioEnvironment night={night} />
       <group position={[0, -0.08, 0]}>
         <Desk onSelect={onSelect} onEnter={onEnter} />
         <Chair />
-        <Pickable
-          id="projects"
-          at={[-0.42, 1.29, -0.31]}
-          label="Personal projects"
-          onSelect={onSelect}
-          selected={selected}
-        >
-          <Laptop
-            at={[0, 0, 0]}
-            personal
-            rotation={0.07}
-            screenContent={selected === "projects" ? screenContent : null}
-            interactive={arrived}
-          />
-        </Pickable>
-        <Pickable
-          id="work"
-          at={[0.9, 1.29, -0.56]}
-          label="The day job"
-          onSelect={onSelect}
-          selected={selected}
-        >
-          <Laptop
-            at={[0, 0, 0]}
-            rotation={-0.17}
-            screenContent={selected === "work" ? screenContent : null}
-            interactive={arrived}
-          />
-        </Pickable>
+        {(["projects", "work"] as const).map((id) => (
+          <Pickable
+            key={id}
+            id={id}
+            at={laptops[id].at}
+            label={id === "projects" ? "Personal projects" : "The day job"}
+            onSelect={onSelect}
+            selected={selected}
+          >
+            <Laptop
+              id={id}
+              screenContent={selected === id ? screenContent : null}
+              interactive={arrived}
+            />
+          </Pickable>
+        ))}
+        {/* generated models face +z, toward the visitor, like the floor plan expects */}
         <Pickable
           id="travel"
           at={layout.duke}
@@ -1252,9 +848,12 @@ function Room({
           onSelect={onSelect}
           selected={selected}
         >
-          <group rotation={[0, -Math.PI / 2, 0]}>
-            <Bike />
-          </group>
+          <Model
+            name="ktm"
+            fit={["z", 3.4]}
+            turn={[0, Math.PI / 2, 0]}
+            gloss={0.4}
+          />
         </Pickable>
         <Pickable
           id="track"
@@ -1263,9 +862,7 @@ function Room({
           onSelect={onSelect}
           selected={selected}
         >
-          <group rotation={[0, -Math.PI / 2, 0]}>
-            <Bike sport />
-          </group>
+          <Model name="ducati" fit={["z", 3.5]} />
         </Pickable>
         <Pickable
           id="music"
@@ -1274,22 +871,47 @@ function Room({
           onSelect={onSelect}
           selected={selected}
         >
-          <group rotation={[0, -0.5, 0]}>
-            <Guitar />
-            <group position={[0.72, -0.32, -0.1]}>
-              <Amp />
+          {/* music sits 0.585 above the floor; the Strat's mesh lies face-up, neck along +x */}
+          <group rotation={[0, -0.5, 0]} position={[0, -0.585, 0]}>
+            {/* leans back onto the stand's yoke */}
+            <group position={[0, 0.1, 0]} rotation={[-0.08, -0.25, 0]}>
+              <Model
+                name="guitar"
+                fit={["y", 1.72]}
+                turn={[0, Math.PI / 2, Math.PI / 2]}
+              />
             </group>
+            {/* A-frame stand: cradle and two front feet, a yoke on one back leg */}
             <Rod
-              from={[0.15, -0.22, 0.1]}
-              to={[0.58, -0.58, 0.5]}
-              radius={0.011}
-              color="#b74631"
+              from={[-0.16, 0.1, 0.09]}
+              to={[0.16, 0.1, 0.09]}
+              radius={0.016}
             />
+            {[-1, 1].map((side) => (
+              <Rod
+                key={side}
+                from={[side * 0.16, 0.1, 0.09]}
+                to={[side * 0.22, 0.01, 0.22]}
+                radius={0.014}
+              />
+            ))}
+            <Rod from={[0, 0.1, 0.09]} to={[0, 0.01, -0.36]} radius={0.014} />
+            <Rod from={[0, 0.01, -0.36]} to={[0, 0.98, -0.1]} radius={0.014} />
             <Rod
-              from={[0.58, -0.58, 0.5]}
-              to={[0.9, -0.56, 0.05]}
-              radius={0.011}
-              color="#b74631"
+              from={[-0.05, 0.98, -0.1]}
+              to={[0.05, 0.98, -0.1]}
+              radius={0.012}
+            />
+            <Model name="amp" fit={["x", 0.8]} position={[0.78, 0, -0.1]} />
+            <Cable
+              points={[
+                [0.17, 0.3, 0.07],
+                [0.24, 0.05, 0.3],
+                [0.38, 0.015, 0.4],
+                [0.42, 0.35, 0.22],
+                [0.44, 0.76, 0.14],
+                [0.45, 0.75, 0.06],
+              ]}
             />
           </group>
         </Pickable>
