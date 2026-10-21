@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useThree } from "@react-three/fiber";
-import { CameraControls, Html, RoundedBox } from "@react-three/drei";
+import { CameraControls } from "@react-three/drei";
 import {
   Component,
   Suspense,
@@ -13,9 +13,12 @@ import {
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import type { RoomItem } from "./content";
+import { Chair, Desk, Lamp, Laptop, laptopScreen, laptops } from "./DeskSet";
 import { Model } from "./Model";
+import { MusicCorner } from "./MusicSet";
+import { Box, Cylinder, Rod, type V3 } from "./parts";
+import { KtmCorner, TrackCorner } from "./TrackCorner";
 
-type V3 = [number, number, number];
 type SceneProps = {
   selected: RoomItem | null;
   entered: boolean;
@@ -30,340 +33,27 @@ type SceneProps = {
   onSelect: (id: RoomItem) => void;
   onReady: () => void;
   onFailure: () => void;
+  /** a click on empty floor or background: leave the object view for the room */
+  onDismiss: () => void;
 };
-const ink = "#292d30";
 // Floor-plan coordinates: +z is forward, toward the visitor. One scale throughout:
 // the desk top (1.28) is 75 cm, so 1 m ≈ 1.7 units.
+// Floor plan from Rahul's sketch, scaled by the desk (2.8 units = 404 px), then opened up: the
+// two bikes side by side at the back left, well clear of the desk and angled in toward it;
+// leathers rail and helmet table in front of them; guitar corner back right; coffee station
+// forward on the right.
 const layout = {
-  duke: [-4.35, -0.04, -0.35] as V3,
-  ducati: [-6.15, -0.04, -0.35] as V3,
-  gear: [-7.8, -0.04, -0.35] as V3,
+  // the mats rest on the floor (the room group sits 0.08 down, the floor 0.085)
+  duke: [-6.1, -0.005, -0.1] as V3,
+  ducati: [-5.85, -0.005, 2.25] as V3,
+  leathers: [-8.5, -0.04, 4.7] as V3,
+  table: [-7.1, -0.04, 4.75] as V3,
   music: [3.05, 0.585, 0.05] as V3,
-  coffee: [5.45, 0, 4.15] as V3,
+  coffee: [5.16, 0, 3.0] as V3,
 };
-// Each laptop is a generated model; `lid` is its screen's pose, measured from the mesh's
-// lid front face (centre height, depth and lean), in scene units after fitting to 0.82 wide.
-const laptops = {
-  work: {
-    model: "laptop-pro",
-    at: [0.9, 1.28, -0.56] as V3,
-    turn: -0.17,
-    lid: { y: 0.314, z: -0.214, tilt: -0.314 },
-  },
-  projects: {
-    model: "laptop-air",
-    at: [-0.42, 1.28, -0.31] as V3,
-    turn: 0.07,
-    lid: { y: 0.317, z: -0.176, tilt: -0.094 },
-  },
-} as const;
-// the generated lids are lumpy glass, so a flat bezel sits under the screen
-const screen = { width: 0.76, height: 0.48 };
-const bezel = { width: 0.79, height: 0.505 };
-
-function Box({
-  at = [0, 0, 0],
-  size = [1, 1, 1],
-  color = "#ddd",
-  rotation = [0, 0, 0],
-  round = 0.025,
-  ...props
-}: {
-  at?: V3;
-  size?: V3;
-  color?: string;
-  rotation?: V3;
-  round?: number;
-  metalness?: number;
-  roughness?: number;
-}) {
-  return (
-    <RoundedBox
-      position={at}
-      args={size}
-      radius={Math.min(round, ...size.map((v) => v / 3))}
-      smoothness={2}
-      rotation={rotation}
-      castShadow
-      receiveShadow
-    >
-      <meshStandardMaterial
-        color={color}
-        roughness={props.roughness ?? 0.65}
-        metalness={props.metalness ?? 0.05}
-      />
-    </RoundedBox>
-  );
-}
-function Rod({
-  from,
-  to,
-  radius = 0.025,
-  color = ink,
-}: {
-  from: V3;
-  to: V3;
-  radius?: number;
-  color?: string;
-}) {
-  const { mid, quat, length } = useMemo(() => {
-    const a = new THREE.Vector3(...from),
-      b = new THREE.Vector3(...to);
-    const direction = b.clone().sub(a);
-    return {
-      mid: a.clone().add(b).multiplyScalar(0.5),
-      length: direction.length(),
-      quat: new THREE.Quaternion().setFromUnitVectors(
-        new THREE.Vector3(0, 1, 0),
-        direction.normalize(),
-      ),
-    };
-  }, [from, to]);
-  return (
-    <mesh position={mid} quaternion={quat} castShadow>
-      <cylinderGeometry args={[radius, radius, length, 10]} />
-      <meshStandardMaterial color={color} roughness={0.5} metalness={0.3} />
-    </mesh>
-  );
-}
-function Cylinder({
-  at,
-  radius = 0.2,
-  height = 0.2,
-  color = "#ddd",
-  rotation = [0, 0, 0],
-  top,
-}: {
-  at: V3;
-  radius?: number;
-  height?: number;
-  color?: string;
-  rotation?: V3;
-  top?: number;
-}) {
-  return (
-    <mesh position={at} rotation={rotation} castShadow receiveShadow>
-      <cylinderGeometry args={[top ?? radius, radius, height, 32]} />
-      <meshStandardMaterial color={color} roughness={0.65} />
-    </mesh>
-  );
-}
-function Screen({
-  kind,
-  width,
-  height,
-}: {
-  kind: "work" | "projects" | "monitor";
-  width: number;
-  height: number;
-}) {
-  // the plane floats just proud of the model's own (black) panel
-  const texture = useMemo(() => {
-    const c = document.createElement("canvas");
-    c.width = 1024;
-    c.height = 640;
-    const g = c.getContext("2d")!;
-    g.fillStyle = kind === "work" ? "#17242c" : "#d9d7c5";
-    g.fillRect(0, 0, 1024, 640);
-    if (kind === "work") {
-      g.fillStyle = "#25333c";
-      g.fillRect(0, 0, 1024, 52);
-      g.fillStyle = "#c8d9d4";
-      g.font = "20px monospace";
-      g.fillText("rahul / workspace", 32, 34);
-      [
-        "// observe. understand. protect.",
-        "const agent = await trace();",
-        "",
-        "  kernel.events()",
-        "    .filter(isInteresting)",
-        "    .observe(runtime);",
-        "",
-        "✓ system ready",
-      ].forEach((s, i) => {
-        g.fillStyle = i === 0 ? "#709a87" : i === 7 ? "#a8c888" : "#d4dad4";
-        g.font = "26px monospace";
-        g.fillText(s, 45, 115 + i * 55);
-      });
-    } else {
-      g.fillStyle = "#bf6748";
-      g.beginPath();
-      g.arc(715, 260, 200, 0, Math.PI * 2);
-      g.fill();
-      g.fillStyle = "#ede5d1";
-      g.beginPath();
-      g.arc(630, 220, 155, 0, Math.PI * 2);
-      g.fill();
-      // Quiet wallpaper: the readable interface is mounted in the physical screen on approach.
-      g.fillStyle = "#c7cebb";
-      g.fillRect(220, 530, 580, 65);
-      ["#8b9e75", "#b8a17d", "#6e8d7f", "#b98365"].forEach((color, i) => {
-        g.fillStyle = color;
-        g.fillRect(290 + i * 115, 542, 42, 42);
-      });
-    }
-    const t = new THREE.CanvasTexture(c);
-    t.colorSpace = THREE.SRGBColorSpace;
-    return t;
-  }, [kind]);
-  useEffect(() => () => texture.dispose(), [texture]);
-  return (
-    <mesh position={[0, 0, 0.004]}>
-      <planeGeometry args={[width, height]} />
-      <meshBasicMaterial map={texture} toneMapped={false} />
-    </mesh>
-  );
-}
-function Laptop({
-  id,
-  screenContent,
-  interactive = false,
-}: {
-  id: keyof typeof laptops;
-  screenContent?: ReactNode;
-  interactive?: boolean;
-}) {
-  const { model, turn, lid } = laptops[id];
-  return (
-    <group rotation={[0, turn, 0]}>
-      <Model name={model} fit={["x", 0.82]} native />
-      <group position={[0, lid.y, lid.z]} rotation={[lid.tilt, 0, 0]}>
-        <mesh position={[0, 0, 0.002]}>
-          <planeGeometry args={[bezel.width, bezel.height]} />
-          <meshStandardMaterial color="#0c0e0f" roughness={0.3} />
-        </mesh>
-        <Screen kind={id} width={screen.width} height={screen.height} />
-        {screenContent && (
-          <Html
-            transform
-            position={[0, 0, 0.007]}
-            // drei sizes a transformed element at distanceFactor / 400 units per px
-            distanceFactor={(screen.width * 400) / 1100}
-            className="physical-screen"
-            style={{
-              width: 1100,
-              height: 696,
-              pointerEvents: interactive ? "auto" : "none",
-              opacity: interactive ? 1 : 0,
-              transition: "opacity 220ms ease",
-            }}
-            zIndexRange={[30, 20]}
-          >
-            <div
-              inert={!interactive}
-              aria-hidden={!interactive}
-              onPointerDown={(e) => e.stopPropagation()}
-              onPointerUp={(e) => e.stopPropagation()}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {screenContent}
-            </div>
-          </Html>
-        )}
-      </group>
-    </group>
-  );
-}
-function Cable({ points }: { points: V3[] }) {
-  const curve = useMemo(
-    () => new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p))),
-    [points],
-  );
-  return (
-    <mesh castShadow>
-      <tubeGeometry args={[curve, 64, 0.011, 8, false]} />
-      <meshStandardMaterial color="#b74631" roughness={0.55} />
-    </mesh>
-  );
-}
-function Mug({ at }: { at: V3 }) {
-  return (
-    <group position={at}>
-      <mesh castShadow>
-        <cylinderGeometry args={[0.085, 0.075, 0.22, 32, 1, true]} />
-        <meshPhysicalMaterial
-          color="#f7eee0"
-          transparent
-          opacity={0.35}
-          roughness={0.12}
-          metalness={0.1}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-      <Cylinder
-        at={[0, -0.04, 0]}
-        radius={0.072}
-        height={0.11}
-        color="#673c23"
-      />
-      <mesh position={[0.105, 0, 0]} rotation={[0, 0, 0]}>
-        <torusGeometry args={[0.068, 0.013, 8, 24]} />
-        <meshStandardMaterial color="#d8c9ad" />
-      </mesh>
-    </group>
-  );
-}
-function Desk({
-  onSelect,
-  onEnter,
-}: {
-  onSelect: SceneProps["onSelect"];
-  onEnter: () => void;
-}) {
-  return (
-    <group
-      position={[0, 0, -0.7]}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (e.delta < 4) onEnter();
-      }}
-    >
-      {/* stretched to the floor plan's footprint so the laptops keep their places */}
-      <Model name="desk" fit={{ x: 2.8, y: 1.28, z: 1.18 }} />
-      <group
-        position={[-0.2, 1.28, -0.3]}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (e.delta < 4) onSelect("projects");
-        }}
-        onPointerOver={() => {
-          document.body.style.cursor = "pointer";
-        }}
-        onPointerOut={() => {
-          document.body.style.cursor = "";
-        }}
-      >
-        <Model name="monitor" fit={["x", 1.4]} native />
-        {/* panel centre and face, measured from the mesh at this fit */}
-        <group position={[0, 0.81, 0.078]}>
-          <Screen kind="monitor" width={1.3} height={0.73} />
-        </group>
-      </group>
-      <Mug at={[-1.06, 1.39, 0.2]} />
-      <Box
-        at={[-1.08, 1.3, -0.3]}
-        size={[0.28, 0.045, 0.18]}
-        color="#e4dfcc"
-      />
-      {/* the personal laptop drives the monitor */}
-      <Rod
-        from={[-0.2, 1.29, -0.22]}
-        to={[-0.42, 1.29, 0.17]}
-        radius={0.008}
-        color="#454a43"
-      />
-    </group>
-  );
-}
-function Chair() {
-  // turned to face the desk
-  return (
-    <group position={[0.12, 0, 1.05]}>
-      <Model name="chair" fit={["y", 1.5]} turn={[0, Math.PI, 0]} />
-    </group>
-  );
-}
-function RidingGear() {
+// both bikes point the same way: nose toward the desk, a little back from straight across
+const BIKE_YAW = 1.79;
+function LeathersRail() {
   // drawn at the old 0.65 scale, then brought up to the room's
   return (
     <group scale={1.55}>
@@ -371,74 +61,77 @@ function RidingGear() {
       {[-0.37, 0.37].map((x) => (
         <group key={x}>
           <Rod
-            from={[x, 0.03, -0.85]}
-            to={[x, 1.92, -0.85]}
+            from={[x, 0.03, 0]}
+            to={[x, 1.92, 0]}
             radius={0.018}
             color="#626a67"
           />
           <Rod
-            from={[x, 0.025, -1.12]}
-            to={[x, 0.025, -0.55]}
+            from={[x, 0.025, -0.27]}
+            to={[x, 0.025, 0.3]}
             radius={0.025}
             color="#626a67"
           />
         </group>
       ))}
       <Rod
-        from={[-0.37, 1.92, -0.85]}
-        to={[0.37, 1.92, -0.85]}
+        from={[-0.37, 1.92, 0]}
+        to={[0.37, 1.92, 0]}
         radius={0.018}
         color="#626a67"
       />
       <Rod
-        from={[0, 1.92, -0.85]}
-        to={[0, 1.8, -0.85]}
+        from={[0, 1.92, 0]}
+        to={[0, 1.8, 0]}
         radius={0.012}
         color="#9b9a89"
       />
       <Rod
-        from={[0, 1.8, -0.85]}
-        to={[-0.26, 1.66, -0.85]}
+        from={[0, 1.8, 0]}
+        to={[-0.26, 1.66, 0]}
         radius={0.018}
         color="#b4946e"
       />
       <Rod
-        from={[0, 1.8, -0.85]}
-        to={[0.26, 1.66, -0.85]}
+        from={[0, 1.8, 0]}
+        to={[0.26, 1.66, 0]}
         radius={0.018}
         color="#b4946e"
       />
       {/* the one-piece hangs from the hanger, clear of the floor */}
-      <Model name="suit" fit={["y", 1.62]} position={[0, 0.13, -0.85]} />
-      <Box at={[0, 0.73, 0.97]} size={[0.76, 0.06, 0.48]} color="#ac8a63" />
+      <Model name="suit-rodin" fit={["y", 1.62]} position={[0, 0.13, 0]} />
+    </group>
+  );
+}
+function GearTable() {
+  return (
+    <group scale={1.55}>
+      <Box at={[0, 0.73, 0]} size={[0.76, 0.06, 0.48]} color="#ac8a63" />
       {[-0.3, 0.3].flatMap((x) =>
         [-0.16, 0.16].map((z) => (
           <Box
             key={`${x}-${z}`}
-            at={[x, 0.36, 0.97 + z]}
+            at={[x, 0.36, z]}
             size={[0.035, 0.72, 0.035]}
             color="#505951"
           />
         )),
       )}
-      <Box at={[0, 0.24, 0.97]} size={[0.69, 0.04, 0.4]} color="#ac8a63" />
+      <Box at={[0, 0.24, 0]} size={[0.69, 0.04, 0.4]} color="#ac8a63" />
       <Model
-        name="helmet"
+        name="helmet-rodin"
         fit={["y", 0.32]}
-        position={[0, 0.76, 0.97]}
+        position={[0, 0.76, 0]}
         rotation={[0, 0.35, 0]}
-        gloss={0.22}
       />
       {/* one generated boot, mirrored for the pair */}
       {[-1, 1].map((side) => (
         <Model
           key={side}
-          name="boots"
+          name="boots-rodin"
           fit={["y", 0.42]}
-          turn={[0, Math.PI / 2, 0]}
-          position={[side * 0.13, 0.26, 0.97]}
+          position={[side * 0.13, 0.26, 0]}
           scale={[side, 1, 1]}
-          gloss={0.45}
         />
       ))}
     </group>
@@ -535,52 +228,6 @@ function Coffee() {
     </group>
   );
 }
-function Lamp({ night, onToggle }: { night: boolean; onToggle: () => void }) {
-  return (
-    <group
-      position={[1, 1.28, -1.03]}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (e.delta < 4) onToggle();
-      }}
-      onPointerOver={() => {
-        document.body.style.cursor = "pointer";
-      }}
-      onPointerOut={() => {
-        document.body.style.cursor = "";
-      }}
-    >
-      <Cylinder
-        at={[0, 0.015, 0]}
-        radius={0.13}
-        height={0.035}
-        color="#6b775a"
-      />
-      <Rod from={[0, 0, 0]} to={[0, 0.55, 0]} radius={0.018} color="#7d816c" />
-      <mesh position={[0, 0.58, 0]} castShadow>
-        <coneGeometry args={[0.2, 0.16, 32, 1, true]} />
-        <meshStandardMaterial color="#6d7b58" side={THREE.DoubleSide} />
-      </mesh>
-      <mesh position={[0, 0.53, 0]}>
-        <sphereGeometry args={[0.045, 12, 8]} />
-        <meshStandardMaterial
-          color="#ffe7ac"
-          emissive="#ffbe63"
-          emissiveIntensity={night ? 3 : 0}
-        />
-      </mesh>
-      {night && (
-        <pointLight
-          position={[0, 0.47, 0.1]}
-          color="#ffc987"
-          intensity={5}
-          distance={4}
-          decay={2}
-        />
-      )}
-    </group>
-  );
-}
 function StudioEnvironment({ night }: { night: boolean }) {
   const gl = useThree((s) => s.gl);
   const get = useThree((s) => s.get);
@@ -669,29 +316,48 @@ function CameraRig({
   "selected" | "entered" | "reduced" | "onArrive" | "viewRevision" | "panMode"
 >) {
   const controls = useRef<CameraControls>(null);
-  const { size, camera } = useThree();
+  const { size, camera, invalidate } = useThree();
   useEffect(() => {
     const c = controls.current;
     if (!c) return;
+    // dev-only handle for inspecting details from the console:
+    // `__room.setLookAt(...)` then `__draw()` (the canvas renders on demand)
+    if (process.env.NODE_ENV === "development") {
+      Object.assign(window, { __room: c, __draw: () => invalidate(2) });
+      // ?cam=ex,ey,ez,tx,ty,tz pins the camera for reference renders
+      const cam = new URLSearchParams(window.location.search).get("cam");
+      if (cam) {
+        const v = cam.split(",").map(Number) as [
+          number,
+          number,
+          number,
+          number,
+          number,
+          number,
+        ];
+        void c.setLookAt(...v, false).then(() => invalidate(2));
+        return;
+      }
+    }
     let cancelled = false;
     const mobile = size.width < 700;
+    // a portrait phone can't fit the room's long side across the screen, so it looks down the
+    // room from the coffee end instead: bikes at the top, the coffee stand at the bottom
+    const portrait = size.width < size.height * 0.8;
+    const along: V3 = [19.8, 15.4, 1.8];
     let eye: V3, target: V3;
-    if (!entered) {
+    if (!entered && portrait) {
+      target = [-1.8, 0.6, 1.7];
+      eye = along.map((d, i) => target[i] + d * 1.35) as V3;
+    } else if (!entered) {
       target = [-0.6, 0.7, 1.1];
       const distance = mobile ? 1.85 : 1;
       eye = [11 * distance, 16 * distance, 32 * distance];
     } else if (selected === "projects" || selected === "work") {
-      const { at, turn, lid } = laptops[selected];
-      const up = new THREE.Vector3(0, 1, 0);
-      const tilt = new THREE.Euler(lid.tilt, 0, 0);
-      const center = new THREE.Vector3(0, 0, 0.007)
-        .applyEuler(tilt)
-        .add(new THREE.Vector3(0, lid.y, lid.z))
-        .applyAxisAngle(up, turn)
-        .add(new THREE.Vector3(at[0], at[1] - 0.08, at[2]));
-      const normal = new THREE.Vector3(0, 0, 1)
-        .applyEuler(tilt)
-        .applyAxisAngle(up, turn);
+      const screen = laptopScreen(selected);
+      // the room sits 0.08 below the floor plan's origin
+      const center = screen.center.clone().add(new THREE.Vector3(0, -0.08, 0));
+      const normal = screen.normal;
       const distance =
         (Math.max(screen.height, screen.width / (size.width / size.height)) /
           (2 *
@@ -705,16 +371,18 @@ function CameraRig({
       eye = center.clone().addScaledVector(normal, distance).toArray() as V3;
     } else if (selected) {
       const profiles = {
-        music: { direction: [-0.56, 0.22, 1], width: 1.85, height: 2.0 },
+        // tall enough to keep the cable's floor loops in shot
+        music: { direction: [-0.56, 0.28, 1], width: 1.95, height: 2.15 },
         coffee: { direction: [-1, 0.55, 0.75], width: 1.9, height: 2.05 },
-        travel: { direction: [1, 0.4, 1], width: 4.2, height: 2.8 },
-        // the Ducati sits between the gear rail and the Duke: a high front three-quarter clears both
-        track: { direction: [-0.4, 0.75, 1], width: 4.4, height: 3 },
+        // the KTM from ahead of its nose (the Ducati stands on its other side); the Ducati
+        // from its right, exhaust side
+        travel: { direction: [1, 0.6, 0.3], width: 4.2, height: 2.8 },
+        track: { direction: [0.6, 0.55, 0.9], width: 4.6, height: 3 },
       };
       const profile = profiles[selected];
       target =
         selected === "music"
-          ? [layout.music[0] + 0.25, 0.86, layout.music[2] + 0.16]
+          ? [layout.music[0] + 0.25, 0.8, layout.music[2] + 0.2]
           : targets[selected];
       const aspect = size.width / size.height;
       const fov = THREE.MathUtils.degToRad(
@@ -728,9 +396,12 @@ function CameraRig({
       eye = new THREE.Vector3(...target)
         .addScaledVector(direction, distance)
         .toArray() as V3;
+    } else if (portrait) {
+      target = [-1.8, 0.6, 1.7];
+      eye = along.map((d, i) => target[i] + d) as V3;
     } else {
-      target = [-0.6, 0.8, 1];
-      eye = mobile ? [8, 15, 43] : [4, 8, 18];
+      target = [-2.4, 0.8, 2.8];
+      eye = mobile ? [7.4, 17.5, 51] : [3.4, 10.5, 24.5];
     }
     c.smoothTime = reduced ? 0 : selected ? 0.65 : 0.85;
     void c.setLookAt(...eye, ...target, !reduced).then(() => {
@@ -748,6 +419,7 @@ function CameraRig({
     size.width,
     size.height,
     camera,
+    invalidate,
   ]);
   return (
     <CameraControls
@@ -793,6 +465,7 @@ function Room({
   onSelect,
   onReady,
   onToggle,
+  onDismiss,
 }: SceneProps & { onToggle: () => void }) {
   useEffect(() => {
     onReady();
@@ -848,12 +521,9 @@ function Room({
           onSelect={onSelect}
           selected={selected}
         >
-          <Model
-            name="ktm"
-            fit={["z", 3.4]}
-            turn={[0, Math.PI / 2, 0]}
-            gloss={0.4}
-          />
+          <group rotation={[0, BIKE_YAW, 0]} scale={1.7}>
+            <KtmCorner />
+          </group>
         </Pickable>
         <Pickable
           id="track"
@@ -862,7 +532,11 @@ function Room({
           onSelect={onSelect}
           selected={selected}
         >
-          <Model name="ducati" fit={["z", 3.5]} />
+          {/* on its paddock stands and pit mat, nose turned in toward the desk so the main view
+              meets its exhaust side, not its headlights (1 m = 1.7 units) */}
+          <group rotation={[0, BIKE_YAW, 0]} scale={1.7}>
+            <TrackCorner />
+          </group>
         </Pickable>
         <Pickable
           id="music"
@@ -871,48 +545,9 @@ function Room({
           onSelect={onSelect}
           selected={selected}
         >
-          {/* music sits 0.585 above the floor; the Strat's mesh lies face-up, neck along +x */}
+          {/* music sits 0.585 above the floor */}
           <group rotation={[0, -0.5, 0]} position={[0, -0.585, 0]}>
-            {/* leans back onto the stand's yoke */}
-            <group position={[0, 0.1, 0]} rotation={[-0.08, -0.25, 0]}>
-              <Model
-                name="guitar"
-                fit={["y", 1.72]}
-                turn={[0, Math.PI / 2, Math.PI / 2]}
-              />
-            </group>
-            {/* A-frame stand: cradle and two front feet, a yoke on one back leg */}
-            <Rod
-              from={[-0.16, 0.1, 0.09]}
-              to={[0.16, 0.1, 0.09]}
-              radius={0.016}
-            />
-            {[-1, 1].map((side) => (
-              <Rod
-                key={side}
-                from={[side * 0.16, 0.1, 0.09]}
-                to={[side * 0.22, 0.01, 0.22]}
-                radius={0.014}
-              />
-            ))}
-            <Rod from={[0, 0.1, 0.09]} to={[0, 0.01, -0.36]} radius={0.014} />
-            <Rod from={[0, 0.01, -0.36]} to={[0, 0.98, -0.1]} radius={0.014} />
-            <Rod
-              from={[-0.05, 0.98, -0.1]}
-              to={[0.05, 0.98, -0.1]}
-              radius={0.012}
-            />
-            <Model name="amp" fit={["x", 0.8]} position={[0.78, 0, -0.1]} />
-            <Cable
-              points={[
-                [0.17, 0.3, 0.07],
-                [0.24, 0.05, 0.3],
-                [0.38, 0.015, 0.4],
-                [0.42, 0.35, 0.22],
-                [0.44, 0.76, 0.14],
-                [0.45, 0.75, 0.06],
-              ]}
-            />
+            <MusicCorner />
           </group>
         </Pickable>
         <Pickable
@@ -926,12 +561,26 @@ function Room({
         </Pickable>
         <Pickable
           id="track"
-          at={layout.gear}
+          at={layout.leathers}
           label="Riding gear"
           onSelect={onSelect}
           selected={selected}
         >
-          <RidingGear />
+          {/* the suit faces into the room */}
+          <group rotation={[0, Math.PI / 2, 0]}>
+            <LeathersRail />
+          </group>
+        </Pickable>
+        <Pickable
+          id="track"
+          at={layout.table}
+          label="Riding gear"
+          onSelect={onSelect}
+          selected={selected}
+        >
+          <group rotation={[0, Math.PI / 2, 0]}>
+            <GearTable />
+          </group>
         </Pickable>
         <Lamp night={night} onToggle={onToggle} />
       </group>
@@ -939,6 +588,10 @@ function Room({
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, -0.085, 0]}
         receiveShadow
+        onClick={(e) => {
+          // a click on bare floor (not the end of a drag) steps back out to the room
+          if (e.delta < 4) onDismiss();
+        }}
       >
         <planeGeometry args={[200, 200]} />
         <shadowMaterial transparent opacity={night ? 0.15 : 0.12} />
@@ -982,10 +635,15 @@ export default function RoomScene(
   return (
     <SceneBoundary onFailure={props.onFailure}>
       <Canvas
+        onPointerMissed={(e) => {
+          if (e.type === "click") props.onDismiss();
+        }}
         frameloop="demand"
         shadows
         dpr={[1, 1.75]}
-        camera={{ position: [18, 13, 24], fov: 40, near: 0.02, far: 150 }}
+        // near at 0.08: the closest view (a laptop close-up) is ~0.86 away, and a larger near
+        // plane buys the depth precision that keeps thin layers like screens from flickering
+        camera={{ position: [18, 13, 24], fov: 40, near: 0.08, far: 150 }}
         gl={{
           antialias: true,
           alpha: false,

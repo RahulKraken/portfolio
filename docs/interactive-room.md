@@ -152,3 +152,56 @@ everything now shares the desk's (1.28 units = 75 cm), with the Ducati and gear 
 outward and the bike close-ups widened. Laptop and monitor screens are pinned to each lid's
 measured front plane, over a flat bezel that hides the generated glass. A locally generated
 room environment lights the PBR materials. Coffee table models are pending review.
+
+## Version five: the desk set in code
+
+Direction (2026-10-21): stylized like a toy diorama, smooth and soft-edged, but never at
+the cost of fine detail. Large surfaces are smoothed; small parts stay present and crisp.
+
+The desk set is now built in code at true scale (1 m ≈ 1.7 units) instead of from generated
+meshes, whose thin parts melted: `components/room/DeskSet.tsx`, with shared primitives in
+`components/room/parts.tsx`. It includes an oak top with procedural grain on a steel apron
+and legs; a 27" monitor with vented housing, stand cut-out and cables; a 14" MacBook Pro
+(every key in the Mac layout, black keyboard well, speaker grilles, ports, hinge, camera)
+and the rose-gold M1 MacBook Air (wedge body, half-height function row); a glass mug with
+coffee; a notebook and pen; the lamp; and a mesh-back office chair. Interactive screens are
+placed from each lid's exact pose (`laptopScreen`), which the camera rig shares.
+
+In development, `window.__room` (camera controls) and `window.__draw()` allow placing the
+camera precisely from the console when inspecting details.
+
+## The music corner in code
+
+The Strat and the Katana are also built in code (`components/room/MusicSet.tsx`). The
+guitar's body, pickguard and headstock outlines are traced from Fender's front product
+photo (`scripts/trace-strat.mjs` → `components/room/strat.ts`), scaled from the fret-dot
+spacing so the nut-to-saddle distance is exactly the 25.5" scale. On top of the traced
+shapes sit the parts that matter up close: a tapering C-profile maple neck, 22 frets placed
+by the equal-temperament formula, dot and side-dot inlays, three cream pickups with
+staggered pole pieces, fluted knobs printed 0–10, the five-way switch, bent-steel saddles,
+the tremolo arm, the football jack, six tuners with keys, the string tree and six strings
+of real gauge running through the body to the posts. The Katana (47 × 41 × 23.8 cm) has its
+labelled top panel with controls placed from Boss's top-down photo, strap handle, corner
+guards and piped grille. One cable runs from the guitar's jack to the amp's input.
+
+## Version six: bikes and riding gear at full generation quality
+
+The Ducati, KTM 390 Duke, Arai helmet, Laguna Seca suit and Supertech R Vented boots are
+Rodin Gen-2.5 generations at the model's top settings (Extreme-High tier, micro detail, HD
+texture pass, 4K PBR maps, 2M triangles), each from one run on the sharpest official product
+photos available. They are used as generated: the only edits are colour grades on the paint
+(texture de-lighting leaves it pale) and, for the bikes, a mapping that puts the axles on the
+real wheelbase and tyre sizes. Earlier attempts at cutting the generated bikes apart and
+rebuilding the bodywork in code are gone; they read as patchwork. Originals, inputs, request
+IDs and the processing scripts live in `references/3d/_generated/` (not in git).
+
+The web copies are decimated with meshoptimizer 1.3's attribute-aware simplifier (Permissive
+across UV seams, geometric error under 0.1 % of each object): bikes 550k triangles with 4K
+maps, helmet, suit and boots 150–250k with 2K maps. Frame time on the M-series Mac dropped
+from ~27 ms with the full meshes to ~10 ms.
+
+The floor plan follows Rahul's sketch, scaled by the desk: the two bikes side by side at the
+back left, angled toward the desk, each on its own pit mat (Ducati Corse, and a KTM one). The
+Ducati stands on front and rear paddock stands (`TrackCorner`), the KTM on an orange rear stand
+under its swingarm bobbins (`KtmCorner`). The leathers rail and the helmet-and-boots table stand
+in front of them; the guitar corner is at the back right and the coffee station forward right.

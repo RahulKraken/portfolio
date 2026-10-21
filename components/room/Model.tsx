@@ -7,20 +7,8 @@ import * as THREE from "three";
 type V3 = [number, number, number];
 type Axis = "x" | "y" | "z";
 
-export const models = [
-  "amp",
-  "boots",
-  "chair",
-  "desk",
-  "ducati",
-  "guitar",
-  "helmet",
-  "ktm",
-  "laptop-air",
-  "laptop-pro",
-  "monitor",
-  "suit",
-] as const;
+// *-rodin: Rodin Gen-2.5 Extreme-High generations (2M triangles, 4K PBR), used as generated
+export const models = ["boots-rodin", "helmet-rodin", "suit-rodin"] as const;
 export type ModelName = (typeof models)[number];
 
 const url = (name: ModelName) => `/models/${name}.glb`;
@@ -59,7 +47,11 @@ export function Model({
     const pivot = new THREE.Group();
     pivot.add(inner);
     pivot.updateMatrixWorld(true);
-    const dims = new THREE.Box3().setFromObject(inner).getSize(new THREE.Vector3());
+    // precise bounds: a turned mesh's rotated bounding box overstates its size and lifts it
+    // off whatever it rests on (the helmet, tipped back onto its chin bar and neck roll)
+    const dims = new THREE.Box3()
+      .setFromObject(inner, true)
+      .getSize(new THREE.Vector3());
     if (Array.isArray(fit)) {
       inner.scale.setScalar(fit[1] / dims[fit[0]]);
     } else {
@@ -73,7 +65,7 @@ export function Model({
     }
     if (!native) {
       pivot.updateMatrixWorld(true);
-      const box = new THREE.Box3().setFromObject(inner);
+      const box = new THREE.Box3().setFromObject(inner, true);
       const center = box.getCenter(new THREE.Vector3());
       inner.position.set(-center.x, -box.min.y, -center.z);
     }
