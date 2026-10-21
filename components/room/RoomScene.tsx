@@ -16,8 +16,9 @@ import type { RoomItem } from "./content";
 import { Chair, Desk, Lamp, Laptop, laptopScreen, laptops } from "./DeskSet";
 import { Model } from "./Model";
 import { MusicCorner } from "./MusicSet";
-import { Box, Cylinder, Rod, type V3 } from "./parts";
+import { Box, Rod, type V3 } from "./parts";
 import { KtmCorner, TrackCorner } from "./TrackCorner";
+import { CoffeeCorner } from "./CoffeeCorner";
 
 type SceneProps = {
   selected: RoomItem | null;
@@ -134,97 +135,6 @@ function GearTable() {
           scale={[side, 1, 1]}
         />
       ))}
-    </group>
-  );
-}
-function Coffee() {
-  return (
-    <group rotation={[0, -Math.PI / 2, 0]}>
-      <Box at={[0, 1.02, 0]} size={[1.55, 0.09, 0.74]} color="#a37c51" />
-      {[-0.65, 0.65].flatMap((x) =>
-        [-0.27, 0.27].map((z) => (
-          <Box
-            key={`${x}${z}`}
-            at={[x, 0.5, z]}
-            size={[0.055, 1, 0.055]}
-            color="#474f43"
-          />
-        )),
-      )}
-      <Box at={[0, 0.35, 0]} size={[1.4, 0.05, 0.61]} color="#b38d61" />
-      {[-0.4, -0.05, 0.3].map((x, i) => (
-        <group key={x} position={[x, 0.6, 0.02]}>
-          <Box
-            size={[0.25, 0.43, 0.15]}
-            color={["#ede2c7", "#7d8c69", "#b77554"][i]}
-            rotation={[0, 0, 0.035 * (i - 1)]}
-          />
-          <Box
-            at={[0, 0.015, 0.079]}
-            size={[0.17, 0.18, 0.006]}
-            color={["#a55a37", "#eee2bc", "#e9d6b1"][i]}
-          />
-        </group>
-      ))}
-      <Cylinder
-        at={[-0.3, 1.1, 0]}
-        radius={0.16}
-        height={0.035}
-        color="#2e3732"
-      />
-      <Cylinder
-        at={[-0.3, 1.22, 0]}
-        radius={0.095}
-        top={0.13}
-        height={0.2}
-        color="#b39c75"
-      />
-      <Cylinder
-        at={[-0.3, 1.35, 0]}
-        radius={0.12}
-        height={0.06}
-        color="#333e37"
-      />
-      <mesh position={[-0.3, 1.49, 0]}>
-        <cylinderGeometry args={[0.2, 0.065, 0.23, 32, 1, true]} />
-        <meshPhysicalMaterial
-          color="#ece9da"
-          transparent
-          opacity={0.55}
-          side={THREE.DoubleSide}
-          roughness={0.1}
-        />
-      </mesh>
-      <Cylinder
-        at={[0.22, 1.25, 0]}
-        radius={0.08}
-        height={0.37}
-        color="#505c58"
-      />
-      <Cylinder
-        at={[0.22, 1.45, 0]}
-        radius={0.115}
-        height={0.025}
-        color="#2a342e"
-      />
-      <Cylinder
-        at={[0.22, 1.075, 0]}
-        radius={0.125}
-        height={0.025}
-        color="#2a342e"
-      />
-      <Cylinder
-        at={[0.56, 1.21, 0]}
-        radius={0.13}
-        height={0.25}
-        color="#bcbab0"
-      />
-      <Rod
-        from={[0.65, 1.25, 0]}
-        to={[0.82, 1.43, 0]}
-        radius={0.018}
-        color="#babbb1"
-      />
     </group>
   );
 }
@@ -558,7 +468,7 @@ function Room({
           onSelect={onSelect}
           selected={selected}
         >
-          <Coffee />
+          <CoffeeCorner />
         </Pickable>
         <Pickable
           id="track"
