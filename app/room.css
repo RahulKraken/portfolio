@@ -1684,3 +1684,23 @@ svg[data-pouring="false"] .loader-server g {
     animation: none;
   }
 }
+.spotify-hint {
+  position: absolute;
+  right: 6px;
+  top: calc(100% + 8px);
+  margin: 0;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #f7f5eef2;
+  border: 1px solid #dcd9cd;
+  font: 10px var(--mono);
+  letter-spacing: 0.06em;
+  color: #4d5746;
+  animation: hint-in 240ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+@keyframes hint-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
