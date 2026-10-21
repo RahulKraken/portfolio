@@ -621,7 +621,9 @@ export default function RoomScene(
         frameloop="demand"
         shadows
         dpr={[1, 1.75]}
-        camera={{ position: [18, 13, 24], fov: 40, near: 0.02, far: 150 }}
+        // near at 0.08: the closest view (a laptop close-up) is ~0.86 away, and a larger near
+        // plane buys the depth precision that keeps thin layers like screens from flickering
+        camera={{ position: [18, 13, 24], fov: 40, near: 0.08, far: 150 }}
         gl={{
           antialias: true,
           alpha: false,

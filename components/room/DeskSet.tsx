@@ -93,7 +93,9 @@ export function Screen({
   return (
     <mesh>
       <planeGeometry args={[width, height]} />
-      <meshBasicMaterial map={texture} toneMapped={false} />
+      {/* the picture sits a hair in front of the glass: a depth offset keeps it winning, so it
+          doesn't flicker against the glass as the camera moves */}
+      <meshBasicMaterial map={texture} toneMapped={false} polygonOffset polygonOffsetFactor={-2} polygonOffsetUnits={-4} />
     </mesh>
   );
 }
