@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import {
   useCallback,
   useEffect,
@@ -13,6 +12,9 @@ import { site } from "@/lib/site";
 import { roomItems, type RoomItem } from "./content";
 import LaptopDesktop from "./LaptopDesktop";
 import { Ambient } from "./ambient";
+import { SpotifyPlayer, type SpotifyHandle } from "./SpotifyPlayer";
+import { Gallery, Video, type Photo } from "./Media";
+import { StudioLoader } from "./StudioLoader";
 
 const RoomScene = dynamic(() => import("./RoomScene"), {
   ssr: false,
@@ -101,8 +103,22 @@ function Icon({ id }: { id: RoomItem }) {
 
 function Speaker({ muted }: { muted: boolean }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M3.5 8v4h3l4 3.2V4.8l-4 3.2h-3z" fill="currentColor" stroke="none" />
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path
+        d="M3.5 8v4h3l4 3.2V4.8l-4 3.2h-3z"
+        fill="currentColor"
+        stroke="none"
+      />
       {muted ? (
         <path d="M13.5 8l4 4m0-4l-4 4" />
       ) : (
@@ -134,29 +150,49 @@ function strum() {
   });
   return audio;
 }
-function PanelBody({ id, playSound }: { id: RoomItem; playSound: () => void }) {
+const trackPhotos: Photo[] = Array.from({ length: 10 }, (_, i) => ({
+  src: `/track/${String(i + 1).padStart(2, "0")}.jpg`,
+  width: 1800,
+  height: 1200,
+  alt: "Rahul on the Panigale V2 S at the Madras International Circuit",
+}));
+const coffeePhotos: Photo[] = [
+  { n: 1, w: 1200, alt: "Hario Switch on the scale, mid-brew" },
+  { n: 2, w: 1350, alt: "AeroPress and the current bags of beans" },
+  { n: 3, w: 1350, alt: "AeroPress brewing into a glass server" },
+  { n: 4, w: 1350, alt: "Ground coffee in the AeroPress" },
+  { n: 5, w: 1350, alt: "AeroPress pressing through" },
+  { n: 6, w: 1350, alt: "A bag from Corridor Seven Coffee Roasters" },
+].map(({ n, w, alt }) => ({
+  src: `/coffee/0${n}.jpg`,
+  width: w,
+  height: 1800,
+  alt,
+}));
+function PanelBody({
+  id,
+  playSound,
+  onMedia,
+}: {
+  id: RoomItem;
+  playSound: () => void;
+  onMedia: (playing: boolean) => void;
+}) {
   if (id === "track")
     return (
       <>
-        <div className="room-photo">
-          <Image
-            src="/photos/track-337.jpg"
-            alt="Rahul riding on the racetrack"
-            width={1200}
-            height={800}
-            sizes="(max-width: 700px) 90vw, 480px"
-          />
-        </div>
+        <Video
+          src="/track/onboard.mp4"
+          poster="/track/onboard.jpg"
+          label="Onboard lap at the Madras International Circuit"
+          onPlaying={onMedia}
+        />
         <div className="spec-line">
-          <span>THE BIKE</span>
-          <strong>Ducati Panigale V2 S</strong>
-          <span>2025</span>
+          <span>CIRCUIT</span>
+          <strong>Madras International Circuit</strong>
+          <span>SEP 2026</span>
         </div>
-        <p className="panel-note">
-          Track days, and the details that make the next lap a little better.
-          That interest also finds its way into Apex One, my motorcycle
-          telemetry project.
-        </p>
+        <Gallery photos={trackPhotos} />
         <button
           className="room-text-link"
           onClick={() =>
@@ -165,113 +201,18 @@ function PanelBody({ id, playSound }: { id: RoomItem; playSound: () => void }) {
             )
           }
         >
-          See what I’m building <Arrow />
+          Apex One, my lap timer <Arrow />
         </button>
       </>
     );
-  if (id === "travel")
-    return (
-      <>
-        <div className="road-card">
-          <span>
-            LESS SCROLLING.
-            <br />
-            MORE RIDING.
-          </span>
-          <svg viewBox="0 0 400 180" fill="none" aria-hidden>
-            <path
-              d="M-20 155C100 100 45 50 180 85s90-70 240-55"
-              stroke="#d6ad72"
-              strokeWidth="38"
-            />
-            <path
-              d="M-20 155C100 100 45 50 180 85s90-70 240-55"
-              stroke="#f7ead2"
-              strokeWidth="2"
-              strokeDasharray="8 8"
-            />
-          </svg>
-          <small>A GOOD EXCUSE TO GET OUTSIDE</small>
-        </div>
-        <div className="spec-line">
-          <span>THE BIKE</span>
-          <strong>KTM Duke 390</strong>
-          <span>GEN 3</span>
-        </div>
-        <p className="panel-note">
-          Blue and orange. The Duke is the road-going half of the garage; the
-          Panigale gets the track days.
-        </p>
-      </>
-    );
+  if (id === "travel") return null;
   if (id === "music")
     return (
-      <>
-        <div className="music-card">
-          <div className="record">
-            <span />
-          </div>
-          <div>
-            <span>ON REPEAT</span>
-            <h3>Pink Floyd</h3>
-            <p>A little room to get lost.</p>
-          </div>
-        </div>
-        <div className="gear-list">
-          <div>
-            <span>GUITAR</span>
-            <strong>Fender Stratocaster</strong>
-            <p>Black body · maple neck</p>
-          </div>
-          <div>
-            <span>AMPLIFIER</span>
-            <strong>Boss Katana</strong>
-            <p>Plug in. Stay a while.</p>
-          </div>
-        </div>
-        <button className="strum-button" onClick={playSound}>
-          <span>▷</span> Strum the strings <small>SOUND ON REQUEST</small>
-        </button>
-        <a
-          className="room-text-link"
-          href="https://open.spotify.com/search/Pink%20Floyd"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Listen to Pink Floyd on Spotify <Arrow />
-        </a>
-      </>
+      <button className="strum-button" onClick={playSound}>
+        <span>▷</span> Strum the strings
+      </button>
     );
-  return (
-    <>
-      <div className="coffee-illustration" aria-hidden>
-        <span className="coffee-steam">∿ ∿ ∿</span>
-        <div className="dripper" />
-        <div className="coffee-server" />
-        <div className="coffee-bag">
-          <span>
-            FRESH
-            <br />
-            PERSPECTIVE
-          </span>
-          <i>COFFEE BEANS</i>
-        </div>
-      </div>
-      <div className="gear-list">
-        <div>
-          <span>POUR OVER / IMMERSION</span>
-          <strong>Hario Switch</strong>
-          <p>One dripper. A few ways to brew.</p>
-        </div>
-        <div>
-          <span>THE OTHER REGULAR</span>
-          <strong>AeroPress</strong>
-          <p>A different approach to the same good ritual.</p>
-        </div>
-      </div>
-      <p className="panel-note">The beans change. The coffee corner stays.</p>
-    </>
-  );
+  return <Gallery photos={coffeePhotos} />;
 }
 function ObjectInfo({ id, children }: { id: RoomItem; children: ReactNode }) {
   const item = roomItems.find((x) => x.id === id)!;
@@ -304,6 +245,32 @@ export default function RoomExperience() {
   const audio = useRef<AudioContext | null>(null);
   const ambient = useRef<Ambient | null>(null);
   const [muted, setMuted] = useState(false);
+  // the Spotify player loads the first time the guitar is opened and then stays, so a playlist
+  // keeps going while the visitor looks around; the ambience steps aside while it plays
+  const spotify = useRef<SpotifyHandle | null>(null);
+  const [spotifyLoaded, setSpotifyLoaded] = useState(false);
+  // anything else making sound (Spotify, the onboard video) holds the ambience off
+  const holders = useRef(new Set<string>());
+  const holdAmbient = useCallback((source: string, playing: boolean) => {
+    if (playing) holders.current.add(source);
+    else holders.current.delete(source);
+    ambient.current?.hold(holders.current.size > 0);
+  }, []);
+  const onSpotifyPlaying = useCallback(
+    (playing: boolean) => {
+      if (playing) document.querySelectorAll("video").forEach((v) => v.pause());
+      holdAmbient("spotify", playing);
+    },
+    [holdAmbient],
+  );
+  const onVideoPlaying = useCallback(
+    (playing: boolean) => {
+      // one soundtrack at a time
+      if (playing) spotify.current?.pause();
+      holdAmbient("video", playing);
+    },
+    [holdAmbient],
+  );
   // ambience can only start from a gesture; the visitor's mute choice is remembered
   const startAmbient = useCallback(() => {
     if (ambient.current) return;
@@ -313,6 +280,7 @@ export default function RoomExperience() {
     } catch {}
     setMuted(quiet);
     ambient.current = new Ambient();
+    ambient.current.hold(holders.current.size > 0);
     ambient.current.start(quiet);
   }, []);
   const toggleMute = useCallback(() => {
@@ -321,6 +289,11 @@ export default function RoomExperience() {
     try {
       localStorage.setItem("studio-muted", next ? "1" : "0");
     } catch {}
+    // the corner button is the one switch for all sound, Spotify included
+    if (next) {
+      spotify.current?.pause();
+      document.querySelectorAll("video").forEach((v) => v.pause());
+    }
     if (ambient.current) ambient.current.setMuted(next);
     else {
       ambient.current = new Ambient();
@@ -328,7 +301,12 @@ export default function RoomExperience() {
     }
   }, [muted]);
   const soundTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onReady = useCallback(() => setReady(true), []);
+  // the studio is live as soon as it has loaded: no tap to enter, the controls work from the
+  // first frame
+  const onReady = useCallback(() => {
+    setReady(true);
+    setEntered(true);
+  }, []);
   const onArrive = useCallback(() => setArrived(true), []);
   const onFailure = useCallback(() => {
     setSceneFailed(true);
@@ -352,6 +330,7 @@ export default function RoomExperience() {
       setMenuOpen(false);
       setEntered(true);
       setSelected(id);
+      if (id === "music") setSpotifyLoaded(true);
     },
     [sceneFailed, selected, startAmbient],
   );
@@ -363,11 +342,22 @@ export default function RoomExperience() {
     setSelected(null);
   }, [selected]);
   const back = useCallback(() => {
-    setArrived(false);
     setMenuOpen(false);
-    if (selected) setSelected(null);
-    else setEntered(false);
+    if (!selected) return;
+    setArrived(false);
+    setSelected(null);
   }, [selected]);
+  // browsers only allow sound after a gesture, so the ambience starts on the visitor's first
+  // touch, click or key, whatever it is
+  useEffect(() => {
+    const events = ["pointerup", "touchend", "keydown"] as const;
+    const start = () => {
+      startAmbient();
+      events.forEach((e) => window.removeEventListener(e, start));
+    };
+    events.forEach((e) => window.addEventListener(e, start));
+    return () => events.forEach((e) => window.removeEventListener(e, start));
+  }, [startAmbient]);
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setReduced(media.matches);
@@ -384,7 +374,7 @@ export default function RoomExperience() {
     const key = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         if (menuOpen) setMenuOpen(false);
-        else if (entered) back();
+        else back();
       }
     };
     const navigate = (e: Event) => {
@@ -397,7 +387,7 @@ export default function RoomExperience() {
       window.removeEventListener("keydown", key);
       window.removeEventListener("room-select", navigate);
     };
-  }, [back, entered, menuOpen, select]);
+  }, [back, menuOpen, select]);
   const playSound = () => {
     audio.current?.close();
     if (soundTimer.current) clearTimeout(soundTimer.current);
@@ -448,32 +438,14 @@ export default function RoomExperience() {
           screenContent={screenContent}
         />
       </div>
-      {!entered && (
-        <button
-          className="studio-entry"
-          onClick={enter}
-          aria-label="Enter the studio and approach the desk"
-          disabled={!ready}
-        >
-          <span className="sr-only">Enter the studio</span>
-        </button>
-      )}
-      {!ready && (
-        <div
-          className="studio-loading"
-          role="status"
-          aria-label="Loading the studio"
-        >
-          <span />
-        </div>
-      )}
+      <StudioLoader ready={ready} />
       {entered && !computer && (
         <div className="studio-controls">
           <button
             onClick={back}
-            aria-label={
-              selected ? "Back to the desk" : "Return to the distant view"
-            }
+            aria-label="Back to the room"
+            className={selected ? undefined : "is-hidden"}
+            tabIndex={selected ? undefined : -1}
           >
             ←
           </button>
@@ -572,9 +544,22 @@ export default function RoomExperience() {
           {screenContent}
         </div>
       )}
+      {spotifyLoaded && (
+        <SpotifyPlayer
+          uri="spotify:playlist:37i9dQZF1DZ06evO07zaak"
+          visible={selected === "music" && arrived && !menuOpen}
+          play={selected === "music" && !muted}
+          handle={spotify}
+          onPlaying={onSpotifyPlaying}
+        />
+      )}
       {selected && !computer && arrived && !menuOpen && (
         <ObjectInfo id={selected}>
-          <PanelBody id={selected} playSound={playSound} />
+          <PanelBody
+            id={selected}
+            playSound={playSound}
+            onMedia={onVideoPlaying}
+          />
         </ObjectInfo>
       )}
     </main>

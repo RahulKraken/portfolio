@@ -551,17 +551,6 @@
   color: #9e6945;
   line-height: 1;
 }
-.room-photo {
-  overflow: hidden;
-  border-radius: 6px;
-  background: #deded1;
-  aspect-ratio: 3/2;
-}
-.room-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 .spec-line {
   display: flex;
   gap: 15px;
@@ -582,115 +571,6 @@
   font-size: 13px;
   font-weight: 500;
 }
-.panel-note {
-  font-size: 12px;
-  line-height: 1.8;
-  color: #7c8271;
-  margin-top: 20px;
-}
-.road-card {
-  background: #495b46;
-  color: #eae1c9;
-  border-radius: 6px;
-  height: 260px;
-  position: relative;
-  overflow: hidden;
-  padding: 24px;
-}
-.road-card > span {
-  font-size: 24px;
-  line-height: 1.1;
-  font-weight: 550;
-  letter-spacing: -0.04em;
-}
-.road-card svg {
-  position: absolute;
-  inset: auto 0 20px;
-  width: 100%;
-  height: 155px;
-}
-.road-card small {
-  position: absolute;
-  bottom: 15px;
-  left: 24px;
-  font-family: var(--mono);
-  font-size: 7px;
-  letter-spacing: 0.12em;
-}
-.music-card {
-  display: flex;
-  align-items: center;
-  gap: 30px;
-  padding: 25px;
-  background: #e5e4d6;
-  border-radius: 6px;
-}
-.record {
-  width: 115px;
-  height: 115px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background: repeating-radial-gradient(
-    circle,
-    #30352e 0,
-    #30352e 2px,
-    #3a4037 3px,
-    #30352e 4px
-  );
-  display: grid;
-  place-items: center;
-  transform: rotate(-20deg);
-}
-.record span {
-  width: 36px;
-  height: 36px;
-  background: #ba7850;
-  border-radius: 50%;
-  border: 13px solid #ba7850;
-  outline: 1px solid #8f6649;
-  box-shadow: inset 0 0 0 6px #e9dfbd;
-}
-.music-card > div > span {
-  font-family: var(--mono);
-  font-size: 8px;
-  color: #8a8d79;
-  letter-spacing: 0.1em;
-}
-.music-card h3 {
-  font-family: var(--serif);
-  font-size: 27px;
-  font-weight: 400;
-  letter-spacing: -0.04em;
-  margin: 8px 0;
-}
-.music-card p {
-  font-size: 10px;
-  color: #808571;
-}
-.gear-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  padding: 25px 0;
-  border-bottom: 1px solid #dedfd0;
-}
-.gear-list span {
-  font-family: var(--mono);
-  font-size: 7px;
-  letter-spacing: 0.07em;
-  color: #8a8e7c;
-}
-.gear-list strong {
-  display: block;
-  font-size: 13px;
-  font-weight: 500;
-  margin: 7px 0;
-}
-.gear-list p {
-  font-size: 11px;
-  line-height: 1.7;
-  color: #8a8e7c;
-}
 .strum-button {
   display: flex;
   align-items: center;
@@ -708,67 +588,6 @@
   font: 7px var(--mono);
   letter-spacing: 0.05em;
   color: #859074;
-}
-.coffee-illustration {
-  height: 230px;
-  background: #e7dfcf;
-  border-radius: 6px;
-  position: relative;
-  overflow: hidden;
-}
-.coffee-steam {
-  position: absolute;
-  left: 85px;
-  top: 20px;
-  font-size: 30px;
-  color: #c4b293;
-  letter-spacing: 10px;
-}
-.dripper {
-  position: absolute;
-  width: 95px;
-  height: 63px;
-  top: 71px;
-  left: 61px;
-  background: #e9f0e7a6;
-  clip-path: polygon(0 0, 100% 0, 65% 100%, 35% 100%);
-  border-top: 4px solid #f6f7ed;
-}
-.coffee-server {
-  position: absolute;
-  left: 74px;
-  top: 135px;
-  width: 70px;
-  height: 65px;
-  background: linear-gradient(transparent 35%, #7c5630 36%);
-  border: 3px solid #f1eee4;
-  clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%);
-}
-.coffee-bag {
-  position: absolute;
-  right: 54px;
-  top: 55px;
-  width: 115px;
-  height: 145px;
-  background: #a8b192;
-  transform: rotate(6deg);
-  border-top: 8px solid #899775;
-  box-shadow: 5px 6px 0 #968d7420;
-  padding: 23px 12px;
-}
-.coffee-bag span {
-  display: block;
-  font-size: 15px;
-  line-height: 1.05;
-  letter-spacing: -0.04em;
-  color: #f5f1de;
-}
-.coffee-bag i {
-  display: block;
-  font: 6px var(--mono);
-  letter-spacing: 0.1em;
-  margin-top: 22px;
-  color: #42503a;
 }
 @keyframes room-spin {
   to {
@@ -939,17 +758,6 @@
   .project-list {
     gap: 22px 15px;
   }
-  .music-card {
-    padding: 22px;
-    gap: 20px;
-  }
-  .record {
-    width: 95px;
-    height: 95px;
-  }
-  .coffee-bag {
-    right: 30px;
-  }
   .room-loading {
     top: 52%;
   }
@@ -976,37 +784,6 @@
 }
 .quiet-studio .room-scene {
   inset: 0;
-}
-.studio-entry {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-.studio-entry:disabled {
-  cursor: wait;
-}
-.studio-entry:focus-visible {
-  outline: 1px solid #858a7d;
-  outline-offset: -12px;
-}
-.studio-loading {
-  position: absolute;
-  bottom: 8%;
-  left: 50%;
-  z-index: 5;
-  pointer-events: none;
-}
-.studio-loading span {
-  display: block;
-  width: 14px;
-  height: 14px;
-  border: 1px solid #b1b3aa;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: room-spin 1s linear infinite;
 }
 .studio-controls {
   position: absolute;
@@ -1203,16 +980,8 @@
 .computer-sidebar > button:hover > span {
   opacity: 1;
 }
-.computer-sidebar-bottom {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-top: auto;
-  padding: 0 12px;
-  font-size: 10px;
-  color: #95a087;
-}
 .computer-content {
+  position: relative;
   flex: 1;
   min-width: 0;
   overflow: auto;
@@ -1350,25 +1119,107 @@
   margin-top: 24px;
   font-size: 14px;
 }
-.computer-work-list article {
+.computer-cv section {
+  scroll-margin-top: 24px;
+}
+.cv-links {
   display: flex;
-  gap: 18px;
-  padding: 15px 0;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 36px;
+}
+.cv-links a {
+  font-size: 12px;
+  text-decoration: none;
+  padding: 7px 12px;
+  border: 1px solid #d3d9c8;
+  border-radius: 5px;
+  background: #e6e9de;
+  transition: background 0.2s;
+}
+.cv-links a:hover {
+  background: #dce4cf;
+}
+.cv-company {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font: 26px var(--serif);
+  letter-spacing: -0.03em;
+  padding-top: 28px;
   border-top: 1px solid #d8dece;
+  margin: 0 0 14px;
 }
-.computer-work-list article > span {
+.cv-company span {
   font: 10px var(--mono);
+  letter-spacing: 0.08em;
   color: #98a18e;
-  margin-top: 3px;
+  text-transform: uppercase;
 }
-.computer-work-list h3 {
+.cv-role {
+  margin-bottom: 26px;
+}
+.cv-role-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
   font-size: 14px;
   font-weight: 500;
-  margin: 0 0 4px;
+  margin: 0 0 12px;
 }
-.computer-work-list p {
-  font-size: 12px;
-  color: #87937a;
+.cv-role-line span:last-child {
+  font: 11px var(--mono);
+  color: #8a947e;
+  white-space: nowrap;
+  padding-top: 2px;
+}
+.computer-cv ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 14px;
+}
+.computer-cv li b {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: #5f6d55;
+  margin-bottom: 2px;
+}
+.computer-cv li p {
+  font-size: 13px;
+  line-height: 1.65;
+  color: #6f7c65;
+  max-width: 640px;
+}
+.computer-cv li strong {
+  font-weight: 600;
+  color: #344132;
+}
+.computer-cv li a {
+  white-space: nowrap;
+  color: #4f6a45;
+}
+.cv-skills {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 28px;
+}
+.cv-skills dt {
+  font-size: 11px;
+  font-weight: 500;
+  color: #5f6d55;
+}
+.cv-skills dd {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #6f7c65;
+}
+.cv-school {
+  font-size: 13px;
+  color: #6f7c65;
+  margin-bottom: 12px;
 }
 .mobile-computer {
   display: none;
@@ -1514,5 +1365,322 @@
   }
   .object-info-content {
     max-height: 42svh;
+  }
+}
+
+/* Spotify sits apart from the info panel, top right, so neither covers the other. It stays
+   loaded (and playing) when hidden; only its visibility changes. */
+.spotify-player {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 12;
+  width: min(350px, calc(100vw - 48px));
+  height: 152px;
+  border-radius: 12px;
+  box-shadow: 0 12px 45px #1a231916;
+  transition:
+    opacity 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    visibility 0s;
+}
+.spotify-player[data-visible="false"] {
+  opacity: 0;
+  transform: translateY(-8px);
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 160ms ease-out,
+    transform 160ms ease-out,
+    visibility 0s 160ms;
+}
+.spotify-player iframe {
+  display: block;
+  border: 0;
+  border-radius: 12px;
+}
+@media (max-width: 700px) {
+  .spotify-player {
+    top: 16px;
+    right: 20px;
+    width: calc(100vw - 40px);
+  }
+}
+
+/* Photos: a strip that scrolls sideways in the panel. They stay in the panel by design. */
+.photo-strip {
+  display: flex;
+  gap: 8px;
+  height: 170px;
+  margin: 0 -22px 18px;
+  padding: 0 22px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 22px;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.photo-strip::-webkit-scrollbar {
+  display: none;
+}
+.photo-strip > div {
+  flex: none;
+  height: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  scroll-snap-align: start;
+  background: #e5e4d6;
+}
+.photo-strip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+}
+.room-video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #1d211d;
+}
+.room-video video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+.room-video button {
+  position: absolute;
+  border: 0;
+  color: #f7f5ee;
+  background: #1d211d8c;
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    transform 160ms ease-out;
+}
+.room-video button:active {
+  transform: scale(0.95);
+}
+.room-video-play {
+  left: 50%;
+  top: 50%;
+  width: 52px;
+  height: 52px;
+  margin: -26px 0 0 -26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.room-video-play svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+.room-video-sound {
+  right: 8px;
+  bottom: 18px;
+  padding: 5px 9px;
+  border-radius: 5px;
+  font: 9px var(--mono) !important;
+  letter-spacing: 0.06em;
+}
+/* while playing, the controls step back until the pointer is over the video */
+.room-video[data-playing="true"] button {
+  opacity: 0;
+}
+.room-video[data-playing="true"]:hover button,
+.room-video[data-playing="true"] button:focus-visible {
+  opacity: 1;
+}
+@media (hover: none) {
+  .room-video[data-playing="true"] .room-video-sound {
+    opacity: 1;
+  }
+}
+.room-video-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 10px;
+  margin: 0;
+  appearance: none;
+  background:
+    linear-gradient(
+        to right,
+        #d93a2b var(--progress),
+        transparent var(--progress)
+      )
+      bottom / 100% 3px no-repeat,
+    linear-gradient(#ffffff33, #ffffff33) bottom / 100% 3px no-repeat;
+  cursor: pointer;
+}
+.room-video-progress::-webkit-slider-thumb {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  opacity: 0;
+}
+.room-video-progress::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  opacity: 0;
+  border: 0;
+}
+/* the panels scroll but don't pinch-zoom, so photos and video stay at panel size */
+.object-info,
+.spotify-player {
+  touch-action: pan-x pan-y;
+}
+
+.studio-controls button.is-hidden {
+  visibility: hidden;
+}
+
+/* Loading: black coffee pours from a glass server into the progress bar, on kraft paper. */
+.studio-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 6px;
+  padding: 16px;
+  background-color: #b48f63;
+  /* paper grain */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.17 0 0 0 0 0.08 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  color: #1d140d;
+  transition:
+    opacity 600ms cubic-bezier(0.23, 1, 0.32, 1),
+    visibility 0s;
+}
+.studio-loader[data-leaving="true"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 600ms cubic-bezier(0.23, 1, 0.32, 1),
+    visibility 0s 600ms;
+}
+.studio-loader svg {
+  width: min(620px, calc(100vw - 32px));
+  height: auto;
+  overflow: visible;
+}
+.studio-loader p {
+  font: 500 14px var(--mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.loader-track {
+  fill: #f6f0e3;
+}
+.loader-coffee {
+  fill: #1f140d;
+}
+.loader-crema {
+  fill: #ffffff;
+  opacity: 0.12;
+}
+.loader-glass {
+  fill: #ffffff24;
+  stroke: #1d140d;
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.loader-handle,
+.loader-handle-glass {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* a glass handle: a dark outline with the paper showing through the middle */
+.loader-handle {
+  stroke: #1d140d;
+  stroke-width: 7.5;
+}
+.loader-handle-glass {
+  stroke: #cdb08a;
+  stroke-width: 3;
+}
+.loader-shine {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.5;
+}
+.loader-server {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+/* once full, the server sets upright on its own time */
+svg[data-pouring="false"] .loader-server,
+svg[data-pouring="false"] .loader-server g {
+  transition: transform 450ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+.loader-server g {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+.loader-stream-body,
+.loader-stream-flow {
+  fill: none;
+  stroke-linecap: round;
+}
+.loader-stream-body {
+  stroke: #1f140d;
+  stroke-width: 4.5;
+}
+/* faint highlights running down the stream so it reads as flowing */
+.loader-stream-flow {
+  stroke: #4a3324;
+  stroke-width: 1.2;
+  stroke-dasharray: 5 13;
+  animation: loader-flow 0.45s linear infinite;
+}
+@keyframes loader-flow {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+.loader-splash {
+  fill: #1f140d;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: loader-splash 0.6s ease-in-out infinite alternate;
+}
+@keyframes loader-splash {
+  from {
+    transform: scaleX(0.7);
+  }
+}
+.loader-stream {
+  transition: opacity 200ms ease-out;
+}
+.loader-stream[data-on="false"] {
+  opacity: 0;
+}
+@media (max-width: 700px) {
+  .studio-loader p {
+    font-size: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loader-stream-flow,
+  .loader-splash {
+    animation: none;
   }
 }

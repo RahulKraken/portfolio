@@ -205,3 +205,22 @@ back left, angled toward the desk, each on its own pit mat (Ducati Corse, and a 
 Ducati stands on front and rear paddock stands (`TrackCorner`), the KTM on an orange rear stand
 under its swingarm bobbins (`KtmCorner`). The leathers rail and the helmet-and-boots table stand
 in front of them; the guitar corner is at the back right and the coffee station forward right.
+
+## Version seven: real content in the panels
+
+Panels show what each thing is, with as little copy as possible. The work laptop is the CV
+(`lib/resume.ts`, no phone number). The Ducati panel has the onboard video from the Madras
+International Circuit (540p, 17 MB, downloaded only when played) and a strip of trackside
+photos; the coffee panel has Rahul's own brewing photos. Photos and video stay inside the
+panel: no lightbox, no fullscreen, no pinch zoom. Web copies are resized to 1800 px with all
+metadata stripped (the phone photos were geotagged); originals live in `references/incoming/`
+(not in git).
+
+Sound: a generative ambient pad (`components/room/ambient.ts`) starts on entering, with a mute
+button in the corner controls. The guitar opens Spotify's "This Is Pink Floyd" playlist in
+Spotify's own embed, which handles the licensing (full tracks for signed-in visitors, previews
+otherwise). Spotify and the onboard video each hold the ambience off while they play, only one
+of them plays at a time, and the corner button silences everything.
+
+Portrait phones get their own establishing view, looking down the room from the coffee end,
+so the whole studio fills the screen.

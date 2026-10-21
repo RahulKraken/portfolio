@@ -27,32 +27,31 @@ export const roomItems: {
     id: "travel",
     label: "On the road",
     object: "KTM Duke 390",
-    title: "Take the long way.",
+    title: "On the road.",
     intro:
-      "The blue-and-orange Duke. For the roads between places, and finding a reason to get out.",
+      "The Gen 3 Duke 390 in blue and orange. The road bike; the Panigale gets the track days.",
   },
   {
     id: "track",
     label: "On the track",
     object: "Ducati Panigale V2 S",
-    title: "One more lap.",
+    title: "On the track.",
     intro:
-      "The 2025 Panigale V2 S. A different kind of concentration, somewhere between the braking marker and the exit.",
+      "The 2025 Panigale V2 S, onboard and trackside at the Madras International Circuit.",
   },
   {
     id: "music",
     label: "Strings",
     object: "Fender Stratocaster",
-    title: "Six strings. No rush.",
-    intro:
-      "A black Strat, a maple neck, and a Boss Katana. Pink Floyd belongs here.",
+    title: "Strings.",
+    intro: "A black Stratocaster with a maple neck, through a Boss Katana.",
   },
   {
     id: "coffee",
     label: "Coffee",
     object: "The brew station",
-    title: "A small daily ritual.",
+    title: "Coffee.",
     intro:
-      "Different beans, a Hario Switch, an AeroPress. A little time spent making a good cup.",
+      "A Hario Switch, an AeroPress, and whatever beans are open this week.",
   },
 ];
