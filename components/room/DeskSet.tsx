@@ -11,6 +11,7 @@ import {
   Cylinder,
   Instanced,
   Rod,
+  roundedRect,
   useCanvasTexture,
   type V3,
 } from "./parts";
@@ -716,20 +717,6 @@ function useMeshTexture() {
       g.stroke();
     }
   }, { repeat: [7, 9] });
-}
-
-function roundedRect(w: number, h: number, r: number) {
-  const s = new THREE.Shape();
-  s.moveTo(-w / 2 + r, -h / 2);
-  s.lineTo(w / 2 - r, -h / 2);
-  s.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
-  s.lineTo(w / 2, h / 2 - r);
-  s.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
-  s.lineTo(-w / 2 + r, h / 2);
-  s.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
-  s.lineTo(-w / 2, -h / 2 + r);
-  s.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
-  return s;
 }
 
 export function Chair() {

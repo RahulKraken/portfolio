@@ -8,10 +8,8 @@ type V3 = [number, number, number];
 type Axis = "x" | "y" | "z";
 
 export const models = [
-  "amp",
   "boots",
   "ducati",
-  "guitar",
   "helmet",
   "ktm",
   "suit",

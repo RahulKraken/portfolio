@@ -15,7 +15,8 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 import type { RoomItem } from "./content";
 import { Chair, Desk, Lamp, Laptop, laptopScreen, laptops } from "./DeskSet";
 import { Model } from "./Model";
-import { Box, Cable, Cylinder, Rod, type V3 } from "./parts";
+import { MusicCorner } from "./MusicSet";
+import { Box, Cylinder, Rod, type V3 } from "./parts";
 
 type SceneProps = {
   selected: RoomItem | null;
@@ -501,48 +502,9 @@ function Room({
           onSelect={onSelect}
           selected={selected}
         >
-          {/* music sits 0.585 above the floor; the Strat's mesh lies face-up, neck along +x */}
+          {/* music sits 0.585 above the floor */}
           <group rotation={[0, -0.5, 0]} position={[0, -0.585, 0]}>
-            {/* leans back onto the stand's yoke */}
-            <group position={[0, 0.1, 0]} rotation={[-0.08, -0.25, 0]}>
-              <Model
-                name="guitar"
-                fit={["y", 1.72]}
-                turn={[0, Math.PI / 2, Math.PI / 2]}
-              />
-            </group>
-            {/* A-frame stand: cradle and two front feet, a yoke on one back leg */}
-            <Rod
-              from={[-0.16, 0.1, 0.09]}
-              to={[0.16, 0.1, 0.09]}
-              radius={0.016}
-            />
-            {[-1, 1].map((side) => (
-              <Rod
-                key={side}
-                from={[side * 0.16, 0.1, 0.09]}
-                to={[side * 0.22, 0.01, 0.22]}
-                radius={0.014}
-              />
-            ))}
-            <Rod from={[0, 0.1, 0.09]} to={[0, 0.01, -0.36]} radius={0.014} />
-            <Rod from={[0, 0.01, -0.36]} to={[0, 0.98, -0.1]} radius={0.014} />
-            <Rod
-              from={[-0.05, 0.98, -0.1]}
-              to={[0.05, 0.98, -0.1]}
-              radius={0.012}
-            />
-            <Model name="amp" fit={["x", 0.8]} position={[0.78, 0, -0.1]} />
-            <Cable
-              points={[
-                [0.17, 0.3, 0.07],
-                [0.24, 0.05, 0.3],
-                [0.38, 0.015, 0.4],
-                [0.42, 0.35, 0.22],
-                [0.44, 0.76, 0.14],
-                [0.45, 0.75, 0.06],
-              ]}
-            />
+            <MusicCorner />
           </group>
         </Pickable>
         <Pickable

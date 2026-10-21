@@ -169,3 +169,17 @@ placed from each lid's exact pose (`laptopScreen`), which the camera rig shares.
 
 In development, `window.__room` (camera controls) and `window.__draw()` allow placing the
 camera precisely from the console when inspecting details.
+
+## The music corner in code
+
+The Strat and the Katana are also built in code (`components/room/MusicSet.tsx`). The
+guitar's body, pickguard and headstock outlines are traced from Fender's front product
+photo (`scripts/trace-strat.mjs` → `components/room/strat.ts`), scaled from the fret-dot
+spacing so the nut-to-saddle distance is exactly the 25.5" scale. On top of the traced
+shapes sit the parts that matter up close: a tapering C-profile maple neck, 22 frets placed
+by the equal-temperament formula, dot and side-dot inlays, three cream pickups with
+staggered pole pieces, fluted knobs printed 0–10, the five-way switch, bent-steel saddles,
+the tremolo arm, the football jack, six tuners with keys, the string tree and six strings
+of real gauge running through the body to the posts. The Katana (47 × 41 × 23.8 cm) has its
+labelled top panel with controls placed from Boss's top-down photo, strap handle, corner
+guards and piped grille. One cable runs from the guitar's jack to the amp's input.
