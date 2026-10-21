@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import {
   useCallback,
   useEffect,
@@ -14,6 +13,7 @@ import { roomItems, type RoomItem } from "./content";
 import LaptopDesktop from "./LaptopDesktop";
 import { Ambient } from "./ambient";
 import { SpotifyPlayer, type SpotifyHandle } from "./SpotifyPlayer";
+import { Gallery, Video, type Photo } from "./Media";
 
 const RoomScene = dynamic(() => import("./RoomScene"), {
   ssr: false,
@@ -102,8 +102,22 @@ function Icon({ id }: { id: RoomItem }) {
 
 function Speaker({ muted }: { muted: boolean }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M3.5 8v4h3l4 3.2V4.8l-4 3.2h-3z" fill="currentColor" stroke="none" />
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path
+        d="M3.5 8v4h3l4 3.2V4.8l-4 3.2h-3z"
+        fill="currentColor"
+        stroke="none"
+      />
       {muted ? (
         <path d="M13.5 8l4 4m0-4l-4 4" />
       ) : (
@@ -135,29 +149,49 @@ function strum() {
   });
   return audio;
 }
-function PanelBody({ id, playSound }: { id: RoomItem; playSound: () => void }) {
+const trackPhotos: Photo[] = Array.from({ length: 10 }, (_, i) => ({
+  src: `/track/${String(i + 1).padStart(2, "0")}.jpg`,
+  width: 1800,
+  height: 1200,
+  alt: "Rahul on the Panigale V2 S at the Madras International Circuit",
+}));
+const coffeePhotos: Photo[] = [
+  { n: 1, w: 1200, alt: "Hario Switch on the scale, mid-brew" },
+  { n: 2, w: 1350, alt: "AeroPress and the current bags of beans" },
+  { n: 3, w: 1350, alt: "AeroPress brewing into a glass server" },
+  { n: 4, w: 1350, alt: "Ground coffee in the AeroPress" },
+  { n: 5, w: 1350, alt: "AeroPress pressing through" },
+  { n: 6, w: 1350, alt: "A bag from Corridor Seven Coffee Roasters" },
+].map(({ n, w, alt }) => ({
+  src: `/coffee/0${n}.jpg`,
+  width: w,
+  height: 1800,
+  alt,
+}));
+function PanelBody({
+  id,
+  playSound,
+  onMedia,
+}: {
+  id: RoomItem;
+  playSound: () => void;
+  onMedia: (playing: boolean) => void;
+}) {
   if (id === "track")
     return (
       <>
-        <div className="room-photo">
-          <Image
-            src="/photos/track-337.jpg"
-            alt="Rahul riding on the racetrack"
-            width={1200}
-            height={800}
-            sizes="(max-width: 700px) 90vw, 480px"
-          />
-        </div>
+        <Video
+          src="/track/onboard.mp4"
+          poster="/track/onboard.jpg"
+          label="Onboard lap at the Madras International Circuit"
+          onPlaying={onMedia}
+        />
         <div className="spec-line">
-          <span>THE BIKE</span>
-          <strong>Ducati Panigale V2 S</strong>
-          <span>2025</span>
+          <span>CIRCUIT</span>
+          <strong>Madras International Circuit</strong>
+          <span>SEP 2026</span>
         </div>
-        <p className="panel-note">
-          Track days, and the details that make the next lap a little better.
-          That interest also finds its way into Apex One, my motorcycle
-          telemetry project.
-        </p>
+        <Gallery photos={trackPhotos} />
         <button
           className="room-text-link"
           onClick={() =>
@@ -166,83 +200,18 @@ function PanelBody({ id, playSound }: { id: RoomItem; playSound: () => void }) {
             )
           }
         >
-          See what I’m building <Arrow />
+          Apex One, my lap timer <Arrow />
         </button>
       </>
     );
-  if (id === "travel")
-    return (
-      <>
-        <div className="road-card">
-          <span>
-            LESS SCROLLING.
-            <br />
-            MORE RIDING.
-          </span>
-          <svg viewBox="0 0 400 180" fill="none" aria-hidden>
-            <path
-              d="M-20 155C100 100 45 50 180 85s90-70 240-55"
-              stroke="#d6ad72"
-              strokeWidth="38"
-            />
-            <path
-              d="M-20 155C100 100 45 50 180 85s90-70 240-55"
-              stroke="#f7ead2"
-              strokeWidth="2"
-              strokeDasharray="8 8"
-            />
-          </svg>
-          <small>A GOOD EXCUSE TO GET OUTSIDE</small>
-        </div>
-        <div className="spec-line">
-          <span>THE BIKE</span>
-          <strong>KTM Duke 390</strong>
-          <span>GEN 3</span>
-        </div>
-        <p className="panel-note">
-          Blue and orange. The Duke is the road-going half of the garage; the
-          Panigale gets the track days.
-        </p>
-      </>
-    );
+  if (id === "travel") return null;
   if (id === "music")
     return (
-      <>
-        <button className="strum-button" onClick={playSound}>
-          <span>▷</span> Strum the strings <small>SOUND ON REQUEST</small>
-        </button>
-      </>
+      <button className="strum-button" onClick={playSound}>
+        <span>▷</span> Strum the strings
+      </button>
     );
-  return (
-    <>
-      <div className="coffee-illustration" aria-hidden>
-        <span className="coffee-steam">∿ ∿ ∿</span>
-        <div className="dripper" />
-        <div className="coffee-server" />
-        <div className="coffee-bag">
-          <span>
-            FRESH
-            <br />
-            PERSPECTIVE
-          </span>
-          <i>COFFEE BEANS</i>
-        </div>
-      </div>
-      <div className="gear-list">
-        <div>
-          <span>POUR OVER / IMMERSION</span>
-          <strong>Hario Switch</strong>
-          <p>One dripper. A few ways to brew.</p>
-        </div>
-        <div>
-          <span>THE OTHER REGULAR</span>
-          <strong>AeroPress</strong>
-          <p>A different approach to the same good ritual.</p>
-        </div>
-      </div>
-      <p className="panel-note">The beans change. The coffee corner stays.</p>
-    </>
-  );
+  return <Gallery photos={coffeePhotos} />;
 }
 function ObjectInfo({ id, children }: { id: RoomItem; children: ReactNode }) {
   const item = roomItems.find((x) => x.id === id)!;
@@ -279,11 +248,28 @@ export default function RoomExperience() {
   // keeps going while the visitor looks around; the ambience steps aside while it plays
   const spotify = useRef<SpotifyHandle | null>(null);
   const [spotifyLoaded, setSpotifyLoaded] = useState(false);
-  const spotifyPlaying = useRef(false);
-  const onSpotifyPlaying = useCallback((playing: boolean) => {
-    spotifyPlaying.current = playing;
-    ambient.current?.hold(playing);
+  // anything else making sound (Spotify, the onboard video) holds the ambience off
+  const holders = useRef(new Set<string>());
+  const holdAmbient = useCallback((source: string, playing: boolean) => {
+    if (playing) holders.current.add(source);
+    else holders.current.delete(source);
+    ambient.current?.hold(holders.current.size > 0);
   }, []);
+  const onSpotifyPlaying = useCallback(
+    (playing: boolean) => {
+      if (playing) document.querySelectorAll("video").forEach((v) => v.pause());
+      holdAmbient("spotify", playing);
+    },
+    [holdAmbient],
+  );
+  const onVideoPlaying = useCallback(
+    (playing: boolean) => {
+      // one soundtrack at a time
+      if (playing) spotify.current?.pause();
+      holdAmbient("video", playing);
+    },
+    [holdAmbient],
+  );
   // ambience can only start from a gesture; the visitor's mute choice is remembered
   const startAmbient = useCallback(() => {
     if (ambient.current) return;
@@ -293,7 +279,7 @@ export default function RoomExperience() {
     } catch {}
     setMuted(quiet);
     ambient.current = new Ambient();
-    ambient.current.hold(spotifyPlaying.current);
+    ambient.current.hold(holders.current.size > 0);
     ambient.current.start(quiet);
   }, []);
   const toggleMute = useCallback(() => {
@@ -303,7 +289,10 @@ export default function RoomExperience() {
       localStorage.setItem("studio-muted", next ? "1" : "0");
     } catch {}
     // the corner button is the one switch for all sound, Spotify included
-    if (next) spotify.current?.pause();
+    if (next) {
+      spotify.current?.pause();
+      document.querySelectorAll("video").forEach((v) => v.pause());
+    }
     if (ambient.current) ambient.current.setMuted(next);
     else {
       ambient.current = new Ambient();
@@ -566,7 +555,11 @@ export default function RoomExperience() {
       )}
       {selected && !computer && arrived && !menuOpen && (
         <ObjectInfo id={selected}>
-          <PanelBody id={selected} playSound={playSound} />
+          <PanelBody
+            id={selected}
+            playSound={playSound}
+            onMedia={onVideoPlaying}
+          />
         </ObjectInfo>
       )}
     </main>
