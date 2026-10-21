@@ -702,8 +702,15 @@ function inGuitar([x, y, z]: V3): V3 {
 const inAmp = ([x, y, z]: V3): V3 => [AMP_AT[0] + x * CM, AMP_AT[1] + y * CM, AMP_AT[2] + z * CM];
 
 export function MusicCorner() {
+  // the straight plug sits in the angled football jack, pointing down and out
   const plugIn = inGuitar([JACK[0], JACK[1], JACK[2] + 0.2]);
-  const plugOut = inGuitar([JACK[0], JACK[1], JACK[2] + 3.4]);
+  const plugOut = inGuitar([JACK[0] + 1.0, JACK[1] - 1.7, JACK[2] + 2.9]);
+  const plugTip = new THREE.Vector3(...plugOut)
+    .applyEuler(new THREE.Euler(0, -0.25, 0))
+    .toArray() as V3;
+  // cable centre on the floor, and where it crosses over itself
+  const F = 0.0058,
+    OVER = 0.017;
   const input = inAmp(AMP_INPUT);
   const stand = "#1f2123";
   return (
@@ -730,19 +737,54 @@ export function MusicCorner() {
       <group rotation={[0, -0.25, 0]}>
         <Rod from={plugIn} to={plugOut} radius={0.008} {...chrome} />
       </group>
+      {/* a long cable, as at home: down from the jack, a few slack loops on the floor in
+          front, up over the amp's front-right corner and back to the input */}
       <Cable
         radius={0.0056}
-        color="#b74631"
+        color="#c62a2c"
         points={[
-          new THREE.Vector3(...plugOut).applyEuler(new THREE.Euler(0, -0.25, 0)).toArray() as V3,
-          [0.26, 0.12, 0.3],
-          [0.32, 0.012, 0.36],
-          [input[0] - 0.12, 0.012, 0.3],
-          [input[0] - 0.13, 0.3, 0.17],
-          [input[0] - 0.07, input[1] + 0.06, input[2] + 0.02],
-          [input[0], input[1] + 0.05, input[2]],
-          [input[0], input[1] + 0.012, input[2]],
+          plugTip,
+          [plugTip[0] + 0.03, plugTip[1] - 0.08, plugTip[2] + 0.05],
+          [0.2, 0.05, 0.3],
+          [0.17, F, 0.36],
+          // first loop, out to the left
+          [0.064, F, 0.394],
+          [-0.038, F, 0.488],
+          [-0.012, F, 0.590],
+          [0.098, F, 0.607],
+          [0.175, F, 0.522],
+          [0.141, OVER, 0.411],
+          // second, wider loop
+          [0.234, F, 0.386],
+          [0.353, F, 0.369],
+          [0.455, F, 0.446],
+          [0.438, F, 0.582],
+          [0.319, F, 0.658],
+          [0.200, F, 0.599],
+          [0.208, OVER, 0.488],
+          [0.310, F, 0.462],
+          // a lazy run along the amp's front to its right corner
+          [0.6, F, 0.4],
+          [0.85, F, 0.37],
+          [1.06, F, 0.33],
+          [1.17, 0.02, 0.22],
+          [1.19, 0.25, 0.17],
+          [1.19, 0.55, 0.165],
+          [1.17, 0.71, 0.15],
+          // over the corner and arcing back above the panel to the input
+          [1.1, 0.8, 0.06],
+          [0.92, 0.86, -0.08],
+          [0.68, 0.85, -0.16],
+          [0.53, 0.8, -0.19],
+          [input[0], input[1] + 0.06, input[2]],
+          [input[0], input[1] + 0.035, input[2]],
         ]}
+      />
+      <Rod
+        from={[input[0], input[1] + 0.004, input[2]]}
+        to={[input[0], input[1] + 0.04, input[2]]}
+        radius={0.0075}
+        {...chrome}
       />
     </group>
   );

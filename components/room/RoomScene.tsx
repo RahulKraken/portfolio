@@ -335,7 +335,8 @@ function CameraRig({
       eye = center.clone().addScaledVector(normal, distance).toArray() as V3;
     } else if (selected) {
       const profiles = {
-        music: { direction: [-0.56, 0.22, 1], width: 1.85, height: 2.0 },
+        // tall enough to keep the cable's floor loops in shot
+        music: { direction: [-0.56, 0.28, 1], width: 1.95, height: 2.15 },
         coffee: { direction: [-1, 0.55, 0.75], width: 1.9, height: 2.05 },
         travel: { direction: [1, 0.4, 1], width: 4.2, height: 2.8 },
         // the Ducati sits between the gear rail and the Duke: a high front three-quarter clears both
@@ -344,7 +345,7 @@ function CameraRig({
       const profile = profiles[selected];
       target =
         selected === "music"
-          ? [layout.music[0] + 0.25, 0.86, layout.music[2] + 0.16]
+          ? [layout.music[0] + 0.25, 0.8, layout.music[2] + 0.2]
           : targets[selected];
       const aspect = size.width / size.height;
       const fov = THREE.MathUtils.degToRad(

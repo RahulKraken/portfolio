@@ -131,17 +131,20 @@ export function Cable({
   closed?: boolean;
 }) {
   const key = JSON.stringify(points);
+  // centripetal: long, looping runs don't overshoot between close points
   const curve = useMemo(
     () =>
       new THREE.CatmullRomCurve3(
         (JSON.parse(key) as V3[]).map((p) => new THREE.Vector3(...p)),
         closed,
+        "centripetal",
       ),
     [key, closed],
   );
+  const segments = Math.max(64, Math.ceil(curve.getLength() / (radius * 1.5)));
   return (
     <mesh castShadow>
-      <tubeGeometry args={[curve, 96, radius, 10, closed]} />
+      <tubeGeometry args={[curve, Math.min(segments, 1200), radius, 10, closed]} />
       <meshStandardMaterial color={color} roughness={0.55} />
     </mesh>
   );
