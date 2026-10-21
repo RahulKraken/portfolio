@@ -36,15 +36,16 @@ type SceneProps = {
 };
 // Floor-plan coordinates: +z is forward, toward the visitor. One scale throughout:
 // the desk top (1.28) is 75 cm, so 1 m ≈ 1.7 units.
-// Floor plan from Rahul's sketch, scaled by the desk (2.8 units = 404 px): the two bikes side
-// by side at the back left, angled in toward the desk; leathers rail and helmet table in front
-// of them; guitar corner back right; coffee station forward on the right.
+// Floor plan from Rahul's sketch, scaled by the desk (2.8 units = 404 px), then opened up: the
+// two bikes side by side at the back left, well clear of the desk and angled in toward it;
+// leathers rail and helmet table in front of them; guitar corner back right; coffee station
+// forward on the right.
 const layout = {
   // the mats rest on the floor (the room group sits 0.08 down, the floor 0.085)
-  duke: [-5.14, -0.005, 0.1] as V3,
-  ducati: [-4.9, -0.005, 1.84] as V3,
-  leathers: [-6.7, -0.04, 3.63] as V3,
-  table: [-5.8, -0.04, 3.56] as V3,
+  duke: [-6.1, -0.005, -0.1] as V3,
+  ducati: [-5.85, -0.005, 2.25] as V3,
+  leathers: [-8.5, -0.04, 4.7] as V3,
+  table: [-7.1, -0.04, 4.75] as V3,
   music: [3.05, 0.585, 0.05] as V3,
   coffee: [5.16, 0, 3.0] as V3,
 };
@@ -387,8 +388,8 @@ function CameraRig({
         .addScaledVector(direction, distance)
         .toArray() as V3;
     } else {
-      target = [-1.9, 0.8, 3.2];
-      eye = mobile ? [7.6, 17, 50] : [3.6, 10, 23.5];
+      target = [-2.4, 0.8, 2.8];
+      eye = mobile ? [7.4, 17.5, 51] : [3.4, 10.5, 24.5];
     }
     c.smoothTime = reduced ? 0 : selected ? 0.65 : 0.85;
     void c.setLookAt(...eye, ...target, !reduced).then(() => {
