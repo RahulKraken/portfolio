@@ -785,22 +785,6 @@
 .quiet-studio .room-scene {
   inset: 0;
 }
-.studio-loading {
-  position: absolute;
-  bottom: 8%;
-  left: 50%;
-  z-index: 5;
-  pointer-events: none;
-}
-.studio-loading span {
-  display: block;
-  width: 14px;
-  height: 14px;
-  border: 1px solid #b1b3aa;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: room-spin 1s linear infinite;
-}
 .studio-controls {
   position: absolute;
   inset: auto 30px 26px;
@@ -1559,4 +1543,143 @@
 
 .studio-controls button.is-hidden {
   visibility: hidden;
+}
+
+/* Loading: black coffee pours from a glass server into the progress bar, on kraft paper. */
+.studio-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 6px;
+  padding: 16px;
+  background-color: #b48f63;
+  /* paper grain */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.17 0 0 0 0 0.08 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  color: #1d140d;
+  transition:
+    opacity 600ms cubic-bezier(0.23, 1, 0.32, 1),
+    visibility 0s;
+}
+.studio-loader[data-leaving="true"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 600ms cubic-bezier(0.23, 1, 0.32, 1),
+    visibility 0s 600ms;
+}
+.studio-loader svg {
+  width: min(620px, calc(100vw - 32px));
+  height: auto;
+  overflow: visible;
+}
+.studio-loader p {
+  font: 500 14px var(--mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.loader-track {
+  fill: #f6f0e3;
+}
+.loader-coffee {
+  fill: #1f140d;
+}
+.loader-crema {
+  fill: #ffffff;
+  opacity: 0.12;
+}
+.loader-glass {
+  fill: #ffffff24;
+  stroke: #1d140d;
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.loader-handle,
+.loader-handle-glass {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* a glass handle: a dark outline with the paper showing through the middle */
+.loader-handle {
+  stroke: #1d140d;
+  stroke-width: 7.5;
+}
+.loader-handle-glass {
+  stroke: #cdb08a;
+  stroke-width: 3;
+}
+.loader-shine {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.5;
+}
+.loader-server {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+/* once full, the server sets upright on its own time */
+svg[data-pouring="false"] .loader-server,
+svg[data-pouring="false"] .loader-server g {
+  transition: transform 450ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+.loader-server g {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+.loader-stream-body,
+.loader-stream-flow {
+  fill: none;
+  stroke-linecap: round;
+}
+.loader-stream-body {
+  stroke: #1f140d;
+  stroke-width: 4.5;
+}
+/* faint highlights running down the stream so it reads as flowing */
+.loader-stream-flow {
+  stroke: #4a3324;
+  stroke-width: 1.2;
+  stroke-dasharray: 5 13;
+  animation: loader-flow 0.45s linear infinite;
+}
+@keyframes loader-flow {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+.loader-splash {
+  fill: #1f140d;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: loader-splash 0.6s ease-in-out infinite alternate;
+}
+@keyframes loader-splash {
+  from {
+    transform: scaleX(0.7);
+  }
+}
+.loader-stream {
+  transition: opacity 200ms ease-out;
+}
+.loader-stream[data-on="false"] {
+  opacity: 0;
+}
+@media (max-width: 700px) {
+  .studio-loader p {
+    font-size: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loader-stream-flow,
+  .loader-splash {
+    animation: none;
+  }
 }

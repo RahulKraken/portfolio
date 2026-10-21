@@ -14,6 +14,7 @@ import LaptopDesktop from "./LaptopDesktop";
 import { Ambient } from "./ambient";
 import { SpotifyPlayer, type SpotifyHandle } from "./SpotifyPlayer";
 import { Gallery, Video, type Photo } from "./Media";
+import { StudioLoader } from "./StudioLoader";
 
 const RoomScene = dynamic(() => import("./RoomScene"), {
   ssr: false,
@@ -437,15 +438,7 @@ export default function RoomExperience() {
           screenContent={screenContent}
         />
       </div>
-      {!ready && (
-        <div
-          className="studio-loading"
-          role="status"
-          aria-label="Loading the studio"
-        >
-          <span />
-        </div>
-      )}
+      <StudioLoader ready={ready} />
       {entered && !computer && (
         <div className="studio-controls">
           <button
