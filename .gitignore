@@ -16,3 +16,4 @@ references/
 
 # local model viewer for reviewing generated GLBs
 public/models/_viewer.html
+public/models/_cmp-*

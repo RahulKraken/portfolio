@@ -124,11 +124,15 @@ export function Cable({
   radius = 0.011,
   color = "#b74631",
   closed = false,
+  metalness = 0,
+  roughness = 0.55,
 }: {
   points: V3[];
   radius?: number;
   color?: string;
   closed?: boolean;
+  metalness?: number;
+  roughness?: number;
 }) {
   const key = JSON.stringify(points);
   // centripetal: long, looping runs don't overshoot between close points
@@ -144,8 +148,8 @@ export function Cable({
   const segments = Math.max(64, Math.ceil(curve.getLength() / (radius * 1.5)));
   return (
     <mesh castShadow>
-      <tubeGeometry args={[curve, Math.min(segments, 1200), radius, 10, closed]} />
-      <meshStandardMaterial color={color} roughness={0.55} />
+      <tubeGeometry args={[curve, Math.min(segments, 1200), radius, 12, closed]} />
+      <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
     </mesh>
   );
 }

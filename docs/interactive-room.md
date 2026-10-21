@@ -183,3 +183,25 @@ the tremolo arm, the football jack, six tuners with keys, the string tree and si
 of real gauge running through the body to the posts. The Katana (47 × 41 × 23.8 cm) has its
 labelled top panel with controls placed from Boss's top-down photo, strap handle, corner
 guards and piped grille. One cable runs from the guitar's jack to the amp's input.
+
+## Version six: bikes and riding gear at full generation quality
+
+The Ducati, KTM 390 Duke, Arai helmet, Laguna Seca suit and Supertech R Vented boots are
+Rodin Gen-2.5 generations at the model's top settings (Extreme-High tier, micro detail, HD
+texture pass, 4K PBR maps, 2M triangles), each from one run on the sharpest official product
+photos available. They are used as generated: the only edits are colour grades on the paint
+(texture de-lighting leaves it pale) and, for the bikes, a mapping that puts the axles on the
+real wheelbase and tyre sizes. Earlier attempts at cutting the generated bikes apart and
+rebuilding the bodywork in code are gone; they read as patchwork. Originals, inputs, request
+IDs and the processing scripts live in `references/3d/_generated/` (not in git).
+
+The web copies are decimated with meshoptimizer 1.3's attribute-aware simplifier (Permissive
+across UV seams, geometric error under 0.1 % of each object): bikes 550k triangles with 4K
+maps, helmet, suit and boots 150–250k with 2K maps. Frame time on the M-series Mac dropped
+from ~27 ms with the full meshes to ~10 ms.
+
+The floor plan follows Rahul's sketch, scaled by the desk: the two bikes side by side at the
+back left, angled toward the desk, each on its own pit mat (Ducati Corse, and a KTM one). The
+Ducati stands on front and rear paddock stands (`TrackCorner`), the KTM on an orange rear stand
+under its swingarm bobbins (`KtmCorner`). The leathers rail and the helmet-and-boots table stand
+in front of them; the guitar corner is at the back right and the coffee station forward right.

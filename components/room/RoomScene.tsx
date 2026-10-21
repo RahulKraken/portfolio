@@ -17,6 +17,7 @@ import { Chair, Desk, Lamp, Laptop, laptopScreen, laptops } from "./DeskSet";
 import { Model } from "./Model";
 import { MusicCorner } from "./MusicSet";
 import { Box, Cylinder, Rod, type V3 } from "./parts";
+import { KtmCorner, TrackCorner } from "./TrackCorner";
 
 type SceneProps = {
   selected: RoomItem | null;
@@ -35,14 +36,21 @@ type SceneProps = {
 };
 // Floor-plan coordinates: +z is forward, toward the visitor. One scale throughout:
 // the desk top (1.28) is 75 cm, so 1 m ≈ 1.7 units.
+// Floor plan from Rahul's sketch, scaled by the desk (2.8 units = 404 px): the two bikes side
+// by side at the back left, angled in toward the desk; leathers rail and helmet table in front
+// of them; guitar corner back right; coffee station forward on the right.
 const layout = {
-  duke: [-4.35, -0.04, -0.35] as V3,
-  ducati: [-6.15, -0.04, -0.35] as V3,
-  gear: [-7.8, -0.04, -0.35] as V3,
+  // the mats rest on the floor (the room group sits 0.08 down, the floor 0.085)
+  duke: [-5.14, -0.005, 0.1] as V3,
+  ducati: [-4.9, -0.005, 1.84] as V3,
+  leathers: [-6.7, -0.04, 3.63] as V3,
+  table: [-5.8, -0.04, 3.56] as V3,
   music: [3.05, 0.585, 0.05] as V3,
-  coffee: [5.45, 0, 4.15] as V3,
+  coffee: [5.16, 0, 3.0] as V3,
 };
-function RidingGear() {
+// both bikes point the same way: nose toward the desk, a little back from straight across
+const BIKE_YAW = 1.79;
+function LeathersRail() {
   // drawn at the old 0.65 scale, then brought up to the room's
   return (
     <group scale={1.55}>
@@ -50,74 +58,77 @@ function RidingGear() {
       {[-0.37, 0.37].map((x) => (
         <group key={x}>
           <Rod
-            from={[x, 0.03, -0.85]}
-            to={[x, 1.92, -0.85]}
+            from={[x, 0.03, 0]}
+            to={[x, 1.92, 0]}
             radius={0.018}
             color="#626a67"
           />
           <Rod
-            from={[x, 0.025, -1.12]}
-            to={[x, 0.025, -0.55]}
+            from={[x, 0.025, -0.27]}
+            to={[x, 0.025, 0.3]}
             radius={0.025}
             color="#626a67"
           />
         </group>
       ))}
       <Rod
-        from={[-0.37, 1.92, -0.85]}
-        to={[0.37, 1.92, -0.85]}
+        from={[-0.37, 1.92, 0]}
+        to={[0.37, 1.92, 0]}
         radius={0.018}
         color="#626a67"
       />
       <Rod
-        from={[0, 1.92, -0.85]}
-        to={[0, 1.8, -0.85]}
+        from={[0, 1.92, 0]}
+        to={[0, 1.8, 0]}
         radius={0.012}
         color="#9b9a89"
       />
       <Rod
-        from={[0, 1.8, -0.85]}
-        to={[-0.26, 1.66, -0.85]}
+        from={[0, 1.8, 0]}
+        to={[-0.26, 1.66, 0]}
         radius={0.018}
         color="#b4946e"
       />
       <Rod
-        from={[0, 1.8, -0.85]}
-        to={[0.26, 1.66, -0.85]}
+        from={[0, 1.8, 0]}
+        to={[0.26, 1.66, 0]}
         radius={0.018}
         color="#b4946e"
       />
       {/* the one-piece hangs from the hanger, clear of the floor */}
-      <Model name="suit" fit={["y", 1.62]} position={[0, 0.13, -0.85]} />
-      <Box at={[0, 0.73, 0.97]} size={[0.76, 0.06, 0.48]} color="#ac8a63" />
+      <Model name="suit-rodin" fit={["y", 1.62]} position={[0, 0.13, 0]} />
+    </group>
+  );
+}
+function GearTable() {
+  return (
+    <group scale={1.55}>
+      <Box at={[0, 0.73, 0]} size={[0.76, 0.06, 0.48]} color="#ac8a63" />
       {[-0.3, 0.3].flatMap((x) =>
         [-0.16, 0.16].map((z) => (
           <Box
             key={`${x}-${z}`}
-            at={[x, 0.36, 0.97 + z]}
+            at={[x, 0.36, z]}
             size={[0.035, 0.72, 0.035]}
             color="#505951"
           />
         )),
       )}
-      <Box at={[0, 0.24, 0.97]} size={[0.69, 0.04, 0.4]} color="#ac8a63" />
+      <Box at={[0, 0.24, 0]} size={[0.69, 0.04, 0.4]} color="#ac8a63" />
       <Model
-        name="helmet"
+        name="helmet-rodin"
         fit={["y", 0.32]}
-        position={[0, 0.76, 0.97]}
+        position={[0, 0.76, 0]}
         rotation={[0, 0.35, 0]}
-        gloss={0.22}
       />
       {/* one generated boot, mirrored for the pair */}
       {[-1, 1].map((side) => (
         <Model
           key={side}
-          name="boots"
+          name="boots-rodin"
           fit={["y", 0.42]}
-          turn={[0, Math.PI / 2, 0]}
-          position={[side * 0.13, 0.26, 0.97]}
+          position={[side * 0.13, 0.26, 0]}
           scale={[side, 1, 1]}
-          gloss={0.45}
         />
       ))}
     </group>
@@ -308,8 +319,23 @@ function CameraRig({
     if (!c) return;
     // dev-only handle for inspecting details from the console:
     // `__room.setLookAt(...)` then `__draw()` (the canvas renders on demand)
-    if (process.env.NODE_ENV === "development")
+    if (process.env.NODE_ENV === "development") {
       Object.assign(window, { __room: c, __draw: () => invalidate(2) });
+      // ?cam=ex,ey,ez,tx,ty,tz pins the camera for reference renders
+      const cam = new URLSearchParams(window.location.search).get("cam");
+      if (cam) {
+        const v = cam.split(",").map(Number) as [
+          number,
+          number,
+          number,
+          number,
+          number,
+          number,
+        ];
+        void c.setLookAt(...v, false).then(() => invalidate(2));
+        return;
+      }
+    }
     let cancelled = false;
     const mobile = size.width < 700;
     let eye: V3, target: V3;
@@ -338,9 +364,10 @@ function CameraRig({
         // tall enough to keep the cable's floor loops in shot
         music: { direction: [-0.56, 0.28, 1], width: 1.95, height: 2.15 },
         coffee: { direction: [-1, 0.55, 0.75], width: 1.9, height: 2.05 },
-        travel: { direction: [1, 0.4, 1], width: 4.2, height: 2.8 },
-        // the Ducati sits between the gear rail and the Duke: a high front three-quarter clears both
-        track: { direction: [-0.4, 0.75, 1], width: 4.4, height: 3 },
+        // the KTM from ahead of its nose (the Ducati stands on its other side); the Ducati
+        // from its right, exhaust side
+        travel: { direction: [1, 0.6, 0.3], width: 4.2, height: 2.8 },
+        track: { direction: [0.6, 0.55, 0.9], width: 4.6, height: 3 },
       };
       const profile = profiles[selected];
       target =
@@ -360,8 +387,8 @@ function CameraRig({
         .addScaledVector(direction, distance)
         .toArray() as V3;
     } else {
-      target = [-0.6, 0.8, 1];
-      eye = mobile ? [8, 15, 43] : [4, 8, 18];
+      target = [-1.9, 0.8, 3.2];
+      eye = mobile ? [7.6, 17, 50] : [3.6, 10, 23.5];
     }
     c.smoothTime = reduced ? 0 : selected ? 0.65 : 0.85;
     void c.setLookAt(...eye, ...target, !reduced).then(() => {
@@ -480,12 +507,9 @@ function Room({
           onSelect={onSelect}
           selected={selected}
         >
-          <Model
-            name="ktm"
-            fit={["z", 3.4]}
-            turn={[0, Math.PI / 2, 0]}
-            gloss={0.4}
-          />
+          <group rotation={[0, BIKE_YAW, 0]} scale={1.7}>
+            <KtmCorner />
+          </group>
         </Pickable>
         <Pickable
           id="track"
@@ -494,7 +518,11 @@ function Room({
           onSelect={onSelect}
           selected={selected}
         >
-          <Model name="ducati" fit={["z", 3.5]} />
+          {/* on its paddock stands and pit mat, nose turned in toward the desk so the main view
+              meets its exhaust side, not its headlights (1 m = 1.7 units) */}
+          <group rotation={[0, BIKE_YAW, 0]} scale={1.7}>
+            <TrackCorner />
+          </group>
         </Pickable>
         <Pickable
           id="music"
@@ -519,12 +547,26 @@ function Room({
         </Pickable>
         <Pickable
           id="track"
-          at={layout.gear}
+          at={layout.leathers}
           label="Riding gear"
           onSelect={onSelect}
           selected={selected}
         >
-          <RidingGear />
+          {/* the suit faces into the room */}
+          <group rotation={[0, Math.PI / 2, 0]}>
+            <LeathersRail />
+          </group>
+        </Pickable>
+        <Pickable
+          id="track"
+          at={layout.table}
+          label="Riding gear"
+          onSelect={onSelect}
+          selected={selected}
+        >
+          <group rotation={[0, Math.PI / 2, 0]}>
+            <GearTable />
+          </group>
         </Pickable>
         <Lamp night={night} onToggle={onToggle} />
       </group>
