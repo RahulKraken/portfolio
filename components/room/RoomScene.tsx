@@ -33,6 +33,8 @@ type SceneProps = {
   onSelect: (id: RoomItem) => void;
   onReady: () => void;
   onFailure: () => void;
+  /** a click on empty floor or background: leave the object view for the room */
+  onDismiss: () => void;
 };
 // Floor-plan coordinates: +z is forward, toward the visitor. One scale throughout:
 // the desk top (1.28) is 75 cm, so 1 m ≈ 1.7 units.
@@ -339,8 +341,15 @@ function CameraRig({
     }
     let cancelled = false;
     const mobile = size.width < 700;
+    // a portrait phone can't fit the room's long side across the screen, so it looks down the
+    // room from the coffee end instead: bikes at the top, the coffee stand at the bottom
+    const portrait = size.width < size.height * 0.8;
+    const along: V3 = [19.8, 15.4, 1.8];
     let eye: V3, target: V3;
-    if (!entered) {
+    if (!entered && portrait) {
+      target = [-1.8, 0.6, 1.7];
+      eye = along.map((d, i) => target[i] + d * 1.35) as V3;
+    } else if (!entered) {
       target = [-0.6, 0.7, 1.1];
       const distance = mobile ? 1.85 : 1;
       eye = [11 * distance, 16 * distance, 32 * distance];
@@ -387,6 +396,9 @@ function CameraRig({
       eye = new THREE.Vector3(...target)
         .addScaledVector(direction, distance)
         .toArray() as V3;
+    } else if (portrait) {
+      target = [-1.8, 0.6, 1.7];
+      eye = along.map((d, i) => target[i] + d) as V3;
     } else {
       target = [-2.4, 0.8, 2.8];
       eye = mobile ? [7.4, 17.5, 51] : [3.4, 10.5, 24.5];
@@ -453,6 +465,7 @@ function Room({
   onSelect,
   onReady,
   onToggle,
+  onDismiss,
 }: SceneProps & { onToggle: () => void }) {
   useEffect(() => {
     onReady();
@@ -575,6 +588,10 @@ function Room({
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, -0.085, 0]}
         receiveShadow
+        onClick={(e) => {
+          // a click on bare floor (not the end of a drag) steps back out to the room
+          if (e.delta < 4) onDismiss();
+        }}
       >
         <planeGeometry args={[200, 200]} />
         <shadowMaterial transparent opacity={night ? 0.15 : 0.12} />
@@ -618,6 +635,9 @@ export default function RoomScene(
   return (
     <SceneBoundary onFailure={props.onFailure}>
       <Canvas
+        onPointerMissed={(e) => {
+          if (e.type === "click") props.onDismiss();
+        }}
         frameloop="demand"
         shadows
         dpr={[1, 1.75]}

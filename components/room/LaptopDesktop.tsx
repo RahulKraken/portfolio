@@ -109,7 +109,7 @@ export default function LaptopDesktop({
                     </span>
                     <span>
                       <strong>{p.name}</strong>
-                      <small>{p.status}</small>
+                      <small>{p.kind}</small>
                     </span>
                     <b>↗</b>
                   </button>
@@ -131,10 +131,7 @@ export default function LaptopDesktop({
               </span>
               <h2>{products[project].name}</h2>
               <p className="computer-project-line">{products[project].line}</p>
-              <span className="computer-status">
-                <i />
-                {products[project].status}
-              </span>
+              <span className="computer-status">{products[project].kind}</span>
               {products[project].href && (
                 <a
                   className="computer-link"

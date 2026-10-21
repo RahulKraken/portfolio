@@ -12,6 +12,7 @@ import {
 import { site } from "@/lib/site";
 import { roomItems, type RoomItem } from "./content";
 import LaptopDesktop from "./LaptopDesktop";
+import { Ambient } from "./ambient";
 
 const RoomScene = dynamic(() => import("./RoomScene"), {
   ssr: false,
@@ -98,6 +99,18 @@ function Icon({ id }: { id: RoomItem }) {
   );
 }
 
+function Speaker({ muted }: { muted: boolean }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M3.5 8v4h3l4 3.2V4.8l-4 3.2h-3z" fill="currentColor" stroke="none" />
+      {muted ? (
+        <path d="M13.5 8l4 4m0-4l-4 4" />
+      ) : (
+        <path d="M13.6 7.2a4 4 0 010 5.6M15.6 5.2a7 7 0 010 9.6" />
+      )}
+    </svg>
+  );
+}
 function strum() {
   const audio = new AudioContext();
   const notes = [164.81, 220, 293.66, 392, 493.88, 659.25];
@@ -289,6 +302,31 @@ export default function RoomExperience() {
   const [sceneFailed, setSceneFailed] = useState(false);
   const [reduced, setReduced] = useState(false);
   const audio = useRef<AudioContext | null>(null);
+  const ambient = useRef<Ambient | null>(null);
+  const [muted, setMuted] = useState(false);
+  // ambience can only start from a gesture; the visitor's mute choice is remembered
+  const startAmbient = useCallback(() => {
+    if (ambient.current) return;
+    let quiet = false;
+    try {
+      quiet = localStorage.getItem("studio-muted") === "1";
+    } catch {}
+    setMuted(quiet);
+    ambient.current = new Ambient();
+    ambient.current.start(quiet);
+  }, []);
+  const toggleMute = useCallback(() => {
+    const next = !muted;
+    setMuted(next);
+    try {
+      localStorage.setItem("studio-muted", next ? "1" : "0");
+    } catch {}
+    if (ambient.current) ambient.current.setMuted(next);
+    else {
+      ambient.current = new Ambient();
+      ambient.current.start(next);
+    }
+  }, [muted]);
   const soundTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onReady = useCallback(() => setReady(true), []);
   const onArrive = useCallback(() => setArrived(true), []);
@@ -301,20 +339,29 @@ export default function RoomExperience() {
   }, []);
   const toggle = useCallback(() => setNight((v) => !v), []);
   const enter = useCallback(() => {
+    startAmbient();
     setArrived(false);
     setSelected(null);
     setEntered(true);
-  }, []);
+  }, [startAmbient]);
   const select = useCallback(
     (id: RoomItem) => {
       if (id === selected) return;
+      startAmbient();
       setArrived(sceneFailed);
       setMenuOpen(false);
       setEntered(true);
       setSelected(id);
     },
-    [sceneFailed, selected],
+    [sceneFailed, selected, startAmbient],
   );
+  // clicking empty floor or background while an object is open steps back out to the room;
+  // the laptops keep their own controls, since you work inside them
+  const dismiss = useCallback(() => {
+    if (!selected || selected === "projects" || selected === "work") return;
+    setArrived(false);
+    setSelected(null);
+  }, [selected]);
   const back = useCallback(() => {
     setArrived(false);
     setMenuOpen(false);
@@ -329,6 +376,7 @@ export default function RoomExperience() {
     return () => {
       media.removeEventListener("change", update);
       audio.current?.close();
+      ambient.current?.stop();
       if (soundTimer.current) clearTimeout(soundTimer.current);
     };
   }, []);
@@ -353,6 +401,7 @@ export default function RoomExperience() {
   const playSound = () => {
     audio.current?.close();
     if (soundTimer.current) clearTimeout(soundTimer.current);
+    ambient.current?.duck(2.6);
     audio.current = strum();
     soundTimer.current = setTimeout(() => audio.current?.close(), 2500);
   };
@@ -392,6 +441,7 @@ export default function RoomExperience() {
           onSelect={select}
           onReady={onReady}
           onFailure={onFailure}
+          onDismiss={dismiss}
           onToggle={toggle}
           onArrive={onArrive}
           onEnter={enter}
@@ -448,6 +498,14 @@ export default function RoomExperience() {
               }
             >
               {panMode ? "✥" : "⤢"}
+            </button>
+            <button
+              onClick={toggleMute}
+              aria-label={muted ? "Play ambient music" : "Mute ambient music"}
+              aria-pressed={!muted}
+              title={muted ? "Sound off" : "Sound on"}
+            >
+              <Speaker muted={muted} />
             </button>
             <button
               onClick={toggle}

@@ -26,7 +26,7 @@ export function Proof() {
             <div className="proof-art" aria-hidden>
               {vignettes[p.draw]}
             </div>
-            <span className="proof-status">{p.status}</span>
+            <span className="proof-status">{p.kind}</span>
             <h3>{p.name}</h3>
             <p>{p.line}</p>
             {p.href ? (
