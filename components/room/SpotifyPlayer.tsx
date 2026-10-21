@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Spotify's own embed, driven through its iFrame API: it plays while the guitar is open and
 // pauses when the visitor leaves, the studio knows when music is playing (the ambience steps
@@ -67,16 +67,26 @@ export function SpotifyPlayer({
   const ready = useRef(false);
   const started = useRef(false);
   const wanted = useRef(play);
+  const playing = useRef(false);
+  // Safari and every iPhone/iPad browser only let the embed start from a tap inside it; when
+  // a requested start doesn't take, show a small hint at its play button instead
+  const [blocked, setBlocked] = useState(false);
+  const check = useRef<ReturnType<typeof setTimeout> | null>(null);
   // play from the start the first time, then pick up where it was paused
   const apply = useRef(() => {
     const c = controller.current;
     if (!c || !ready.current) return;
     if (!wanted.current) {
       if (started.current) c.pause();
-    } else if (started.current) c.resume();
-    else {
-      c.play();
+    } else {
+      if (started.current) c.resume();
+      else c.play();
       started.current = true;
+      if (check.current) clearTimeout(check.current);
+      check.current = setTimeout(
+        () => setBlocked(wanted.current && !playing.current),
+        2500,
+      );
     }
   });
   useEffect(() => {
@@ -103,14 +113,17 @@ export function SpotifyPlayer({
             ready.current = true;
             apply.current();
           });
-          c.addListener("playback_update", (e) =>
-            report.current(!e.data.isPaused),
-          );
+          c.addListener("playback_update", (e) => {
+            playing.current = !e.data.isPaused;
+            if (playing.current) setBlocked(false);
+            report.current(playing.current);
+          });
         },
       );
     });
     return () => {
       cancelled = true;
+      if (check.current) clearTimeout(check.current);
       controller.current?.destroy();
       controller.current = null;
       ready.current = started.current = false;
@@ -121,10 +134,12 @@ export function SpotifyPlayer({
   }, [uri, handle]);
   return (
     <div
-      ref={host}
       className="spotify-player"
       data-visible={visible}
       aria-hidden={!visible}
-    />
+    >
+      <div ref={host} />
+      {blocked && visible && <p className="spotify-hint">Tap ▶ to play</p>}
+    </div>
   );
 }
