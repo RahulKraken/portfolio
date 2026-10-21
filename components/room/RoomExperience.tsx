@@ -548,6 +548,7 @@ export default function RoomExperience() {
         <SpotifyPlayer
           uri="spotify:playlist:37i9dQZF1DZ06evO07zaak"
           visible={selected === "music" && arrived && !menuOpen}
+          play={selected === "music" && !muted}
           handle={spotify}
           onPlaying={onSpotifyPlaying}
         />

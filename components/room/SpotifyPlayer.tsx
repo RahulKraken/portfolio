@@ -2,17 +2,23 @@
 
 import { useEffect, useRef } from "react";
 
-// Spotify's own embed, driven through its iFrame API so the studio knows when music is playing
-// (the ambience steps aside) and can pause it from the corner sound button. Spotify licenses the
+// Spotify's own embed, driven through its iFrame API: it plays while the guitar is open and
+// pauses when the visitor leaves, the studio knows when music is playing (the ambience steps
+// aside), and the corner sound button can pause it. Spotify licenses the
 // playback: signed-in visitors hear full tracks, everyone else hears previews.
 
 type Controller = {
+  play: () => void;
   pause: () => void;
+  resume: () => void;
   destroy: () => void;
-  addListener: (
-    event: "playback_update",
-    cb: (e: { data: { isPaused: boolean } }) => void,
-  ) => void;
+  addListener: {
+    (
+      event: "playback_update",
+      cb: (e: { data: { isPaused: boolean } }) => void,
+    ): void;
+    (event: "ready", cb: () => void): void;
+  };
 };
 type IFrameAPI = {
   createController: (
@@ -44,21 +50,43 @@ export type SpotifyHandle = { pause: () => void };
 export function SpotifyPlayer({
   uri,
   visible,
+  play,
   handle,
   onPlaying,
 }: {
   uri: string;
   visible: boolean;
+  /** whether it should be playing: the guitar is open and the studio isn't muted */
+  play: boolean;
   handle: React.RefObject<SpotifyHandle | null>;
   onPlaying: (playing: boolean) => void;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const report = useRef(onPlaying);
+  const controller = useRef<Controller | null>(null);
+  const ready = useRef(false);
+  const started = useRef(false);
+  const wanted = useRef(play);
+  // play from the start the first time, then pick up where it was paused
+  const apply = useRef(() => {
+    const c = controller.current;
+    if (!c || !ready.current) return;
+    if (!wanted.current) {
+      if (started.current) c.pause();
+    } else if (started.current) c.resume();
+    else {
+      c.play();
+      started.current = true;
+    }
+  });
+  useEffect(() => {
+    wanted.current = play;
+    apply.current();
+  }, [play]);
   useEffect(() => {
     report.current = onPlaying;
   }, [onPlaying]);
   useEffect(() => {
-    let controller: Controller | null = null;
     let cancelled = false;
     // the API replaces the element it is given, so hand it a child React doesn't own
     const el = document.createElement("div");
@@ -69,8 +97,12 @@ export function SpotifyPlayer({
         el,
         { uri, width: "100%", height: 152 },
         (c) => {
-          controller = c;
+          controller.current = c;
           handle.current = { pause: () => c.pause() };
+          c.addListener("ready", () => {
+            ready.current = true;
+            apply.current();
+          });
           c.addListener("playback_update", (e) =>
             report.current(!e.data.isPaused),
           );
@@ -79,7 +111,9 @@ export function SpotifyPlayer({
     });
     return () => {
       cancelled = true;
-      controller?.destroy();
+      controller.current?.destroy();
+      controller.current = null;
+      ready.current = started.current = false;
       el.remove();
       handle.current = null;
       report.current(false);

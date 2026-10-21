@@ -32,10 +32,14 @@ export default function LaptopDesktop({
 }) {
   const [project, setProject] = useState<number | null>(null);
   const content = useRef<HTMLDivElement>(null);
-  const jump = (id: string) =>
-    content.current
-      ?.querySelector(`[data-section="${id}"]`)
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  // scroll only the CV pane: scrollIntoView would also scroll the laptop's screen frame and
+  // slide the whole desktop out of view
+  const jump = (id: string) => {
+    const pane = content.current;
+    const section = pane?.querySelector<HTMLElement>(`[data-section="${id}"]`);
+    if (pane && section)
+      pane.scrollTo({ top: section.offsetTop - 24, behavior: "smooth" });
+  };
   return (
     <section
       className={`computer-desktop ${work ? "computer-work" : ""}`}
