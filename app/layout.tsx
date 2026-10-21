@@ -1,9 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Bodoni_Moda, Geist, Geist_Mono } from "next/font/google";
-import { Cursor } from "@/components/Cursor";
-import { Eyes } from "@/components/home/Eyes";
-import { Motion } from "@/components/home/Motion";
-import { Nav } from "@/components/Nav";
+import { LegacyChrome } from "@/components/LegacyChrome";
 import { site } from "@/lib/site";
 import "./globals.css";
 import "./home.css";
@@ -76,11 +73,8 @@ export default function RootLayout({
         <a className="skip" href="#content">
           Skip to content
         </a>
-        <Nav />
         <div id="content">{children}</div>
-        <Motion />
-        <Eyes />
-        <Cursor />
+        <LegacyChrome />
       </body>
     </html>
   );
