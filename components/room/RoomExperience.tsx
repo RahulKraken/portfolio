@@ -13,6 +13,7 @@ import { site } from "@/lib/site";
 import { roomItems, type RoomItem } from "./content";
 import LaptopDesktop from "./LaptopDesktop";
 import { Ambient } from "./ambient";
+import { SpotifyPlayer, type SpotifyHandle } from "./SpotifyPlayer";
 
 const RoomScene = dynamic(() => import("./RoomScene"), {
   ssr: false,
@@ -207,39 +208,9 @@ function PanelBody({ id, playSound }: { id: RoomItem; playSound: () => void }) {
   if (id === "music")
     return (
       <>
-        <div className="music-card">
-          <div className="record">
-            <span />
-          </div>
-          <div>
-            <span>ON REPEAT</span>
-            <h3>Pink Floyd</h3>
-            <p>A little room to get lost.</p>
-          </div>
-        </div>
-        <div className="gear-list">
-          <div>
-            <span>GUITAR</span>
-            <strong>Fender Stratocaster</strong>
-            <p>Black body · maple neck</p>
-          </div>
-          <div>
-            <span>AMPLIFIER</span>
-            <strong>Boss Katana</strong>
-            <p>Plug in. Stay a while.</p>
-          </div>
-        </div>
         <button className="strum-button" onClick={playSound}>
           <span>▷</span> Strum the strings <small>SOUND ON REQUEST</small>
         </button>
-        <a
-          className="room-text-link"
-          href="https://open.spotify.com/search/Pink%20Floyd"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Listen to Pink Floyd on Spotify <Arrow />
-        </a>
       </>
     );
   return (
@@ -304,6 +275,15 @@ export default function RoomExperience() {
   const audio = useRef<AudioContext | null>(null);
   const ambient = useRef<Ambient | null>(null);
   const [muted, setMuted] = useState(false);
+  // the Spotify player loads the first time the guitar is opened and then stays, so a playlist
+  // keeps going while the visitor looks around; the ambience steps aside while it plays
+  const spotify = useRef<SpotifyHandle | null>(null);
+  const [spotifyLoaded, setSpotifyLoaded] = useState(false);
+  const spotifyPlaying = useRef(false);
+  const onSpotifyPlaying = useCallback((playing: boolean) => {
+    spotifyPlaying.current = playing;
+    ambient.current?.hold(playing);
+  }, []);
   // ambience can only start from a gesture; the visitor's mute choice is remembered
   const startAmbient = useCallback(() => {
     if (ambient.current) return;
@@ -313,6 +293,7 @@ export default function RoomExperience() {
     } catch {}
     setMuted(quiet);
     ambient.current = new Ambient();
+    ambient.current.hold(spotifyPlaying.current);
     ambient.current.start(quiet);
   }, []);
   const toggleMute = useCallback(() => {
@@ -321,6 +302,8 @@ export default function RoomExperience() {
     try {
       localStorage.setItem("studio-muted", next ? "1" : "0");
     } catch {}
+    // the corner button is the one switch for all sound, Spotify included
+    if (next) spotify.current?.pause();
     if (ambient.current) ambient.current.setMuted(next);
     else {
       ambient.current = new Ambient();
@@ -352,6 +335,7 @@ export default function RoomExperience() {
       setMenuOpen(false);
       setEntered(true);
       setSelected(id);
+      if (id === "music") setSpotifyLoaded(true);
     },
     [sceneFailed, selected, startAmbient],
   );
@@ -571,6 +555,14 @@ export default function RoomExperience() {
         >
           {screenContent}
         </div>
+      )}
+      {spotifyLoaded && (
+        <SpotifyPlayer
+          uri="spotify:playlist:37i9dQZF1DZ06evO07zaak"
+          visible={selected === "music" && arrived && !menuOpen}
+          handle={spotify}
+          onPlaying={onSpotifyPlaying}
+        />
       )}
       {selected && !computer && arrived && !menuOpen && (
         <ObjectInfo id={selected}>

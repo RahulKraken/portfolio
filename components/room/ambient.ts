@@ -23,6 +23,7 @@ export class Ambient {
   private bar = 0;
   private next = 0;
   private muted = false;
+  private held = false;
 
   start(muted: boolean) {
     this.muted = muted;
@@ -54,9 +55,16 @@ export class Ambient {
     this.applyLevel(0.6);
   }
 
+  /** step aside entirely while other music (the Spotify player) is playing */
+  hold(held: boolean) {
+    if (held === this.held) return;
+    this.held = held;
+    this.applyLevel(held ? 0.8 : 3);
+  }
+
   /** dip under a foreground sound (the guitar strum), then come back */
   duck(seconds: number) {
-    if (!this.ctx || !this.master || this.muted) return;
+    if (!this.ctx || !this.master || this.muted || this.held) return;
     const g = this.master.gain, t = this.ctx.currentTime;
     g.cancelScheduledValues(t);
     g.setTargetAtTime(LEVEL * 0.15, t, 0.08);
@@ -74,9 +82,11 @@ export class Ambient {
     if (!this.ctx || !this.master) return;
     const g = this.master.gain, t = this.ctx.currentTime;
     g.cancelScheduledValues(t);
-    g.setTargetAtTime(this.muted ? 0 : LEVEL, t, fade / 3);
-    // a suspended context costs nothing while muted
-    if (this.muted) setTimeout(() => this.muted && this.ctx?.suspend(), fade * 1000 + 200);
+    const silent = this.muted || this.held;
+    g.setTargetAtTime(silent ? 0 : LEVEL, t, fade / 3);
+    // a suspended context costs nothing while silent
+    if (silent)
+      setTimeout(() => (this.muted || this.held) && this.ctx?.suspend(), fade * 1000 + 200);
     else void this.ctx.resume();
   }
 

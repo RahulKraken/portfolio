@@ -1516,3 +1516,42 @@
     max-height: 42svh;
   }
 }
+
+/* Spotify sits apart from the info panel, top right, so neither covers the other. It stays
+   loaded (and playing) when hidden; only its visibility changes. */
+.spotify-player {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 12;
+  width: min(350px, calc(100vw - 48px));
+  height: 152px;
+  border-radius: 12px;
+  box-shadow: 0 12px 45px #1a231916;
+  transition:
+    opacity 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    visibility 0s;
+}
+.spotify-player[data-visible="false"] {
+  opacity: 0;
+  transform: translateY(-8px);
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 160ms ease-out,
+    transform 160ms ease-out,
+    visibility 0s 160ms;
+}
+.spotify-player iframe {
+  display: block;
+  border: 0;
+  border-radius: 12px;
+}
+@media (max-width: 700px) {
+  .spotify-player {
+    top: 16px;
+    right: 20px;
+    width: calc(100vw - 40px);
+  }
+}
