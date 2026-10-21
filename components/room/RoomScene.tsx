@@ -404,7 +404,8 @@ function CameraRig({
       eye = mobile ? [7.4, 17.5, 51] : [3.4, 10.5, 24.5];
     }
     c.smoothTime = reduced ? 0 : selected ? 0.65 : 0.85;
-    void c.setLookAt(...eye, ...target, !reduced).then(() => {
+    // the distant view is where the camera starts, so it is placed rather than flown to
+    void c.setLookAt(...eye, ...target, !reduced && entered).then(() => {
       if (!cancelled) onArrive();
     });
     return () => {

@@ -785,21 +785,6 @@
 .quiet-studio .room-scene {
   inset: 0;
 }
-.studio-entry {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-.studio-entry:disabled {
-  cursor: wait;
-}
-.studio-entry:focus-visible {
-  outline: 1px solid #858a7d;
-  outline-offset: -12px;
-}
 .studio-loading {
   position: absolute;
   bottom: 8%;
@@ -1570,4 +1555,8 @@
 .object-info,
 .spotify-player {
   touch-action: pan-x pan-y;
+}
+
+.studio-controls button.is-hidden {
+  visibility: hidden;
 }

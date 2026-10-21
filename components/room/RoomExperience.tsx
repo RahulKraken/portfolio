@@ -300,7 +300,12 @@ export default function RoomExperience() {
     }
   }, [muted]);
   const soundTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onReady = useCallback(() => setReady(true), []);
+  // the studio is live as soon as it has loaded: no tap to enter, the controls work from the
+  // first frame
+  const onReady = useCallback(() => {
+    setReady(true);
+    setEntered(true);
+  }, []);
   const onArrive = useCallback(() => setArrived(true), []);
   const onFailure = useCallback(() => {
     setSceneFailed(true);
@@ -336,11 +341,22 @@ export default function RoomExperience() {
     setSelected(null);
   }, [selected]);
   const back = useCallback(() => {
-    setArrived(false);
     setMenuOpen(false);
-    if (selected) setSelected(null);
-    else setEntered(false);
+    if (!selected) return;
+    setArrived(false);
+    setSelected(null);
   }, [selected]);
+  // browsers only allow sound after a gesture, so the ambience starts on the visitor's first
+  // touch, click or key, whatever it is
+  useEffect(() => {
+    const events = ["pointerup", "touchend", "keydown"] as const;
+    const start = () => {
+      startAmbient();
+      events.forEach((e) => window.removeEventListener(e, start));
+    };
+    events.forEach((e) => window.addEventListener(e, start));
+    return () => events.forEach((e) => window.removeEventListener(e, start));
+  }, [startAmbient]);
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setReduced(media.matches);
@@ -357,7 +373,7 @@ export default function RoomExperience() {
     const key = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         if (menuOpen) setMenuOpen(false);
-        else if (entered) back();
+        else back();
       }
     };
     const navigate = (e: Event) => {
@@ -370,7 +386,7 @@ export default function RoomExperience() {
       window.removeEventListener("keydown", key);
       window.removeEventListener("room-select", navigate);
     };
-  }, [back, entered, menuOpen, select]);
+  }, [back, menuOpen, select]);
   const playSound = () => {
     audio.current?.close();
     if (soundTimer.current) clearTimeout(soundTimer.current);
@@ -421,16 +437,6 @@ export default function RoomExperience() {
           screenContent={screenContent}
         />
       </div>
-      {!entered && (
-        <button
-          className="studio-entry"
-          onClick={enter}
-          aria-label="Enter the studio and approach the desk"
-          disabled={!ready}
-        >
-          <span className="sr-only">Enter the studio</span>
-        </button>
-      )}
       {!ready && (
         <div
           className="studio-loading"
@@ -444,9 +450,9 @@ export default function RoomExperience() {
         <div className="studio-controls">
           <button
             onClick={back}
-            aria-label={
-              selected ? "Back to the desk" : "Return to the distant view"
-            }
+            aria-label="Back to the room"
+            className={selected ? undefined : "is-hidden"}
+            tabIndex={selected ? undefined : -1}
           >
             ←
           </button>
