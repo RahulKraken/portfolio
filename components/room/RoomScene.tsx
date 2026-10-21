@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useThree } from "@react-three/fiber";
-import { CameraControls, Html, RoundedBox } from "@react-three/drei";
+import { CameraControls } from "@react-three/drei";
 import {
   Component,
   Suspense,
@@ -13,9 +13,10 @@ import {
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import type { RoomItem } from "./content";
+import { Chair, Desk, Lamp, Laptop, laptopScreen, laptops } from "./DeskSet";
 import { Model } from "./Model";
+import { Box, Cable, Cylinder, Rod, type V3 } from "./parts";
 
-type V3 = [number, number, number];
 type SceneProps = {
   selected: RoomItem | null;
   entered: boolean;
@@ -31,7 +32,6 @@ type SceneProps = {
   onReady: () => void;
   onFailure: () => void;
 };
-const ink = "#292d30";
 // Floor-plan coordinates: +z is forward, toward the visitor. One scale throughout:
 // the desk top (1.28) is 75 cm, so 1 m ≈ 1.7 units.
 const layout = {
@@ -41,328 +41,6 @@ const layout = {
   music: [3.05, 0.585, 0.05] as V3,
   coffee: [5.45, 0, 4.15] as V3,
 };
-// Each laptop is a generated model; `lid` is its screen's pose, measured from the mesh's
-// lid front face (centre height, depth and lean), in scene units after fitting to 0.82 wide.
-const laptops = {
-  work: {
-    model: "laptop-pro",
-    at: [0.9, 1.28, -0.56] as V3,
-    turn: -0.17,
-    lid: { y: 0.314, z: -0.214, tilt: -0.314 },
-  },
-  projects: {
-    model: "laptop-air",
-    at: [-0.42, 1.28, -0.31] as V3,
-    turn: 0.07,
-    lid: { y: 0.317, z: -0.176, tilt: -0.094 },
-  },
-} as const;
-// the generated lids are lumpy glass, so a flat bezel sits under the screen
-const screen = { width: 0.76, height: 0.48 };
-const bezel = { width: 0.79, height: 0.505 };
-
-function Box({
-  at = [0, 0, 0],
-  size = [1, 1, 1],
-  color = "#ddd",
-  rotation = [0, 0, 0],
-  round = 0.025,
-  ...props
-}: {
-  at?: V3;
-  size?: V3;
-  color?: string;
-  rotation?: V3;
-  round?: number;
-  metalness?: number;
-  roughness?: number;
-}) {
-  return (
-    <RoundedBox
-      position={at}
-      args={size}
-      radius={Math.min(round, ...size.map((v) => v / 3))}
-      smoothness={2}
-      rotation={rotation}
-      castShadow
-      receiveShadow
-    >
-      <meshStandardMaterial
-        color={color}
-        roughness={props.roughness ?? 0.65}
-        metalness={props.metalness ?? 0.05}
-      />
-    </RoundedBox>
-  );
-}
-function Rod({
-  from,
-  to,
-  radius = 0.025,
-  color = ink,
-}: {
-  from: V3;
-  to: V3;
-  radius?: number;
-  color?: string;
-}) {
-  const { mid, quat, length } = useMemo(() => {
-    const a = new THREE.Vector3(...from),
-      b = new THREE.Vector3(...to);
-    const direction = b.clone().sub(a);
-    return {
-      mid: a.clone().add(b).multiplyScalar(0.5),
-      length: direction.length(),
-      quat: new THREE.Quaternion().setFromUnitVectors(
-        new THREE.Vector3(0, 1, 0),
-        direction.normalize(),
-      ),
-    };
-  }, [from, to]);
-  return (
-    <mesh position={mid} quaternion={quat} castShadow>
-      <cylinderGeometry args={[radius, radius, length, 10]} />
-      <meshStandardMaterial color={color} roughness={0.5} metalness={0.3} />
-    </mesh>
-  );
-}
-function Cylinder({
-  at,
-  radius = 0.2,
-  height = 0.2,
-  color = "#ddd",
-  rotation = [0, 0, 0],
-  top,
-}: {
-  at: V3;
-  radius?: number;
-  height?: number;
-  color?: string;
-  rotation?: V3;
-  top?: number;
-}) {
-  return (
-    <mesh position={at} rotation={rotation} castShadow receiveShadow>
-      <cylinderGeometry args={[top ?? radius, radius, height, 32]} />
-      <meshStandardMaterial color={color} roughness={0.65} />
-    </mesh>
-  );
-}
-function Screen({
-  kind,
-  width,
-  height,
-}: {
-  kind: "work" | "projects" | "monitor";
-  width: number;
-  height: number;
-}) {
-  // the plane floats just proud of the model's own (black) panel
-  const texture = useMemo(() => {
-    const c = document.createElement("canvas");
-    c.width = 1024;
-    c.height = 640;
-    const g = c.getContext("2d")!;
-    g.fillStyle = kind === "work" ? "#17242c" : "#d9d7c5";
-    g.fillRect(0, 0, 1024, 640);
-    if (kind === "work") {
-      g.fillStyle = "#25333c";
-      g.fillRect(0, 0, 1024, 52);
-      g.fillStyle = "#c8d9d4";
-      g.font = "20px monospace";
-      g.fillText("rahul / workspace", 32, 34);
-      [
-        "// observe. understand. protect.",
-        "const agent = await trace();",
-        "",
-        "  kernel.events()",
-        "    .filter(isInteresting)",
-        "    .observe(runtime);",
-        "",
-        "✓ system ready",
-      ].forEach((s, i) => {
-        g.fillStyle = i === 0 ? "#709a87" : i === 7 ? "#a8c888" : "#d4dad4";
-        g.font = "26px monospace";
-        g.fillText(s, 45, 115 + i * 55);
-      });
-    } else {
-      g.fillStyle = "#bf6748";
-      g.beginPath();
-      g.arc(715, 260, 200, 0, Math.PI * 2);
-      g.fill();
-      g.fillStyle = "#ede5d1";
-      g.beginPath();
-      g.arc(630, 220, 155, 0, Math.PI * 2);
-      g.fill();
-      // Quiet wallpaper: the readable interface is mounted in the physical screen on approach.
-      g.fillStyle = "#c7cebb";
-      g.fillRect(220, 530, 580, 65);
-      ["#8b9e75", "#b8a17d", "#6e8d7f", "#b98365"].forEach((color, i) => {
-        g.fillStyle = color;
-        g.fillRect(290 + i * 115, 542, 42, 42);
-      });
-    }
-    const t = new THREE.CanvasTexture(c);
-    t.colorSpace = THREE.SRGBColorSpace;
-    return t;
-  }, [kind]);
-  useEffect(() => () => texture.dispose(), [texture]);
-  return (
-    <mesh position={[0, 0, 0.004]}>
-      <planeGeometry args={[width, height]} />
-      <meshBasicMaterial map={texture} toneMapped={false} />
-    </mesh>
-  );
-}
-function Laptop({
-  id,
-  screenContent,
-  interactive = false,
-}: {
-  id: keyof typeof laptops;
-  screenContent?: ReactNode;
-  interactive?: boolean;
-}) {
-  const { model, turn, lid } = laptops[id];
-  return (
-    <group rotation={[0, turn, 0]}>
-      <Model name={model} fit={["x", 0.82]} native />
-      <group position={[0, lid.y, lid.z]} rotation={[lid.tilt, 0, 0]}>
-        <mesh position={[0, 0, 0.002]}>
-          <planeGeometry args={[bezel.width, bezel.height]} />
-          <meshStandardMaterial color="#0c0e0f" roughness={0.3} />
-        </mesh>
-        <Screen kind={id} width={screen.width} height={screen.height} />
-        {screenContent && (
-          <Html
-            transform
-            position={[0, 0, 0.007]}
-            // drei sizes a transformed element at distanceFactor / 400 units per px
-            distanceFactor={(screen.width * 400) / 1100}
-            className="physical-screen"
-            style={{
-              width: 1100,
-              height: 696,
-              pointerEvents: interactive ? "auto" : "none",
-              opacity: interactive ? 1 : 0,
-              transition: "opacity 220ms ease",
-            }}
-            zIndexRange={[30, 20]}
-          >
-            <div
-              inert={!interactive}
-              aria-hidden={!interactive}
-              onPointerDown={(e) => e.stopPropagation()}
-              onPointerUp={(e) => e.stopPropagation()}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {screenContent}
-            </div>
-          </Html>
-        )}
-      </group>
-    </group>
-  );
-}
-function Cable({ points }: { points: V3[] }) {
-  const curve = useMemo(
-    () => new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p))),
-    [points],
-  );
-  return (
-    <mesh castShadow>
-      <tubeGeometry args={[curve, 64, 0.011, 8, false]} />
-      <meshStandardMaterial color="#b74631" roughness={0.55} />
-    </mesh>
-  );
-}
-function Mug({ at }: { at: V3 }) {
-  return (
-    <group position={at}>
-      <mesh castShadow>
-        <cylinderGeometry args={[0.085, 0.075, 0.22, 32, 1, true]} />
-        <meshPhysicalMaterial
-          color="#f7eee0"
-          transparent
-          opacity={0.35}
-          roughness={0.12}
-          metalness={0.1}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-      <Cylinder
-        at={[0, -0.04, 0]}
-        radius={0.072}
-        height={0.11}
-        color="#673c23"
-      />
-      <mesh position={[0.105, 0, 0]} rotation={[0, 0, 0]}>
-        <torusGeometry args={[0.068, 0.013, 8, 24]} />
-        <meshStandardMaterial color="#d8c9ad" />
-      </mesh>
-    </group>
-  );
-}
-function Desk({
-  onSelect,
-  onEnter,
-}: {
-  onSelect: SceneProps["onSelect"];
-  onEnter: () => void;
-}) {
-  return (
-    <group
-      position={[0, 0, -0.7]}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (e.delta < 4) onEnter();
-      }}
-    >
-      {/* stretched to the floor plan's footprint so the laptops keep their places */}
-      <Model name="desk" fit={{ x: 2.8, y: 1.28, z: 1.18 }} />
-      <group
-        position={[-0.2, 1.28, -0.3]}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (e.delta < 4) onSelect("projects");
-        }}
-        onPointerOver={() => {
-          document.body.style.cursor = "pointer";
-        }}
-        onPointerOut={() => {
-          document.body.style.cursor = "";
-        }}
-      >
-        <Model name="monitor" fit={["x", 1.4]} native />
-        {/* panel centre and face, measured from the mesh at this fit */}
-        <group position={[0, 0.81, 0.078]}>
-          <Screen kind="monitor" width={1.3} height={0.73} />
-        </group>
-      </group>
-      <Mug at={[-1.06, 1.39, 0.2]} />
-      <Box
-        at={[-1.08, 1.3, -0.3]}
-        size={[0.28, 0.045, 0.18]}
-        color="#e4dfcc"
-      />
-      {/* the personal laptop drives the monitor */}
-      <Rod
-        from={[-0.2, 1.29, -0.22]}
-        to={[-0.42, 1.29, 0.17]}
-        radius={0.008}
-        color="#454a43"
-      />
-    </group>
-  );
-}
-function Chair() {
-  // turned to face the desk
-  return (
-    <group position={[0.12, 0, 1.05]}>
-      <Model name="chair" fit={["y", 1.5]} turn={[0, Math.PI, 0]} />
-    </group>
-  );
-}
 function RidingGear() {
   // drawn at the old 0.65 scale, then brought up to the room's
   return (
@@ -535,52 +213,6 @@ function Coffee() {
     </group>
   );
 }
-function Lamp({ night, onToggle }: { night: boolean; onToggle: () => void }) {
-  return (
-    <group
-      position={[1, 1.28, -1.03]}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (e.delta < 4) onToggle();
-      }}
-      onPointerOver={() => {
-        document.body.style.cursor = "pointer";
-      }}
-      onPointerOut={() => {
-        document.body.style.cursor = "";
-      }}
-    >
-      <Cylinder
-        at={[0, 0.015, 0]}
-        radius={0.13}
-        height={0.035}
-        color="#6b775a"
-      />
-      <Rod from={[0, 0, 0]} to={[0, 0.55, 0]} radius={0.018} color="#7d816c" />
-      <mesh position={[0, 0.58, 0]} castShadow>
-        <coneGeometry args={[0.2, 0.16, 32, 1, true]} />
-        <meshStandardMaterial color="#6d7b58" side={THREE.DoubleSide} />
-      </mesh>
-      <mesh position={[0, 0.53, 0]}>
-        <sphereGeometry args={[0.045, 12, 8]} />
-        <meshStandardMaterial
-          color="#ffe7ac"
-          emissive="#ffbe63"
-          emissiveIntensity={night ? 3 : 0}
-        />
-      </mesh>
-      {night && (
-        <pointLight
-          position={[0, 0.47, 0.1]}
-          color="#ffc987"
-          intensity={5}
-          distance={4}
-          decay={2}
-        />
-      )}
-    </group>
-  );
-}
 function StudioEnvironment({ night }: { night: boolean }) {
   const gl = useThree((s) => s.gl);
   const get = useThree((s) => s.get);
@@ -669,10 +301,14 @@ function CameraRig({
   "selected" | "entered" | "reduced" | "onArrive" | "viewRevision" | "panMode"
 >) {
   const controls = useRef<CameraControls>(null);
-  const { size, camera } = useThree();
+  const { size, camera, invalidate } = useThree();
   useEffect(() => {
     const c = controls.current;
     if (!c) return;
+    // dev-only handle for inspecting details from the console:
+    // `__room.setLookAt(...)` then `__draw()` (the canvas renders on demand)
+    if (process.env.NODE_ENV === "development")
+      Object.assign(window, { __room: c, __draw: () => invalidate(2) });
     let cancelled = false;
     const mobile = size.width < 700;
     let eye: V3, target: V3;
@@ -681,17 +317,10 @@ function CameraRig({
       const distance = mobile ? 1.85 : 1;
       eye = [11 * distance, 16 * distance, 32 * distance];
     } else if (selected === "projects" || selected === "work") {
-      const { at, turn, lid } = laptops[selected];
-      const up = new THREE.Vector3(0, 1, 0);
-      const tilt = new THREE.Euler(lid.tilt, 0, 0);
-      const center = new THREE.Vector3(0, 0, 0.007)
-        .applyEuler(tilt)
-        .add(new THREE.Vector3(0, lid.y, lid.z))
-        .applyAxisAngle(up, turn)
-        .add(new THREE.Vector3(at[0], at[1] - 0.08, at[2]));
-      const normal = new THREE.Vector3(0, 0, 1)
-        .applyEuler(tilt)
-        .applyAxisAngle(up, turn);
+      const screen = laptopScreen(selected);
+      // the room sits 0.08 below the floor plan's origin
+      const center = screen.center.clone().add(new THREE.Vector3(0, -0.08, 0));
+      const normal = screen.normal;
       const distance =
         (Math.max(screen.height, screen.width / (size.width / size.height)) /
           (2 *
@@ -748,6 +377,7 @@ function CameraRig({
     size.width,
     size.height,
     camera,
+    invalidate,
   ]);
   return (
     <CameraControls

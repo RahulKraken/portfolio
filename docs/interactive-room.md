@@ -152,3 +152,20 @@ everything now shares the desk's (1.28 units = 75 cm), with the Ducati and gear 
 outward and the bike close-ups widened. Laptop and monitor screens are pinned to each lid's
 measured front plane, over a flat bezel that hides the generated glass. A locally generated
 room environment lights the PBR materials. Coffee table models are pending review.
+
+## Version five: the desk set in code
+
+Direction (2026-10-21): stylized like a toy diorama, smooth and soft-edged, but never at
+the cost of fine detail. Large surfaces are smoothed; small parts stay present and crisp.
+
+The desk set is now built in code at true scale (1 m ≈ 1.7 units) instead of from generated
+meshes, whose thin parts melted: `components/room/DeskSet.tsx`, with shared primitives in
+`components/room/parts.tsx`. It includes an oak top with procedural grain on a steel apron
+and legs; a 27" monitor with vented housing, stand cut-out and cables; a 14" MacBook Pro
+(every key in the Mac layout, black keyboard well, speaker grilles, ports, hinge, camera)
+and the rose-gold M1 MacBook Air (wedge body, half-height function row); a glass mug with
+coffee; a notebook and pen; the lamp; and a mesh-back office chair. Interactive screens are
+placed from each lid's exact pose (`laptopScreen`), which the camera rig shares.
+
+In development, `window.__room` (camera controls) and `window.__draw()` allow placing the
+camera precisely from the console when inspecting details.

@@ -10,15 +10,10 @@ type Axis = "x" | "y" | "z";
 export const models = [
   "amp",
   "boots",
-  "chair",
-  "desk",
   "ducati",
   "guitar",
   "helmet",
   "ktm",
-  "laptop-air",
-  "laptop-pro",
-  "monitor",
   "suit",
 ] as const;
 export type ModelName = (typeof models)[number];
