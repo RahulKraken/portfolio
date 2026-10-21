@@ -99,3 +99,17 @@ a reference for camera staging and screen interaction concepts.
 Daylight remains the default; the lamp or sun icon switches to night. The blank
 opening is intentional. Loading is indicated by a small spinner; browser
 accessibility labels remain available without adding visible landing-page copy.
+
+## Version three: floor-plan arrangement
+
+The user supplied a top-down sketch. Ducati and KTM now sit parallel along the
+left side, Ducati outermost and KTM nearer the desk, with their length running
+front to back. A freestanding rail of stylized riding leathers and a two-level
+helmet shelf sit beside the Ducati. The chair faces the desk directly. Guitar
+and amp sit to the desk's right, angled inward. The coffee table sits much farther
+right and forward, perpendicular to the desk with its shelves facing the room.
+
+Shared layout coordinates drive both object placement and camera destinations.
+The distant opening remains; the first click now approaches a wider exploration
+view that keeps every object available to click. Laptop camera framing remains
+unchanged. Gear opens the existing track section. All added geometry is original.

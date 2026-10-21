@@ -28,6 +28,14 @@ type SceneProps = {
   onFailure: () => void;
 };
 const ink = "#292d30";
+// Floor-plan coordinates: +z is forward, toward the visitor.
+const layout = {
+  duke: [-4.35, -0.04, -0.35] as V3,
+  ducati: [-5.9, -0.04, -0.35] as V3,
+  gear: [-7.05, -0.04, -0.35] as V3,
+  music: [3.05, 0.585, 0.05] as V3,
+  coffee: [5.45, 0, 4.15] as V3,
+};
 
 function Box({
   at = [0, 0, 0],
@@ -373,7 +381,7 @@ function Desk({
 }
 function Chair() {
   return (
-    <group position={[0.12, 0, 1.05]} rotation={[0, -0.2, 0]}>
+    <group position={[0.12, 0, 1.05]}>
       <Cylinder at={[0, 0.34, 0]} radius={0.045} height={0.5} color="#646965" />
       {Array.from({ length: 5 }, (_, i) => {
         const a = (i * Math.PI * 2) / 5;
@@ -702,9 +710,147 @@ function Amp() {
     </group>
   );
 }
+function Helmet({ at, color }: { at: V3; color: string }) {
+  return (
+    <group position={at}>
+      <mesh castShadow scale={[0.21, 0.24, 0.25]}>
+        <sphereGeometry args={[1, 24, 20]} />
+        <meshStandardMaterial color={color} roughness={0.28} />
+      </mesh>
+      <Box
+        at={[0, 0.025, 0.205]}
+        size={[0.34, 0.115, 0.095]}
+        color="#242e35"
+        round={0.045}
+      />
+      <Box
+        at={[0, -0.105, 0.2]}
+        size={[0.29, 0.07, 0.1]}
+        color={color}
+        round={0.025}
+      />
+      <Box at={[0, -0.11, 0.255]} size={[0.1, 0.025, 0.008]} color="#303839" />
+    </group>
+  );
+}
+function RidingGear() {
+  return (
+    <group>
+      {/* A freestanding rail keeps the leathers readable without adding a wall. */}
+      {[-0.37, 0.37].map((x) => (
+        <group key={x}>
+          <Rod
+            from={[x, 0.03, -0.85]}
+            to={[x, 1.92, -0.85]}
+            radius={0.018}
+            color="#626a67"
+          />
+          <Rod
+            from={[x, 0.025, -1.12]}
+            to={[x, 0.025, -0.55]}
+            radius={0.025}
+            color="#626a67"
+          />
+        </group>
+      ))}
+      <Rod
+        from={[-0.37, 1.92, -0.85]}
+        to={[0.37, 1.92, -0.85]}
+        radius={0.018}
+        color="#626a67"
+      />
+      <Rod
+        from={[0, 1.92, -0.85]}
+        to={[0, 1.8, -0.85]}
+        radius={0.012}
+        color="#9b9a89"
+      />
+      <Rod
+        from={[0, 1.8, -0.85]}
+        to={[-0.26, 1.66, -0.85]}
+        radius={0.018}
+        color="#b4946e"
+      />
+      <Rod
+        from={[0, 1.8, -0.85]}
+        to={[0.26, 1.66, -0.85]}
+        radius={0.018}
+        color="#b4946e"
+      />
+      <Box
+        at={[0, 1.4, -0.81]}
+        size={[0.44, 0.55, 0.18]}
+        color="#262b2f"
+        round={0.075}
+      />
+      <Box
+        at={[0, 1.54, -0.71]}
+        size={[0.32, 0.15, 0.012]}
+        color="#e2dfd2"
+        round={0.03}
+      />
+      <Rod
+        from={[0, 1.65, -0.706]}
+        to={[0, 1.13, -0.706]}
+        radius={0.007}
+        color="#b7b8ad"
+      />
+      {[-1, 1].map((side) => (
+        <group key={side}>
+          <Box
+            at={[side * 0.29, 1.36, -0.8]}
+            size={[0.16, 0.51, 0.17]}
+            rotation={[0, 0, side * 0.24]}
+            color="#303439"
+            round={0.06}
+          />
+          <Box
+            at={[side * 0.25, 1.59, -0.705]}
+            size={[0.12, 0.11, 0.02]}
+            color="#b44b3c"
+            round={0.03}
+          />
+          <Box
+            at={[side * 0.125, 0.76, -0.81]}
+            size={[0.19, 0.77, 0.18]}
+            rotation={[0, 0, side * 0.045]}
+            color="#282d31"
+            round={0.06}
+          />
+          <Box
+            at={[side * 0.135, 0.63, -0.71]}
+            size={[0.12, 0.13, 0.035]}
+            color="#dad8ce"
+            round={0.045}
+          />
+          <Box
+            at={[side * 0.2, 0.15, -0.75]}
+            size={[0.17, 0.29, 0.23]}
+            color="#282e30"
+            round={0.035}
+          />
+        </group>
+      ))}
+      <Box at={[0, 0.73, 0.97]} size={[0.76, 0.06, 0.48]} color="#ac8a63" />
+      {[-0.3, 0.3].flatMap((x) =>
+        [-0.16, 0.16].map((z) => (
+          <Box
+            key={`${x}-${z}`}
+            at={[x, 0.36, 0.97 + z]}
+            size={[0.035, 0.72, 0.035]}
+            color="#505951"
+          />
+        )),
+      )}
+      <Box at={[0, 0.24, 0.97]} size={[0.69, 0.04, 0.4]} color="#ac8a63" />
+      <Helmet at={[-0.17, 0.99, 0.98]} color="#dcdcd3" />
+      <Helmet at={[0.17, 0.49, 0.98]} color="#30383b" />
+    </group>
+  );
+}
 function Coffee() {
   return (
-    <group position={[3.25, 0, -1.25]}>
+    <group rotation={[0, -Math.PI / 2, 0]}>
       <Box at={[0, 1.02, 0]} size={[1.55, 0.09, 0.74]} color="#a37c51" />
       {[-0.65, 0.65].flatMap((x) =>
         [-0.27, 0.27].map((z) => (
@@ -880,10 +1026,10 @@ function Pickable({
 const targets: Record<RoomItem, V3> = {
   work: [0.85, 1.5, -0.5],
   projects: [-0.35, 1.5, -0.3],
-  travel: [-3.4, 0.65, 0.35],
-  track: [-3.65, 0.7, -1.2],
-  music: [2.2, 0.8, 0.6],
-  coffee: [3.25, 1, -1.25],
+  travel: [layout.duke[0], 0.65, layout.duke[2]],
+  track: [layout.ducati[0], 0.7, layout.ducati[2]],
+  music: [layout.music[0], 0.8, layout.music[2]],
+  coffee: [layout.coffee[0], 1, layout.coffee[2]],
 };
 // Independent camera staging: an establishing view, a desk view, then an object view.
 function CameraRig({
@@ -901,9 +1047,9 @@ function CameraRig({
     const mobile = size.width < 700;
     let eye: V3, target: V3;
     if (!entered) {
-      target = [0, 0.7, -0.3];
-      const distance = mobile ? 1.65 : 1;
-      eye = [18 * distance, 13 * distance, 24 * distance];
+      target = [-0.6, 0.7, 1.1];
+      const distance = mobile ? 1.85 : 1;
+      eye = [11 * distance, 16 * distance, 32 * distance];
     } else if (selected === "projects" || selected === "work") {
       const personal = selected === "projects";
       const rotation = personal ? 0.07 : -0.17;
@@ -934,10 +1080,14 @@ function CameraRig({
       eye = center.clone().addScaledVector(normal, distance).toArray() as V3;
     } else if (selected) {
       target = targets[selected];
-      eye = [target[0] + 3.6, target[1] + 2.3, target[2] + 4.8];
+      eye = [
+        target[0] + (selected === "coffee" ? -3.6 : 3.6),
+        target[1] + 2.3,
+        target[2] + 4.8,
+      ];
     } else {
-      target = [0, 1, -0.65];
-      eye = mobile ? [5.4, 4, 8] : [3.8, 3.1, 5.8];
+      target = [-0.6, 0.8, 1];
+      eye = mobile ? [8, 15, 43] : [4, 8, 18];
     }
     c.smoothTime = reduced ? 0 : 1.05;
     void c.setLookAt(...eye, ...target, !reduced).then(() => {
@@ -1038,58 +1188,69 @@ function Room({
         </Pickable>
         <Pickable
           id="travel"
-          at={[-3.15, -0.04, 0.58]}
+          at={layout.duke}
           label="On the road · KTM"
           onSelect={onSelect}
           selected={selected}
         >
-          <group rotation={[0, -0.15, 0]}>
+          <group rotation={[0, -Math.PI / 2, 0]}>
             <Bike />
           </group>
         </Pickable>
         <Pickable
           id="track"
-          at={[-3.6, -0.04, -1.28]}
+          at={layout.ducati}
           label="On the track · Ducati"
           onSelect={onSelect}
           selected={selected}
         >
-          <group rotation={[0, -0.15, 0]}>
+          <group rotation={[0, -Math.PI / 2, 0]}>
             <Bike sport />
           </group>
         </Pickable>
         <Pickable
           id="music"
-          at={[2.2, 0.585, 0.6]}
+          at={layout.music}
           label="A little Pink Floyd?"
           onSelect={onSelect}
           selected={selected}
         >
-          <Guitar />
-          <group position={[0.72, -0.32, -0.1]}>
-            <Amp />
+          <group rotation={[0, -0.5, 0]}>
+            <Guitar />
+            <group position={[0.72, -0.32, -0.1]}>
+              <Amp />
+            </group>
+            <Rod
+              from={[0.15, -0.22, 0.1]}
+              to={[0.58, -0.58, 0.5]}
+              radius={0.011}
+              color="#b74631"
+            />
+            <Rod
+              from={[0.58, -0.58, 0.5]}
+              to={[0.9, -0.56, 0.05]}
+              radius={0.011}
+              color="#b74631"
+            />
           </group>
-          <Rod
-            from={[0.15, -0.22, 0.1]}
-            to={[0.58, -0.58, 0.5]}
-            radius={0.011}
-            color="#b74631"
-          />
-          <Rod
-            from={[0.58, -0.58, 0.5]}
-            to={[0.9, -0.56, 0.05]}
-            radius={0.011}
-            color="#b74631"
-          />
         </Pickable>
         <Pickable
           id="coffee"
-          at={[0, 0, 0]}
+          at={layout.coffee}
           label="The coffee corner"
           onSelect={onSelect}
           selected={selected}
         >
           <Coffee />
+        </Pickable>
+        <Pickable
+          id="track"
+          at={layout.gear}
+          label="Riding gear"
+          onSelect={onSelect}
+          selected={selected}
+        >
+          <RidingGear />
         </Pickable>
         <Lamp night={night} onToggle={onToggle} />
       </group>
