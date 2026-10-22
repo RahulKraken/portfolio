@@ -4,25 +4,36 @@ import * as THREE from "three";
 import type { CameraControls } from "@react-three/drei";
 import type { V3 } from "./parts";
 
-// After the visitor has been still for a while, the camera takes a slow breath of its
-// own: a gentle orbit around the desk, and every so often a closer look at one object.
-// Any input hands the current pose straight back to the orbit controls — no jump.
+// As soon as the studio is ready, the camera takes a slow breath of its own: a
+// gentle orbit around the desk, and every so often a closer look at one object,
+// still moving — the object becomes the orbit centre for a while, then the path
+// flows back out to the desk. Any input hands the current pose straight back to
+// the orbit controls — no jump.
 
 export const IDLE = {
-  /** seconds with no input before the drift begins */
-  delay: 8,
+  /** first start once the room is ready; 0 = immediately */
+  delay: 0,
+  /** seconds after input before idle resumes, so a drag can finish cleanly */
+  resume: 1.6,
   /** seconds of drifting before a glance, picked at random in this range */
   glanceEvery: [20, 30] as readonly [number, number],
   glanceIn: 6.2,
-  glanceHold: 4.2,
+  /** seconds fully on the object orbit; the camera keeps moving the whole time */
+  glanceStay: 5.4,
   glanceOut: 6.2,
-  fadeIn: 3.2,
+  fadeIn: 2.2,
   azimuth: 0.38, // radians of sway around the captured heading (~22°)
   polar: 0.055,
   distance: 0.09, // fraction of the captured distance
   azimuthPeriod: 48,
   polarPeriod: 17,
   distancePeriod: 23,
+  objectAzimuth: 0.26,
+  objectPolar: 0.04,
+  objectDistance: 0.06,
+  objectAzimuthPeriod: 26,
+  objectPolarPeriod: 14,
+  objectDistancePeriod: 19,
   minY: 0.48,
   minPolar: 0.16,
   maxPolar: Math.PI / 2 - 0.06,
@@ -79,7 +90,7 @@ const SUBJECTS: IdleSubject[] = [
   },
 ];
 
-type Phase = "wait" | "drift" | "in" | "hold" | "out";
+type Phase = "wait" | "drift" | "in" | "look" | "out";
 
 type Pose = {
   az: number;
@@ -105,7 +116,8 @@ function rand(min: number, max: number) {
 }
 
 function ease(t: number) {
-  // cosine ease: zero speed at both ends, no linear start or stop
+  // cosine: zero derivative at both ends, so blending two live orbits does not
+  // kick the camera's speed when a glance begins or ends
   return 0.5 - 0.5 * Math.cos(Math.PI * clamp(t, 0, 1));
 }
 
@@ -151,13 +163,6 @@ function applyPose(controls: CameraControls, pose: Pose, eye: THREE.Vector3) {
     pose.target.z,
     false,
   );
-}
-
-function copyPose(from: Pose, to: Pose) {
-  to.az = from.az;
-  to.polar = from.polar;
-  to.dist = from.dist;
-  to.target.copy(from.target);
 }
 
 function mixPose(a: Pose, b: Pose, t: number, into: Pose) {
@@ -207,12 +212,13 @@ function timings(): typeof IDLE {
   ) {
     timed = {
       ...IDLE,
-      delay: 1.2,
+      delay: 0,
+      resume: 0.45,
       glanceEvery: [3.5, 5],
-      glanceIn: 2.4,
-      glanceHold: 1.8,
-      glanceOut: 2.4,
-      fadeIn: 1.1,
+      glanceIn: 2.8,
+      glanceStay: 3.2,
+      glanceOut: 2.8,
+      fadeIn: 0.9,
     };
     return timed;
   }
@@ -224,19 +230,22 @@ export function useAmbientCamera(
   controls: RefObject<CameraControls | null>,
   allowed: boolean,
 ) {
-  const { camera, size, setFrameloop, invalidate } = useThree();
+  const { camera, size, setFrameloop } = useThree();
   const phase = useRef<Phase>("wait");
   const allowedRef = useRef(allowed);
+  const started = useRef(false);
+  const skipSize = useRef(true);
   const lastSubject = useRef<string | null>(null);
   const subject = useRef<IdleSubject | null>(null);
   const born = useRef(0);
   const blend = useRef(0);
   const glanceAt = useRef(0);
+  const lookUntil = useRef(0);
   const startTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const base = useRef(pose());
-  const from = useRef(pose());
-  const to = useRef(pose());
+  const objectBase = useRef(pose());
+  const desk = useRef(pose());
+  const look = useRef(pose());
   const scratch = useRef(pose());
   const eye = useRef(new THREE.Vector3());
   const offset = useRef(new THREE.Vector3());
@@ -246,9 +255,7 @@ export function useAmbientCamera(
 
   const clearTimers = () => {
     if (startTimer.current) clearTimeout(startTimer.current);
-    if (holdTimer.current) clearTimeout(holdTimer.current);
     startTimer.current = null;
-    holdTimer.current = null;
   };
 
   const stop = () => {
@@ -258,7 +265,7 @@ export function useAmbientCamera(
     setFrameloop("demand");
   };
 
-  const driftInto = (into: Pose, now: number) => {
+  const deskOrbit = (into: Pose, now: number) => {
     const t = now - born.current;
     const amount = fade(t, timings().fadeIn);
     const b = base.current;
@@ -278,6 +285,27 @@ export function useAmbientCamera(
     into.target.z += 0.12 * wave(t, 33, 2.0) * amount;
   };
 
+  const objectOrbit = (into: Pose, now: number) => {
+    // same clock as the desk so this path is already in motion when we blend in
+    const t = now - born.current;
+    const b = objectBase.current;
+    into.az =
+      b.az + IDLE.objectAzimuth * wave(t, IDLE.objectAzimuthPeriod, 0.4);
+    into.polar = clamp(
+      b.polar +
+        IDLE.objectPolar * wave(t, IDLE.objectPolarPeriod, 1.7),
+      IDLE.minPolar,
+      IDLE.maxPolar,
+    );
+    into.dist = Math.max(
+      IDLE.minDistance,
+      b.dist *
+        (1 +
+          IDLE.objectDistance * wave(t, IDLE.objectDistancePeriod, 0.9)),
+    );
+    into.target.copy(b.target);
+  };
+
   const beginGlance = () => {
     const c = controls.current;
     if (!c || phase.current !== "drift") return;
@@ -287,11 +315,10 @@ export function useAmbientCamera(
       next,
       sizeRef.current.width / sizeRef.current.height,
       cam.fov,
-      to.current,
+      objectBase.current,
       offset.current,
       spherical.current,
     );
-    driftInto(from.current, performance.now() / 1000);
     subject.current = next;
     lastSubject.current = next.id;
     blend.current = performance.now() / 1000;
@@ -311,14 +338,17 @@ export function useAmbientCamera(
     readPose(c, base.current);
     born.current = performance.now() / 1000;
     glanceAt.current = born.current + rand(...timings().glanceEvery);
+    started.current = true;
     phase.current = "drift";
     setFrameloop("always");
   };
 
-  const arm = () => {
+  const arm = (seconds?: number) => {
     clearTimers();
     if (!allowedRef.current || document.hidden) return;
-    startTimer.current = setTimeout(beginDrift, timings().delay * 1000);
+    const wait = seconds ?? timings().resume;
+    if (wait <= 0) beginDrift();
+    else startTimer.current = setTimeout(beginDrift, wait * 1000);
   };
 
   const interrupt = () => {
@@ -332,38 +362,33 @@ export function useAmbientCamera(
     allowedRef.current = allowed;
     const c = controls.current;
     const current = phase.current;
-    if (!c || current === "wait" || current === "hold") return;
+    if (!c || current === "wait") return;
     const now = performance.now() / 1000;
     const t = timings();
+    deskOrbit(desk.current, now);
     if (current === "drift") {
-      driftInto(scratch.current, now);
-      applyPose(c, scratch.current, eye.current);
+      applyPose(c, desk.current, eye.current);
       if (now >= glanceAt.current) beginGlance();
       return;
     }
-    if (current === "in") {
-      const u = ease((now - blend.current) / t.glanceIn);
-      mixPose(from.current, to.current, u, scratch.current);
-      applyPose(c, scratch.current, eye.current);
-      if (u >= 1) {
-        phase.current = "hold";
-        setFrameloop("demand");
-        invalidate();
-        holdTimer.current = setTimeout(() => {
-          if (phase.current !== "hold" || !allowedRef.current) return;
-          copyPose(to.current, from.current);
-          blend.current = performance.now() / 1000;
-          phase.current = "out";
-          setFrameloop("always");
-        }, t.glanceHold * 1000);
-      }
+    objectOrbit(look.current, now);
+    let weight = 1;
+    if (current === "in") weight = ease((now - blend.current) / t.glanceIn);
+    else if (current === "out")
+      weight = 1 - ease((now - blend.current) / t.glanceOut);
+    mixPose(desk.current, look.current, weight, scratch.current);
+    applyPose(c, scratch.current, eye.current);
+    if (current === "in" && now - blend.current >= t.glanceIn) {
+      phase.current = "look";
+      lookUntil.current = now + t.glanceStay;
       return;
     }
-    const u = ease((now - blend.current) / t.glanceOut);
-    driftInto(to.current, now);
-    mixPose(from.current, to.current, u, scratch.current);
-    applyPose(c, scratch.current, eye.current);
-    if (u >= 1) {
+    if (current === "look" && now >= lookUntil.current) {
+      blend.current = now;
+      phase.current = "out";
+      return;
+    }
+    if (current === "out" && now - blend.current >= t.glanceOut) {
       subject.current = null;
       glanceAt.current = now + rand(...t.glanceEvery);
       phase.current = "drift";
@@ -378,7 +403,7 @@ export function useAmbientCamera(
 
   useEffect(() => {
     if (!allowed) stop();
-    else arm();
+    else arm(started.current ? timings().resume : timings().delay);
     return () => clearTimers();
     // stop/arm close over setFrameloop; re-arm when eligibility changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -429,6 +454,10 @@ export function useAmbientCamera(
 
   // a restage (reset view, resize) should yield so CameraRig can fly the camera
   useEffect(() => {
+    if (skipSize.current) {
+      skipSize.current = false;
+      return;
+    }
     interrupt();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [size.width, size.height]);
