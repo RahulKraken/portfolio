@@ -19,6 +19,7 @@ import { MusicCorner } from "./MusicSet";
 import { Box, Rod, type V3 } from "./parts";
 import { KtmCorner, TrackCorner } from "./TrackCorner";
 import { CoffeeCorner } from "./CoffeeCorner";
+import { useAmbientCamera } from "./idleCamera";
 
 type SceneProps = {
   selected: RoomItem | null;
@@ -36,6 +37,8 @@ type SceneProps = {
   onFailure: () => void;
   /** a click on empty floor or background: leave the object view for the room */
   onDismiss: () => void;
+  /** the coffee-pour loader has faded; idle motion must not start before this */
+  loaderGone: boolean;
 };
 // Floor-plan coordinates: +z is forward, toward the visitor. One scale throughout:
 // the desk top (1.28) is 75 cm, so 1 m ≈ 1.7 units.
@@ -217,16 +220,31 @@ const ACTION = {
 function CameraRig({
   selected,
   entered,
+  arrived,
   reduced,
   onArrive,
   viewRevision,
   panMode,
+  loaderGone,
 }: Pick<
   SceneProps,
-  "selected" | "entered" | "reduced" | "onArrive" | "viewRevision" | "panMode"
+  | "selected"
+  | "entered"
+  | "arrived"
+  | "reduced"
+  | "onArrive"
+  | "viewRevision"
+  | "panMode"
+  | "loaderGone"
 >) {
   const controls = useRef<CameraControls>(null);
   const { size, camera, invalidate } = useThree();
+  // idle only while the room is free to look around: not loading, not in a
+  // panel / object close-up, and not asking for reduced motion
+  useAmbientCamera(
+    controls,
+    entered && arrived && selected === null && loaderGone && !reduced,
+  );
   useEffect(() => {
     const c = controls.current;
     if (!c) return;
@@ -377,6 +395,7 @@ function Room({
   onReady,
   onToggle,
   onDismiss,
+  loaderGone,
 }: SceneProps & { onToggle: () => void }) {
   useEffect(() => {
     onReady();
@@ -510,10 +529,12 @@ function Room({
       <CameraRig
         selected={selected}
         entered={entered}
+        arrived={arrived}
         reduced={reduced}
         onArrive={onArrive}
         viewRevision={viewRevision}
         panMode={panMode}
+        loaderGone={loaderGone}
       />
     </>
   );

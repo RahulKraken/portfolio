@@ -240,6 +240,7 @@ export default function RoomExperience() {
   const [panMode, setPanMode] = useState(false);
   const [night, setNight] = useState(false);
   const [ready, setReady] = useState(false);
+  const [loaderGone, setLoaderGone] = useState(false);
   const [sceneFailed, setSceneFailed] = useState(false);
   const [reduced, setReduced] = useState(false);
   const audio = useRef<AudioContext | null>(null);
@@ -314,7 +315,9 @@ export default function RoomExperience() {
     setEntered(true);
     setArrived(true);
     setMenuOpen(true);
+    setLoaderGone(true);
   }, []);
+  const onLoaderGone = useCallback(() => setLoaderGone(true), []);
   const toggle = useCallback(() => setNight((v) => !v), []);
   const enter = useCallback(() => {
     startAmbient();
@@ -436,9 +439,10 @@ export default function RoomExperience() {
           onArrive={onArrive}
           onEnter={enter}
           screenContent={screenContent}
+          loaderGone={loaderGone}
         />
       </div>
-      <StudioLoader ready={ready} />
+      <StudioLoader ready={ready} onGone={onLoaderGone} />
       {entered && !computer && (
         <div className="studio-controls">
           <button
