@@ -12,7 +12,13 @@ const BAR = { x: 70, y: 160, w: 320, h: 18 }; // centred in the 460-wide drawing
 const SPOUT_Y = 70; // where the stream leaves the server
 const REACH = 8; // the stream's sideways travel from spout to bar
 
-export function StudioLoader({ ready }: { ready: boolean }) {
+export function StudioLoader({
+  ready,
+  onGone,
+}: {
+  ready: boolean;
+  onGone?: () => void;
+}) {
   const { progress } = useProgress();
   const target = ready ? 1 : Math.min(progress / 100, 0.94);
   const [shown, setShown] = useState(0);
@@ -46,6 +52,9 @@ export function StudioLoader({ ready }: { ready: boolean }) {
       clearTimeout(leave);
     };
   }, [full]);
+  useEffect(() => {
+    if (phase === "gone") onGone?.();
+  }, [phase, onGone]);
   if (phase === "gone") return null;
 
   const edge = BAR.x + BAR.w * shown;
