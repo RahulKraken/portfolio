@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "capture:og-video": "node scripts/capture-studio-og-video.mjs"
+    "capture:og-line": "node scripts/capture-og-line.mjs"
   },
   "engines": {
     "node": ">=20.9.0"

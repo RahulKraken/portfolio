@@ -48,8 +48,8 @@ export const metadata: Metadata = {
     type: "website",
     videos: [
       {
-        url: "https://www.rahulkraken.com/og/studio-loop-v1.mp4",
-        secureUrl: "https://www.rahulkraken.com/og/studio-loop-v1.mp4",
+        url: "https://www.rahulkraken.com/og/intro-line-v1.mp4",
+        secureUrl: "https://www.rahulkraken.com/og/intro-line-v1.mp4",
         type: "video/mp4",
         width: 1200,
         height: 630,
