@@ -46,6 +46,15 @@ export const metadata: Metadata = {
     siteName: site.title,
     locale: "en_IN",
     type: "website",
+    videos: [
+      {
+        url: "https://www.rahulkraken.com/og/studio-loop-v1.mp4",
+        secureUrl: "https://www.rahulkraken.com/og/studio-loop-v1.mp4",
+        type: "video/mp4",
+        width: 1200,
+        height: 630,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",

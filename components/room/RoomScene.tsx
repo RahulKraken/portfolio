@@ -238,7 +238,7 @@ function CameraRig({
   | "loaderGone"
 >) {
   const controls = useRef<CameraControls>(null);
-  const { size, camera, invalidate } = useThree();
+  const { size, camera, invalidate, scene, gl } = useThree();
   // idle only while the room is free to look around: not loading, not in a
   // panel / object close-up, and not asking for reduced motion
   useAmbientCamera(
@@ -250,8 +250,14 @@ function CameraRig({
     if (!c) return;
     // dev-only handle for inspecting details from the console:
     // `__room.setLookAt(...)` then `__draw()` (the canvas renders on demand)
+    // `__scene` / `__render` are for scripts/capture-studio-og-video.mjs
     if (process.env.NODE_ENV === "development") {
-      Object.assign(window, { __room: c, __draw: () => invalidate(2) });
+      Object.assign(window, {
+        __room: c,
+        __draw: () => invalidate(2),
+        __scene: scene,
+        __render: () => gl.render(scene, camera),
+      });
       // ?cam=ex,ey,ez,tx,ty,tz pins the camera for reference renders
       const cam = new URLSearchParams(window.location.search).get("cam");
       if (cam) {
@@ -349,6 +355,8 @@ function CameraRig({
     size.height,
     camera,
     invalidate,
+    scene,
+    gl,
   ]);
   return (
     <CameraControls
@@ -580,6 +588,11 @@ export default function RoomScene(
           antialias: true,
           alpha: false,
           powerPreference: "high-performance",
+          // capture scripts screenshot the canvas; production is unchanged
+          preserveDrawingBuffer:
+            process.env.NODE_ENV === "development" &&
+            typeof window !== "undefined" &&
+            new URLSearchParams(window.location.search).has("capture"),
         }}
         onCreated={({ gl }) => {
           gl.toneMapping = THREE.ACESFilmicToneMapping;

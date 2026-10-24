@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "capture:og-video": "node scripts/capture-studio-og-video.mjs"
   },
   "engines": {
     "node": ">=20.9.0"
@@ -28,6 +29,7 @@
     "@types/three": "^0.186.0",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.1",
+    "playwright-core": "^1.56.1",
     "typescript": "^6.0.3"
   }
 }
