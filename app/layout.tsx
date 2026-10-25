@@ -36,7 +36,8 @@ const mono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(site.url),
+  // www: the apex 307s to www, and crawlers need absolute www URLs on og/twitter tags
+  metadataBase: new URL("https://www.rahulkraken.com"),
   title: { default: site.title, template: `%s · ${site.title}` },
   description: site.description,
   openGraph: {
@@ -46,6 +47,15 @@ export const metadata: Metadata = {
     siteName: site.title,
     locale: "en_IN",
     type: "website",
+    videos: [
+      {
+        url: "https://www.rahulkraken.com/og/ripple-portrait-v1.mp4",
+        secureUrl: "https://www.rahulkraken.com/og/ripple-portrait-v1.mp4",
+        type: "video/mp4",
+        width: 1200,
+        height: 630,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
