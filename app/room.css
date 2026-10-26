@@ -796,8 +796,10 @@
 }
 .studio-controls > div {
   display: flex;
+  align-items: center;
   gap: 9px;
 }
+.studio-controls a,
 .studio-controls button {
   width: 38px;
   height: 38px;
@@ -809,14 +811,44 @@
   display: grid;
   place-items: center;
   pointer-events: auto;
+  text-decoration: none;
+  cursor: pointer;
   transition: background 0.2s;
 }
+.studio-controls a:hover,
 .studio-controls button:hover {
   background: #faf9f4;
 }
+.studio-controls a:focus-visible,
+.studio-controls button:focus-visible {
+  outline: 2px solid #6a7166;
+  outline-offset: 3px;
+}
+.studio-controls-rule {
+  width: 1px;
+  height: 16px;
+  margin: 0 3px;
+  background: #8d928a40;
+  flex: none;
+}
+.room-night .studio-controls a,
 .room-night .studio-controls button {
   background: #35413dcc;
   color: #c5ccbb;
+}
+.room-night .studio-controls a:hover,
+.room-night .studio-controls button:hover {
+  background: #44534e;
+}
+.room-night .studio-controls a:focus-visible,
+.room-night .studio-controls button:focus-visible {
+  outline-color: #c5ccbb;
+}
+.room-night .studio-controls button[aria-pressed="true"] {
+  background: #5a6b5c;
+}
+.room-night .studio-controls-rule {
+  background: rgba(223, 229, 212, 0.28);
 }
 .studio-menu {
   position: absolute;
@@ -873,11 +905,13 @@
   background: #f5f4ed;
   border-radius: 6px;
 }
-.studio-accessibility button {
+.studio-accessibility button,
+.studio-accessibility a {
   border: 1px solid #bbc2b0;
   padding: 8px;
   background: #f7f7f0;
   border-radius: 4px;
+  text-decoration: none;
 }
 .physical-screen {
   background: #eeeee7;
@@ -1226,11 +1260,16 @@
 }
 @media (max-width: 700px) {
   .studio-controls {
-    inset: auto 20px 22px;
+    inset: auto 16px 18px;
+  }
+  .studio-controls a,
+  .studio-controls button {
+    width: 44px;
+    height: 44px;
   }
   .studio-menu {
-    right: 20px;
-    bottom: 73px;
+    right: 16px;
+    bottom: 78px;
   }
   .physical-screen {
     display: none !important;

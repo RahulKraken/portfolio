@@ -1,4 +1,7 @@
+import { site } from "./site";
+
 /** The CV, as the work laptop shows it. **Double asterisks** mark the figures to emphasise. */
+
 export type Point = { label: string; text: string; link?: string };
 export type Role = { title: string; dates: string; points: Point[] };
 export type Job = { company: string; place: string; roles: Role[] };
@@ -8,8 +11,9 @@ export const resume = {
   headline: "Founding Engineer at Straiker, building security for AI agents.",
   place: "Bengaluru, India",
   links: [
-    { label: "LinkedIn", href: "https://linkedin.com/in/rahulkraken" },
-    { label: "GitHub", href: "https://github.com/rahulkraken" },
+    { label: "LinkedIn", href: site.linkedin },
+    { label: "GitHub", href: site.github },
+    { label: "X", href: site.x },
   ],
   jobs: [
     {

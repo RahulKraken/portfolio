@@ -26,8 +26,6 @@ type SceneProps = {
   entered: boolean;
   arrived: boolean;
   screenContent: ReactNode;
-  viewRevision: number;
-  panMode: boolean;
   onArrive: () => void;
   onEnter: () => void;
   night: boolean;
@@ -205,16 +203,13 @@ const targets: Record<RoomItem, V3> = {
   music: [layout.music[0], 0.8, layout.music[2]],
   coffee: [layout.coffee[0], 0.78, layout.coffee[2]],
 };
-// camera-controls 3.x action flags (CameraControls.ACTION); named here so the numbers can't drift
-const ACTION = {
-  NONE: 0,
-  ROTATE: 1,
-  TRUCK: 2,
-  DOLLY: 16,
-  TOUCH_ROTATE: 64,
-  TOUCH_TRUCK: 128,
-  TOUCH_DOLLY_TRUCK: 4096,
-} as const;
+// Look-at stays over the furniture so right-drag / two-finger pan cannot lose the room.
+// Camera-controls defaults already map left-drag and one-finger to rotate, right-drag
+// and two-finger to truck+dolly; we only bound the target.
+const ROOM_TARGET_BOUNDS = new THREE.Box3(
+  new THREE.Vector3(-9.2, 0.15, -1.4),
+  new THREE.Vector3(6.4, 2.2, 6.0),
+);
 
 // Independent camera staging: an establishing view, a desk view, then an object view.
 function CameraRig({
@@ -223,8 +218,6 @@ function CameraRig({
   arrived,
   reduced,
   onArrive,
-  viewRevision,
-  panMode,
   loaderGone,
 }: Pick<
   SceneProps,
@@ -233,8 +226,6 @@ function CameraRig({
   | "arrived"
   | "reduced"
   | "onArrive"
-  | "viewRevision"
-  | "panMode"
   | "loaderGone"
 >) {
   const controls = useRef<CameraControls>(null);
@@ -248,6 +239,7 @@ function CameraRig({
   useEffect(() => {
     const c = controls.current;
     if (!c) return;
+    c.setBoundary(ROOM_TARGET_BOUNDS);
     // dev-only handle for inspecting details from the console:
     // `__room.setLookAt(...)` then `__draw()` (the canvas renders on demand)
     if (process.env.NODE_ENV === "development") {
@@ -344,7 +336,6 @@ function CameraRig({
     entered,
     reduced,
     onArrive,
-    viewRevision,
     size.width,
     size.height,
     camera,
@@ -366,17 +357,6 @@ function CameraRig({
       dollySpeed={0.7}
       truckSpeed={1}
       draggingSmoothTime={0.15}
-      mouseButtons={{
-        left: panMode ? ACTION.TRUCK : ACTION.ROTATE,
-        middle: ACTION.DOLLY,
-        right: ACTION.TRUCK,
-        wheel: ACTION.DOLLY,
-      }}
-      touches={{
-        one: panMode ? ACTION.TOUCH_TRUCK : ACTION.TOUCH_ROTATE,
-        two: ACTION.TOUCH_DOLLY_TRUCK,
-        three: ACTION.TOUCH_TRUCK,
-      }}
     />
   );
 }
@@ -387,8 +367,6 @@ function Room({
   onArrive,
   onEnter,
   screenContent,
-  viewRevision,
-  panMode,
   night,
   reduced,
   onSelect,
@@ -532,8 +510,6 @@ function Room({
         arrived={arrived}
         reduced={reduced}
         onArrive={onArrive}
-        viewRevision={viewRevision}
-        panMode={panMode}
         loaderGone={loaderGone}
       />
     </>

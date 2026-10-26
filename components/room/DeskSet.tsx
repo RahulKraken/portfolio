@@ -825,6 +825,12 @@ export function Lamp({
 }) {
   const olive = "#6d7b58";
   const brass = { color: "#c8a45c", metalness: 0.8, roughness: 0.3 };
+  useEffect(
+    () => () => {
+      document.body.style.cursor = "";
+    },
+    [],
+  );
   return (
     <group
       position={[1, top, -1.03]}
