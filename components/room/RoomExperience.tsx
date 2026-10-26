@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { site } from "@/lib/site";
+import { site, socials, type SocialId } from "@/lib/site";
 import { roomItems, type RoomItem } from "./content";
 import LaptopDesktop from "./LaptopDesktop";
 import { Ambient } from "./ambient";
@@ -35,24 +35,21 @@ function Arrow() {
     </svg>
   );
 }
-function Sun({ night = false }: { night?: boolean }) {
+function SocialMark({ id }: { id: SocialId }) {
   return (
     <svg
-      width="18"
-      height="18"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
+      fill="currentColor"
       aria-hidden
     >
-      {night ? (
-        <path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z" />
+      {id === "github" ? (
+        <path d="M12 .3C5.37.3 0 5.67 0 12.3c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58 0-.28-.01-1.04-.02-2.04-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22 0 1.61-.01 2.9-.01 3.29 0 .32.22.69.82.57C20.56 22.1 24 17.6 24 12.3 24 5.67 18.63.3 12 .3Z" />
+      ) : id === "linkedin" ? (
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13ZM7.12 20.45H3.56V9h3.56v11.45ZM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.23 0Z" />
       ) : (
-        <>
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5" />
-        </>
+        <path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.64l-4.71-6.23-5.4 6.23H2.74l7.73-8.84L1.25 2.25h6.83l4.25 5.62 6.91-5.62Zm-1.16 17.52h1.83L7.08 4.13H5.12l11.96 15.64Z" />
       )}
     </svg>
   );
@@ -236,9 +233,6 @@ export default function RoomExperience() {
   const [entered, setEntered] = useState(false);
   const [arrived, setArrived] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [viewRevision, setViewRevision] = useState(0);
-  const [panMode, setPanMode] = useState(false);
-  const [night, setNight] = useState(false);
   const [ready, setReady] = useState(false);
   const [loaderGone, setLoaderGone] = useState(false);
   const [sceneFailed, setSceneFailed] = useState(false);
@@ -318,7 +312,6 @@ export default function RoomExperience() {
     setLoaderGone(true);
   }, []);
   const onLoaderGone = useCallback(() => setLoaderGone(true), []);
-  const toggle = useCallback(() => setNight((v) => !v), []);
   const enter = useCallback(() => {
     startAmbient();
     setArrived(false);
@@ -415,9 +408,7 @@ export default function RoomExperience() {
     <LaptopDesktop work={selected === "work"} onBack={back} />
   ) : null;
   return (
-    <main
-      className={`room-experience quiet-studio${night ? " room-night" : ""}`}
-    >
+    <main className="room-experience quiet-studio">
       <h1 className="sr-only">Rahul Kumar’s interactive studio</h1>
       <div
         className="room-scene"
@@ -425,17 +416,13 @@ export default function RoomExperience() {
       >
         <RoomScene
           selected={selected}
-          viewRevision={viewRevision}
-          panMode={panMode}
           entered={entered}
           arrived={arrived}
-          night={night}
           reduced={reduced}
           onSelect={select}
           onReady={onReady}
           onFailure={onFailure}
           onDismiss={dismiss}
-          onToggle={toggle}
           onArrive={onArrive}
           onEnter={enter}
           screenContent={screenContent}
@@ -454,41 +441,24 @@ export default function RoomExperience() {
             ←
           </button>
           <div>
-            <button
-              onClick={() => setViewRevision((value) => value + 1)}
-              aria-label="Reset camera view"
-              title="Reset camera view"
-            >
-              ↺
-            </button>
-            <button
-              onClick={() => setPanMode((value) => !value)}
-              aria-label={
-                panMode ? "Switch to rotate mode" : "Switch to pan mode"
-              }
-              aria-pressed={panMode}
-              title={
-                panMode
-                  ? "Pan: drag to move. Click to rotate."
-                  : "Rotate: drag to orbit. Scroll to zoom. Right-drag to pan."
-              }
-            >
-              {panMode ? "✥" : "⤢"}
-            </button>
+            {socials.map((social) => (
+              <a
+                key={social.id}
+                href={social.href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={social.label}
+              >
+                <SocialMark id={social.id} />
+              </a>
+            ))}
+            <span className="studio-controls-rule" aria-hidden />
             <button
               onClick={toggleMute}
               aria-label={muted ? "Play ambient music" : "Mute ambient music"}
               aria-pressed={!muted}
-              title={muted ? "Sound off" : "Sound on"}
             >
               <Speaker muted={muted} />
-            </button>
-            <button
-              onClick={toggle}
-              aria-label={night ? "Switch to daylight" : "Switch to night"}
-              aria-pressed={night}
-            >
-              <Sun night={night} />
             </button>
             <button
               onClick={() => setMenuOpen((v) => !v)}
@@ -539,6 +509,16 @@ export default function RoomExperience() {
           <button key={item.id} onClick={() => select(item.id)}>
             {item.label}
           </button>
+        ))}
+        {socials.map((social) => (
+          <a
+            key={social.id}
+            href={social.href}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {social.label}
+          </a>
         ))}
       </nav>
       {computer && arrived && (

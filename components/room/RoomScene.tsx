@@ -26,11 +26,8 @@ type SceneProps = {
   entered: boolean;
   arrived: boolean;
   screenContent: ReactNode;
-  viewRevision: number;
-  panMode: boolean;
   onArrive: () => void;
   onEnter: () => void;
-  night: boolean;
   reduced: boolean;
   onSelect: (id: RoomItem) => void;
   onReady: () => void;
@@ -141,7 +138,7 @@ function GearTable() {
     </group>
   );
 }
-function StudioEnvironment({ night }: { night: boolean }) {
+function StudioEnvironment() {
   const gl = useThree((s) => s.gl);
   const get = useThree((s) => s.get);
   const texture = useMemo(() => {
@@ -154,9 +151,9 @@ function StudioEnvironment({ night }: { night: boolean }) {
   }, [gl]);
   useEffect(() => () => texture.dispose(), [texture]);
   useEffect(() => {
-    get().scene.environmentIntensity = night ? 0.12 : 0.45;
+    get().scene.environmentIntensity = 0.45;
     get().invalidate();
-  }, [night, get]);
+  }, [get]);
   return <primitive object={texture} attach="environment" />;
 }
 function Pickable({
@@ -205,16 +202,13 @@ const targets: Record<RoomItem, V3> = {
   music: [layout.music[0], 0.8, layout.music[2]],
   coffee: [layout.coffee[0], 0.78, layout.coffee[2]],
 };
-// camera-controls 3.x action flags (CameraControls.ACTION); named here so the numbers can't drift
-const ACTION = {
-  NONE: 0,
-  ROTATE: 1,
-  TRUCK: 2,
-  DOLLY: 16,
-  TOUCH_ROTATE: 64,
-  TOUCH_TRUCK: 128,
-  TOUCH_DOLLY_TRUCK: 4096,
-} as const;
+// Look-at stays over the furniture so right-drag / two-finger pan cannot lose the room.
+// Camera-controls defaults already map left-drag and one-finger to rotate, right-drag
+// and two-finger to truck+dolly; we only bound the target.
+const ROOM_TARGET_BOUNDS = new THREE.Box3(
+  new THREE.Vector3(-9.2, 0.15, -1.4),
+  new THREE.Vector3(6.4, 2.2, 6.0),
+);
 
 // Independent camera staging: an establishing view, a desk view, then an object view.
 function CameraRig({
@@ -223,8 +217,6 @@ function CameraRig({
   arrived,
   reduced,
   onArrive,
-  viewRevision,
-  panMode,
   loaderGone,
 }: Pick<
   SceneProps,
@@ -233,8 +225,6 @@ function CameraRig({
   | "arrived"
   | "reduced"
   | "onArrive"
-  | "viewRevision"
-  | "panMode"
   | "loaderGone"
 >) {
   const controls = useRef<CameraControls>(null);
@@ -248,6 +238,7 @@ function CameraRig({
   useEffect(() => {
     const c = controls.current;
     if (!c) return;
+    c.setBoundary(ROOM_TARGET_BOUNDS);
     // dev-only handle for inspecting details from the console:
     // `__room.setLookAt(...)` then `__draw()` (the canvas renders on demand)
     if (process.env.NODE_ENV === "development") {
@@ -344,7 +335,6 @@ function CameraRig({
     entered,
     reduced,
     onArrive,
-    viewRevision,
     size.width,
     size.height,
     camera,
@@ -366,17 +356,6 @@ function CameraRig({
       dollySpeed={0.7}
       truckSpeed={1}
       draggingSmoothTime={0.15}
-      mouseButtons={{
-        left: panMode ? ACTION.TRUCK : ACTION.ROTATE,
-        middle: ACTION.DOLLY,
-        right: ACTION.TRUCK,
-        wheel: ACTION.DOLLY,
-      }}
-      touches={{
-        one: panMode ? ACTION.TOUCH_TRUCK : ACTION.TOUCH_ROTATE,
-        two: ACTION.TOUCH_DOLLY_TRUCK,
-        three: ACTION.TOUCH_TRUCK,
-      }}
     />
   );
 }
@@ -387,34 +366,24 @@ function Room({
   onArrive,
   onEnter,
   screenContent,
-  viewRevision,
-  panMode,
-  night,
   reduced,
   onSelect,
   onReady,
-  onToggle,
   onDismiss,
   loaderGone,
-}: SceneProps & { onToggle: () => void }) {
+}: SceneProps) {
   useEffect(() => {
     onReady();
   }, [onReady]);
   return (
     <>
-      <color attach="background" args={[night ? "#20292a" : "#e7e6e2"]} />
-      <ambientLight intensity={night ? 0.6 : 1.25} />
-      <hemisphereLight
-        args={[
-          night ? "#abbdd3" : "#fff9e9",
-          night ? "#3e332c" : "#b6ad95",
-          night ? 0.55 : 1.6,
-        ]}
-      />
+      <color attach="background" args={["#e7e6e2"]} />
+      <ambientLight intensity={1.25} />
+      <hemisphereLight args={["#fff9e9", "#b6ad95", 1.6]} />
       <directionalLight
         position={[-3, 9, 5]}
-        intensity={night ? 0.3 : 3.2}
-        color={night ? "#9bb8d7" : "#fff0d3"}
+        intensity={3.2}
+        color="#fff0d3"
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-9}
@@ -423,7 +392,7 @@ function Room({
         shadow-camera-bottom={-9}
         shadow-normalBias={0.04}
       />
-      <StudioEnvironment night={night} />
+      <StudioEnvironment />
       <group position={[0, -0.08, 0]}>
         <Desk onSelect={onSelect} onEnter={onEnter} />
         <Chair />
@@ -512,7 +481,7 @@ function Room({
             <GearTable />
           </group>
         </Pickable>
-        <Lamp night={night} onToggle={onToggle} />
+        <Lamp />
       </group>
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
@@ -524,7 +493,7 @@ function Room({
         }}
       >
         <planeGeometry args={[200, 200]} />
-        <shadowMaterial transparent opacity={night ? 0.15 : 0.12} />
+        <shadowMaterial transparent opacity={0.12} />
       </mesh>
       <CameraRig
         selected={selected}
@@ -532,8 +501,6 @@ function Room({
         arrived={arrived}
         reduced={reduced}
         onArrive={onArrive}
-        viewRevision={viewRevision}
-        panMode={panMode}
         loaderGone={loaderGone}
       />
     </>
@@ -561,9 +528,7 @@ class SceneBoundary extends Component<
     );
   }
 }
-export default function RoomScene(
-  props: SceneProps & { onToggle: () => void },
-) {
+export default function RoomScene(props: SceneProps) {
   return (
     <SceneBoundary onFailure={props.onFailure}>
       <Canvas
