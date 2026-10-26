@@ -18,6 +18,12 @@
     background 0.7s,
     color 0.7s;
 }
+.room-night {
+  --room-ink: #e2dfce;
+  --room-muted: #a0ada3;
+  --room-paper: #20292a;
+  --room-line: rgba(223, 229, 212, 0.17);
+}
 .room-experience button,
 .room-experience a {
   -webkit-tap-highlight-color: transparent;
@@ -110,6 +116,9 @@
 .room-heading h1 em {
   font-weight: 400;
   color: #727d58;
+}
+.room-night .room-heading h1 em {
+  color: #b5bc8c;
 }
 .room-heading > p:last-child {
   font-size: 12px;
@@ -770,6 +779,9 @@
   min-height: 0;
   height: 100svh;
 }
+.quiet-studio.room-night {
+  --room-paper: #20292a;
+}
 .quiet-studio .room-scene {
   inset: 0;
 }
@@ -818,6 +830,25 @@
   margin: 0 3px;
   background: #8d928a40;
   flex: none;
+}
+.room-night .studio-controls a,
+.room-night .studio-controls button {
+  background: #35413dcc;
+  color: #c5ccbb;
+}
+.room-night .studio-controls a:hover,
+.room-night .studio-controls button:hover {
+  background: #44534e;
+}
+.room-night .studio-controls a:focus-visible,
+.room-night .studio-controls button:focus-visible {
+  outline-color: #c5ccbb;
+}
+.room-night .studio-controls button[aria-pressed="true"] {
+  background: #5a6b5c;
+}
+.room-night .studio-controls-rule {
+  background: rgba(223, 229, 212, 0.28);
 }
 .studio-menu {
   position: absolute;

@@ -28,6 +28,7 @@ type SceneProps = {
   screenContent: ReactNode;
   onArrive: () => void;
   onEnter: () => void;
+  night: boolean;
   reduced: boolean;
   onSelect: (id: RoomItem) => void;
   onReady: () => void;
@@ -138,7 +139,7 @@ function GearTable() {
     </group>
   );
 }
-function StudioEnvironment() {
+function StudioEnvironment({ night }: { night: boolean }) {
   const gl = useThree((s) => s.gl);
   const get = useThree((s) => s.get);
   const texture = useMemo(() => {
@@ -151,9 +152,9 @@ function StudioEnvironment() {
   }, [gl]);
   useEffect(() => () => texture.dispose(), [texture]);
   useEffect(() => {
-    get().scene.environmentIntensity = 0.45;
+    get().scene.environmentIntensity = night ? 0.12 : 0.45;
     get().invalidate();
-  }, [get]);
+  }, [night, get]);
   return <primitive object={texture} attach="environment" />;
 }
 function Pickable({
@@ -366,24 +367,32 @@ function Room({
   onArrive,
   onEnter,
   screenContent,
+  night,
   reduced,
   onSelect,
   onReady,
+  onToggle,
   onDismiss,
   loaderGone,
-}: SceneProps) {
+}: SceneProps & { onToggle: () => void }) {
   useEffect(() => {
     onReady();
   }, [onReady]);
   return (
     <>
-      <color attach="background" args={["#e7e6e2"]} />
-      <ambientLight intensity={1.25} />
-      <hemisphereLight args={["#fff9e9", "#b6ad95", 1.6]} />
+      <color attach="background" args={[night ? "#20292a" : "#e7e6e2"]} />
+      <ambientLight intensity={night ? 0.6 : 1.25} />
+      <hemisphereLight
+        args={[
+          night ? "#abbdd3" : "#fff9e9",
+          night ? "#3e332c" : "#b6ad95",
+          night ? 0.55 : 1.6,
+        ]}
+      />
       <directionalLight
         position={[-3, 9, 5]}
-        intensity={3.2}
-        color="#fff0d3"
+        intensity={night ? 0.3 : 3.2}
+        color={night ? "#9bb8d7" : "#fff0d3"}
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-9}
@@ -392,7 +401,7 @@ function Room({
         shadow-camera-bottom={-9}
         shadow-normalBias={0.04}
       />
-      <StudioEnvironment />
+      <StudioEnvironment night={night} />
       <group position={[0, -0.08, 0]}>
         <Desk onSelect={onSelect} onEnter={onEnter} />
         <Chair />
@@ -481,7 +490,7 @@ function Room({
             <GearTable />
           </group>
         </Pickable>
-        <Lamp />
+        <Lamp night={night} onToggle={onToggle} />
       </group>
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
@@ -493,7 +502,7 @@ function Room({
         }}
       >
         <planeGeometry args={[200, 200]} />
-        <shadowMaterial transparent opacity={0.12} />
+        <shadowMaterial transparent opacity={night ? 0.15 : 0.12} />
       </mesh>
       <CameraRig
         selected={selected}
@@ -528,7 +537,9 @@ class SceneBoundary extends Component<
     );
   }
 }
-export default function RoomScene(props: SceneProps) {
+export default function RoomScene(
+  props: SceneProps & { onToggle: () => void },
+) {
   return (
     <SceneBoundary onFailure={props.onFailure}>
       <Canvas

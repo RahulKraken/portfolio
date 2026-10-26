@@ -816,11 +816,35 @@ export function Chair() {
 
 /* ----------------------------------------------------------------------------- lamp */
 
-export function Lamp() {
+export function Lamp({
+  night,
+  onToggle,
+}: {
+  night: boolean;
+  onToggle: () => void;
+}) {
   const olive = "#6d7b58";
   const brass = { color: "#c8a45c", metalness: 0.8, roughness: 0.3 };
+  useEffect(
+    () => () => {
+      document.body.style.cursor = "";
+    },
+    [],
+  );
   return (
-    <group position={[1, top, -1.03]}>
+    <group
+      position={[1, top, -1.03]}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (e.delta < 4) onToggle();
+      }}
+      onPointerOver={() => {
+        document.body.style.cursor = "pointer";
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = "";
+      }}
+    >
       <Cylinder at={[0, 0.014, 0]} radius={0.095} top={0.09} height={0.028} color={olive} roughness={0.6} />
       <Cylinder at={[0, 0.033, 0]} radius={0.016} height={0.012} {...brass} />
       <Rod from={[0, 0.03, 0]} to={[0, 0.63, 0]} radius={0.008} {...brass} />
@@ -837,12 +861,30 @@ export function Lamp() {
         </mesh>
         <mesh position={[0, -0.1, 0]}>
           <coneGeometry args={[0.108, 0.168, 48, 1, true]} />
-          <meshStandardMaterial color="#efe6cf" side={THREE.BackSide} />
+          <meshStandardMaterial
+            color="#efe6cf"
+            side={THREE.BackSide}
+            emissive="#ffcf8a"
+            emissiveIntensity={night ? 0.6 : 0}
+          />
         </mesh>
         <mesh position={[0, -0.13, 0]}>
           <sphereGeometry args={[0.03, 16, 12]} />
-          <meshStandardMaterial color="#ffe7ac" />
+          <meshStandardMaterial
+            color="#ffe7ac"
+            emissive="#ffbe63"
+            emissiveIntensity={night ? 3 : 0}
+          />
         </mesh>
+        {night && (
+          <pointLight
+            position={[0, -0.2, 0]}
+            color="#ffc987"
+            intensity={5}
+            distance={4}
+            decay={2}
+          />
+        )}
       </group>
       <Cable
         radius={0.004}

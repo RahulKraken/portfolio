@@ -2,14 +2,15 @@
 
 ## 2026-10-26 — Simplify studio controls and add social links
 
-**Decision:** Remove the reset-camera, pan/rotate, and day/night buttons from the studio corner. Keep mute and the four-dot menu. Add always-visible GitHub, LinkedIn, and X links (URLs live in `lib/site.ts`). Bound the camera look-at so pan cannot send the room off-screen. Default to daylight; night-mode wiring and unused night styles are gone.
+**Decision:** Remove the reset-camera, pan/rotate, and day/night *buttons* from the studio corner. Keep mute and the four-dot menu. Add always-visible GitHub, LinkedIn, and X links (URLs live in `lib/site.ts`). Bound the camera look-at so pan cannot send the room off-screen. Night mode stays reachable in-world by clicking the desk lamp (pointer cursor, skip-nav toggle); daylight is still the default. There is no corner sun/moon button.
 
 **Options considered:**
 - Keep all five round buttons as they were.
 - Remove the three buttons but keep a reset so visitors can recover a lost view.
-- Remove the three buttons and constrain the camera target to the room’s bounds.
+- Remove the three buttons and constrain the camera target to the room’s bounds; drop night mode entirely.
+- Remove the three corner buttons, bound the camera, and keep lamp-click night (owner follow-up 2026-10-26).
 
-**Chosen and why:** Remove three, bound the camera. Owner request 2026-10-26.
+**Chosen and why:** Remove three corner buttons, bound the camera, keep the lamp. Owner request 2026-10-26, then restore lamp-click night the same day.
 
 **How to reverse:** revert the PR.
 

@@ -233,6 +233,7 @@ export default function RoomExperience() {
   const [entered, setEntered] = useState(false);
   const [arrived, setArrived] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [night, setNight] = useState(false);
   const [ready, setReady] = useState(false);
   const [loaderGone, setLoaderGone] = useState(false);
   const [sceneFailed, setSceneFailed] = useState(false);
@@ -312,6 +313,7 @@ export default function RoomExperience() {
     setLoaderGone(true);
   }, []);
   const onLoaderGone = useCallback(() => setLoaderGone(true), []);
+  const toggle = useCallback(() => setNight((v) => !v), []);
   const enter = useCallback(() => {
     startAmbient();
     setArrived(false);
@@ -408,7 +410,9 @@ export default function RoomExperience() {
     <LaptopDesktop work={selected === "work"} onBack={back} />
   ) : null;
   return (
-    <main className="room-experience quiet-studio">
+    <main
+      className={`room-experience quiet-studio${night ? " room-night" : ""}`}
+    >
       <h1 className="sr-only">Rahul Kumar’s interactive studio</h1>
       <div
         className="room-scene"
@@ -418,11 +422,13 @@ export default function RoomExperience() {
           selected={selected}
           entered={entered}
           arrived={arrived}
+          night={night}
           reduced={reduced}
           onSelect={select}
           onReady={onReady}
           onFailure={onFailure}
           onDismiss={dismiss}
+          onToggle={toggle}
           onArrive={onArrive}
           onEnter={enter}
           screenContent={screenContent}
@@ -520,6 +526,17 @@ export default function RoomExperience() {
             {social.label}
           </a>
         ))}
+        <button
+          onClick={toggle}
+          aria-pressed={night}
+          aria-label={
+            night
+              ? "Switch the desk lamp to daylight"
+              : "Switch the desk lamp to night"
+          }
+        >
+          {night ? "Daylight" : "Night lamp"}
+        </button>
       </nav>
       {computer && arrived && (
         <div
