@@ -4,6 +4,11 @@ import { site } from "@/lib/site";
 export default function sitemap(): MetadataRoute.Sitemap {
   const paths = [
     "",
+    "/track",
+    "/lift",
+    "/guitar",
+    "/build",
+    "/coffee",
     "/room",
     "/list-100",
     "/notes",

@@ -880,7 +880,8 @@
 .studio-menu a:hover {
   background: #e8ebdf;
 }
-.studio-menu button > span {
+.studio-menu button > span,
+.studio-menu a > span {
   margin-left: auto;
   color: #99a08e;
 }

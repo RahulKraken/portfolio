@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -495,6 +496,10 @@ export default function RoomExperience() {
           className="studio-menu"
           aria-label="Studio destinations"
         >
+          <Link href="/" onClick={() => setMenuOpen(false)}>
+            Prints
+            <span>↗</span>
+          </Link>
           {roomItems.map((item) => (
             <button key={item.id} onClick={() => select(item.id)}>
               <Icon id={item.id} />
@@ -511,6 +516,7 @@ export default function RoomExperience() {
         className="studio-accessibility"
         aria-label="Accessible studio navigation"
       >
+        <Link href="/">Prints</Link>
         {roomItems.map((item) => (
           <button key={item.id} onClick={() => select(item.id)}>
             {item.label}

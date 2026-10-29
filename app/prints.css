@@ -57,6 +57,43 @@ body:has(.five-prints) {
   z-index: calc(10 - abs(var(--i) - var(--pos)) * 2);
 }
 
+.five-print.is-openable {
+  cursor: pointer;
+}
+
+.five-print.is-openable .five-sheet {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.five-print.is-openable:hover .five-sheet,
+.five-print.is-openable:focus-visible .five-sheet {
+  transform: translateY(-8px) scale(1.02);
+}
+
+.five-print:focus {
+  outline: none;
+}
+
+.five-print:focus-visible .five-sheet {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+.five-ghost-hover {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  pointer-events: none;
+  filter: hue-rotate(35deg) saturate(1.8);
+}
+
+.five-print.is-openable:hover .five-ghost-hover,
+.five-print.is-openable:focus-visible .five-ghost-hover {
+  animation: ink-snap 0.5s cubic-bezier(0.22, 1.2, 0.36, 1);
+}
+
 .five-sheet {
   position: relative;
   inset: 0;
@@ -119,11 +156,12 @@ body:has(.five-prints) {
 
 .five-chrome {
   position: fixed;
-  z-index: 5;
+  z-index: 40;
   display: flex;
   justify-content: space-between;
   align-items: center;
   pointer-events: none;
+  view-transition-name: none;
 }
 
 .five-chrome a,
@@ -144,6 +182,16 @@ body:has(.five-prints) {
   font-size: 13px;
   letter-spacing: 0.02em;
   opacity: 0.92;
+}
+
+button.five-sig {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
 }
 
 .five-ctl {
@@ -285,7 +333,7 @@ body:has(.five-prints) {
   position: fixed;
   top: 62px;
   right: 28px;
-  z-index: 12;
+  z-index: 50;
   width: 220px;
   padding: 8px;
   background: rgba(12, 12, 14, 0.72);
@@ -338,96 +386,263 @@ body:has(.five-prints) {
   opacity: 0.65;
 }
 
+.five-prints.is-chapter {
+  cursor: default;
+}
+
+.five-prints.is-chapter .five-hint,
+.five-prints.is-chapter .five-label,
+.five-prints.is-chapter .five-dots {
+  visibility: hidden;
+}
+
 .five-chapter {
   position: fixed;
   inset: 0;
   z-index: 20;
   display: grid;
   place-items: center;
-  padding: 24px;
-  background: rgba(8, 8, 10, 0.46);
+  padding: 88px 48px 72px;
+  color: #fff;
   cursor: default;
+  touch-action: pan-y;
+  overflow: auto;
 }
 
-.five-chapter-card {
+.five-chapter-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 38vh) minmax(0, 36rem);
+  gap: clamp(28px, 6vw, 72px);
+  align-items: center;
+  width: min(1100px, 100%);
+}
+
+.five-chapter-sheet {
   position: relative;
-  width: min(420px, calc(100vw - 40px));
-  padding: 40px 36px 32px;
-  background: #f3efe6;
-  color: #1b1b18;
-  color-scheme: light;
+  width: 100%;
+  aspect-ratio: 3 / 4;
   border-radius: 3px;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  background: #141414;
+  box-shadow:
+    0 30px 60px -20px rgba(0, 0, 0, 0.55),
+    0 8px 18px rgba(0, 0, 0, 0.25);
 }
 
-.five-chapter-card h2 {
+.five-chapter-sheet img,
+.five-chapter-sheet video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.five-chapter-sheet video {
+  z-index: 1;
+}
+
+.five-chapter-copy h2 {
   font-family: var(--serif);
   font-style: italic;
   font-weight: 400;
-  font-size: 36px;
+  font-size: clamp(36px, 5vw, 56px);
   letter-spacing: -0.02em;
-  line-height: 1;
+  line-height: 0.95;
 }
 
-.five-chapter-card h2 + p {
-  margin-top: 8px;
+.five-chapter-kicker {
+  margin-top: 10px;
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  opacity: 0.55;
-}
-
-.five-chapter-card .five-chapter-body {
-  margin-top: 22px;
-  font-size: 15px;
-  line-height: 1.55;
-}
-
-.five-chapter-card a {
-  display: inline-block;
-  margin-top: 22px;
-  color: inherit;
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  text-decoration: none;
-  border-bottom: 1px solid currentColor;
-  padding-bottom: 3px;
-}
-
-.five-chapter-card a:hover {
   opacity: 0.7;
 }
 
-.five-chapter-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 32px;
-  height: 32px;
-  border: 0;
-  background: none;
+.five-chapter-body {
+  margin-top: 22px;
+  font-size: 15px;
+  line-height: 1.55;
+  max-width: 36em;
+}
+
+.five-chapter-items {
+  list-style: none;
+  margin: 28px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.five-chapter-items li,
+.five-chapter-items a {
+  display: grid;
+  gap: 2px;
   color: inherit;
-  font-size: 22px;
+  text-decoration: none;
+}
+
+.five-chapter-items b {
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.five-chapter-items span {
+  font-size: 13px;
+  opacity: 0.72;
+  line-height: 1.4;
+}
+
+.five-chapter-items i {
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.five-chapter-items a:hover b,
+.five-chapter-items a:hover i {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.five-chapter-close {
+  position: fixed;
+  top: 22px;
+  right: 108px;
+  z-index: 45;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-size: 20px;
   line-height: 1;
   cursor: pointer;
 }
 
+.five-chapter-edge {
+  position: fixed;
+  top: 50%;
+  z-index: 21;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+  opacity: 0.85;
+}
+
+.five-chapter-prev {
+  left: 18px;
+}
+
+.five-chapter-next {
+  right: 18px;
+}
+
+.five-chapter-close:hover,
+.five-chapter-edge:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
+}
+
 .five-chapter-close:focus-visible,
-.five-chapter-card a:focus-visible {
-  outline: 2px solid #1b1b18;
+.five-chapter-edge:focus-visible,
+.five-chapter-items a:focus-visible,
+button.five-sig:focus-visible {
+  outline: 2px solid #fff;
   outline-offset: 3px;
+}
+
+.five-chapter-ink {
+  animation: ink-register 0.7s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+@keyframes ink-snap {
+  0% {
+    transform: translate(6px, -3px);
+    opacity: 0.55;
+  }
+  40% {
+    transform: translate(-3px, 2px);
+    opacity: 0.35;
+  }
+  100% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes ink-register {
+  0% {
+    transform: translate(10px, -6px);
+    opacity: 0.7;
+  }
+  55% {
+    transform: translate(-3px, 2px);
+    opacity: 0.35;
+  }
+  100% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+}
+
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-group(.morph) {
+  animation-duration: 480ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 30;
 }
 
 .five-prints.is-reduced .five-fold,
 .five-prints.is-reduced .five-ghost-wrap,
-.five-prints.is-reduced .five-video {
+.five-prints.is-reduced .five-ghost-hover,
+.five-prints.is-reduced .five-video,
+.five-prints.is-reduced .five-chapter-ink {
   display: none;
 }
 
+.five-prints.is-reduced .five-print.is-openable .five-sheet,
+.five-prints.is-reduced .five-print.is-openable:hover .five-sheet,
+.five-prints.is-reduced .five-print.is-openable:focus-visible .five-sheet {
+  transform: none;
+  transition: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .five-video {
+  .five-video,
+  .five-ghost-hover,
+  .five-chapter-ink {
     display: none;
+  }
+
+  .five-print.is-openable .five-sheet,
+  .five-print.is-openable:hover .five-sheet,
+  .five-print.is-openable:focus-visible .five-sheet {
+    transform: none;
+    transition: none;
+  }
+
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 }
 
@@ -473,5 +688,50 @@ body:has(.five-prints) {
   .five-ctl button {
     width: 36px;
     height: 36px;
+  }
+
+  .five-chapter {
+    padding: 84px 22px 96px;
+    align-items: start;
+  }
+
+  .five-chapter-layout {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    gap: 28px;
+  }
+
+  .five-chapter-sheet {
+    width: min(70vw, 280px);
+  }
+
+  .five-chapter-copy {
+    max-width: 36em;
+  }
+
+  .five-chapter-items li,
+  .five-chapter-items a {
+    justify-items: center;
+  }
+
+  .five-chapter-close {
+    top: 16px;
+    right: 118px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .five-chapter-edge {
+    width: 40px;
+    height: 40px;
+  }
+
+  .five-chapter-prev {
+    left: 8px;
+  }
+
+  .five-chapter-next {
+    right: 8px;
   }
 }

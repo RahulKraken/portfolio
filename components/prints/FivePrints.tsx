@@ -2,17 +2,32 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
+  ViewTransition,
   useCallback,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
 } from "react";
 import { Ambient } from "@/components/room/ambient";
-import { LAST_PRINT, PRINTS, PRINT_COUNT, type Print } from "@/lib/prints";
+import { PrintsNavContext } from "@/components/prints/nav";
+import {
+  LAST_PRINT,
+  PRINTS,
+  PRINT_COUNT,
+  printFromPath,
+  printFromQuery,
+  printIndex,
+  printRgb,
+  type Print,
+  type PrintId,
+} from "@/lib/prints";
 import { site, socials } from "@/lib/site";
 
 const FOLLOW = 0.08;
@@ -24,6 +39,7 @@ const WHEEL_SCALE = 600;
 const COAST_S = 0.28;
 const IDLE_SNAP_MS = 160;
 const DRAG_CLICK_PX = 8;
+const POS_KEY = "five-prints-pos";
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
@@ -105,7 +121,10 @@ type Sim = {
   locked: boolean;
 };
 
-export default function FivePrints() {
+export default function FivePrints({ children }: { children?: ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const chapter = printFromPath(pathname);
   const rootRef = useRef<HTMLElement>(null);
   const labelWordRef = useRef<HTMLElement>(null);
   const labelSubRef = useRef<HTMLElement>(null);
@@ -115,8 +134,11 @@ export default function FivePrints() {
   const printsRef = useRef<Array<HTMLElement | null>>([]);
   const videosRef = useRef<Array<HTMLVideoElement | null>>([]);
   const ghostsRef = useRef<Array<HTMLElement | null>>([]);
-  const closeRef = useRef<HTMLButtonElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+  const menuOpenRef = useRef(false);
   const armedRef = useRef(PRINTS.map(() => false));
+  const chapterIdRef = useRef<PrintId | null>(chapter?.id ?? null);
+  const fromRow = useRef(false);
   const ambient = useRef<Ambient | null>(null);
   const sim = useRef<Sim>({
     pos: 0,
@@ -137,15 +159,22 @@ export default function FivePrints() {
     W: 440,
     mobile: false,
     gap: 440 * 1.18,
-    locked: false,
+    locked: Boolean(chapter),
   });
   const snapTimer = useRef<number>(0);
   const menuId = useId();
 
   const muted = useSyncExternalStore(subscribeMuted, getMuted, () => false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [chapter, setChapter] = useState<Print | null>(null);
   const [armed, setArmed] = useState(() => PRINTS.map(() => false));
+
+  useEffect(() => {
+    chapterIdRef.current = chapter?.id ?? null;
+  }, [chapter]);
+
+  useEffect(() => {
+    menuOpenRef.current = menuOpen;
+  }, [menuOpen]);
 
   const layout = useCallback(() => {
     const s = sim.current;
@@ -165,35 +194,79 @@ export default function FivePrints() {
     if (dotsRef.current) dotsRef.current.style.top = `${dotsTop}px`;
   }, []);
 
+  const paintGround = useCallback((print: Print) => {
+    const rgb = printRgb(print);
+    rootRef.current?.style.setProperty("--g", rgb);
+    document.documentElement.style.background = rgb;
+    document.body.style.background = rgb;
+  }, []);
+
+  const snapTo = useCallback(
+    (print: Print, lock: boolean) => {
+      const index = printIndex(print.id);
+      const s = sim.current;
+      s.target = index;
+      s.pos = index;
+      s.vel = 0;
+      s.inkX = s.inkY = s.inkVX = s.inkVY = 0;
+      s.locked = lock;
+      paintGround(print);
+    },
+    [paintGround],
+  );
+
   const goTo = useCallback((index: number, snap = true) => {
     const s = sim.current;
     s.target = clamp(index, 0, LAST_PRINT);
     if (snap) s.target = Math.round(s.target);
   }, []);
 
-  const openChapter = useCallback((print: Print) => {
-    setMenuOpen(false);
-    setChapter(print);
-    sim.current.locked = true;
-    sim.current.target = PRINTS.indexOf(print);
-  }, []);
+  const open = useCallback(
+    (id: PrintId) => {
+      const print = PRINTS[printIndex(id)];
+      fromRow.current = true;
+      returnFocusRef.current = printsRef.current[printIndex(id)];
+      setMenuOpen(false);
+      snapTo(print, true);
+      router.push(`/${id}`, { scroll: false });
+    },
+    [router, snapTo],
+  );
 
-  const closeChapter = useCallback(() => {
-    setChapter(null);
+  const close = useCallback(() => {
+    setMenuOpen(false);
     sim.current.locked = false;
-  }, []);
+    if (fromRow.current) {
+      fromRow.current = false;
+      router.back();
+      return;
+    }
+    router.replace("/", { scroll: false });
+  }, [router]);
+
+  const go = useCallback(
+    (id: PrintId) => {
+      const print = PRINTS[printIndex(id)];
+      setMenuOpen(false);
+      snapTo(print, true);
+      router.replace(`/${id}`, { scroll: false });
+    },
+    [router, snapTo],
+  );
+
+  const nav = useMemo(() => ({ open, close, go }), [open, close, go]);
 
   const onPrintClick = useCallback(
     (index: number) => {
-      if (sim.current.moved) return;
+      if (sim.current.moved || chapter) return;
       const nearest = Math.round(clamp(sim.current.pos, 0, LAST_PRINT));
       if (index === nearest && Math.abs(sim.current.pos - index) < 0.4) {
-        openChapter(PRINTS[index]);
+        open(PRINTS[index].id);
       } else {
         goTo(index);
       }
     },
-    [goTo, openChapter],
+    [chapter, goTo, open],
   );
 
   const toggleMute = useCallback(() => {
@@ -213,16 +286,29 @@ export default function FivePrints() {
   useEffect(() => {
     const s = sim.current;
     const params = new URLSearchParams(window.location.search);
-    const start = clamp(parseFloat(params.get("p") || "0") || 0, 0, LAST_PRINT);
+    const queryPrint = printFromQuery(params.get("p"));
+    if (!chapter && queryPrint) {
+      router.replace(`/${queryPrint.id}`, { scroll: false });
+    }
+    let start = chapter ? printIndex(chapter.id) : 0;
+    if (!chapter && !queryPrint) {
+      try {
+        const saved = sessionStorage.getItem(POS_KEY);
+        if (saved != null) start = clamp(parseFloat(saved) || 0, 0, LAST_PRINT);
+      } catch {}
+    }
     s.pos = start;
     s.target = start;
     s.vel = clamp(parseFloat(params.get("v") || "0") || 0, -1, 1);
     s.hold = params.has("hold");
+    s.locked = Boolean(chapter);
     try {
       s.reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     } catch {}
     if (s.reduced) rootRef.current?.classList.add("is-reduced");
     layout();
+    const print = PRINTS[Math.round(start)];
+    paintGround(print);
     rootRef.current?.style.setProperty("--pos", String(s.pos));
 
     let raf = 0;
@@ -248,7 +334,10 @@ export default function FivePrints() {
     const syncPlayback = (center: number) => {
       videosRef.current.forEach((v, i) => {
         if (!v) return;
-        const near = !s.reduced && Math.abs(i - center) <= 1;
+        const near =
+          !s.reduced &&
+          !chapterIdRef.current &&
+          Math.abs(i - center) <= 1;
         if (!near) {
           if (!v.paused) v.pause();
           return;
@@ -268,15 +357,19 @@ export default function FivePrints() {
     const render = (pos: number, vel: number) => {
       const reduced = s.reduced;
       const gap = s.gap;
+      const openId = chapterIdRef.current;
       PRINTS.forEach((_, i) => {
         const el = printsRef.current[i];
         const ghost = ghostsRef.current[i];
         if (!el) return;
         const d = i - pos;
         const ad = Math.abs(d);
+        const centred = !openId && i === Math.round(clamp(pos, 0, LAST_PRINT)) && ad < 0.4;
+        el.classList.toggle("is-openable", centred);
+        el.classList.toggle("is-in-chapter", openId === PRINTS[i].id);
         if (reduced) {
           el.style.transform = "translate(-50%, -50%)";
-          el.style.opacity = String(Math.max(0, 1 - ad));
+          el.style.opacity = openId === PRINTS[i].id ? "0" : String(Math.max(0, 1 - ad));
           el.style.zIndex = String(100 - Math.round(ad * 10));
           if (ghost) {
             ghost.style.opacity = "0";
@@ -290,7 +383,7 @@ export default function FivePrints() {
         const y = ad * 18 + Math.sin((i + pos) * 1.3) * vel * 10;
         el.style.transform = `translate(-50%,-50%) translateX(${d * gap}px) translateY(${y}px) rotateY(${ry}deg) skewY(${sk}deg) scale(${scale})`;
         el.style.zIndex = String(100 - Math.round(ad * 10));
-        el.style.opacity = ad > 2.6 ? "0" : "1";
+        el.style.opacity = openId === PRINTS[i].id ? "0" : ad > 2.6 ? "0" : "1";
         if (ghost) {
           const drift = Math.max(Math.abs(vel), Math.abs(s.inkX) / 14);
           ghost.style.opacity = String(Math.min(0.75, drift * 1.6));
@@ -303,7 +396,12 @@ export default function FivePrints() {
       const a = PRINTS[i0].color;
       const b = PRINTS[Math.min(LAST_PRINT, i0 + 1)].color;
       const rgb = a.map((v, k) => Math.round(lerp(v, b[k], f))).join(",");
-      rootRef.current?.style.setProperty("--g", `rgb(${rgb})`);
+      if (!openId) {
+        const ground = `rgb(${rgb})`;
+        rootRef.current?.style.setProperty("--g", ground);
+        document.documentElement.style.background = ground;
+        document.body.style.background = ground;
+      }
       rootRef.current?.style.setProperty("--pos", String(pos));
 
       const c = Math.round(clamp(pos, 0, LAST_PRINT));
@@ -311,9 +409,9 @@ export default function FivePrints() {
       if (labelWordRef.current) labelWordRef.current.textContent = print.word;
       if (labelSubRef.current) labelSubRef.current.textContent = print.label;
       if (labelRef.current) {
-        labelRef.current.style.opacity = String(
-          1 - Math.min(1, Math.abs(pos - c) * 3),
-        );
+        labelRef.current.style.opacity = openId
+          ? "0"
+          : String(1 - Math.min(1, Math.abs(pos - c) * 3));
       }
       dotsRef.current?.querySelectorAll("button").forEach((dot, k) => {
         dot.classList.toggle("on", k === c);
@@ -322,6 +420,9 @@ export default function FivePrints() {
       if (c !== lastIndex && liveRef.current) {
         liveRef.current.textContent = `${print.word}, ${print.label}`;
         lastIndex = c;
+        try {
+          sessionStorage.setItem(POS_KEY, String(c));
+        } catch {}
       }
       if (c !== lastPlay) {
         lastPlay = c;
@@ -332,13 +433,19 @@ export default function FivePrints() {
 
     const loop = () => {
       if (!s.hold) {
-        const follow = s.dragging ? DRAG_FOLLOW : FOLLOW;
-        const np = lerp(s.pos, s.target, follow);
-        const instant = (np - s.pos) * 8;
-        s.vel = lerp(s.vel, s.dragging ? s.dragVel / 8 : instant, VEL_SMOOTH);
-        s.pos = np;
+        if (s.locked) {
+          s.pos = s.target;
+          s.vel = 0;
+          s.inkX = s.inkY = s.inkVX = s.inkVY = 0;
+        } else {
+          const follow = s.dragging ? DRAG_FOLLOW : FOLLOW;
+          const np = lerp(s.pos, s.target, follow);
+          const instant = (np - s.pos) * 8;
+          s.vel = lerp(s.vel, s.dragging ? s.dragVel / 8 : instant, VEL_SMOOTH);
+          s.pos = np;
+        }
         const shownVel = clamp(s.vel, -1, 1);
-        if (!s.reduced) {
+        if (!s.reduced && !s.locked) {
           const tx = shownVel * 14;
           const ty = shownVel * -5;
           s.inkVX += (tx - s.inkX) * INK_STIFF;
@@ -347,7 +454,7 @@ export default function FivePrints() {
           s.inkVY *= INK_DAMP;
           s.inkX += s.inkVX;
           s.inkY += s.inkVY;
-        } else {
+        } else if (s.reduced || s.locked) {
           s.inkX = s.inkY = s.inkVX = s.inkVY = 0;
         }
         render(s.pos, shownVel);
@@ -375,7 +482,18 @@ export default function FivePrints() {
     };
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") return;
+      if (e.key === "Escape") {
+        if (menuOpenRef.current) {
+          e.preventDefault();
+          setMenuOpen(false);
+          return;
+        }
+        if (chapterIdRef.current) {
+          e.preventDefault();
+          close();
+        }
+        return;
+      }
       if (s.locked || s.hold) return;
       if (e.key === "ArrowRight" || e.key === "ArrowDown") {
         e.preventDefault();
@@ -429,8 +547,12 @@ export default function FivePrints() {
       document.removeEventListener("visibilitychange", onVisible);
       media.removeEventListener("change", onMotion);
       ambient.current?.stop();
+      document.documentElement.style.background = "";
+      document.body.style.background = "";
     };
-  }, [goTo, layout]);
+    // Mount once for the persistent layout. Path-driven snaps live in a later effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [goTo, layout, paintGround, router, close]);
 
   useEffect(() => {
     videosRef.current.forEach((v, i) => {
@@ -445,28 +567,24 @@ export default function FivePrints() {
   }, [armed]);
 
   useEffect(() => {
-    sim.current.locked = chapter !== null;
-    if (!chapter) return;
-    const prev = document.activeElement as HTMLElement | null;
-    closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeChapter();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      prev?.focus?.();
-    };
-  }, [chapter, closeChapter]);
+    if (chapter) {
+      snapTo(chapter, true);
+      return;
+    }
+    sim.current.locked = false;
+    const restore = returnFocusRef.current;
+    returnFocusRef.current = null;
+    restore?.focus?.();
+  }, [chapter, snapTo]);
 
   useEffect(() => {
     if (!menuOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !chapter) setMenuOpen(false);
+      if (e.key === "Escape") setMenuOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [menuOpen, chapter]);
+  }, [menuOpen]);
 
   const onPointerDown = (e: ReactPointerEvent<HTMLElement>) => {
     if (sim.current.locked || sim.current.hold) return;
@@ -522,242 +640,267 @@ export default function FivePrints() {
     s.dragVel = 0;
   };
 
-  return (
-    <main
-      ref={rootRef}
-      className="five-prints"
-      aria-label="Five prints"
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={endPointer}
-      onPointerCancel={endPointer}
-    >
-      <h1 className="sr-only">Rahul Kumar</h1>
-      <div ref={liveRef} className="sr-only" aria-live="polite" />
+  const onPrintKey = (index: number, event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    sim.current.moved = false;
+    onPrintClick(index);
+  };
 
-      <div className="five-stage">
-        {PRINTS.map((print, i) => (
-          <article
-            key={print.id}
-            ref={(node) => {
-              printsRef.current[i] = node;
-            }}
-            className="five-print"
-            style={{ "--i": i } as React.CSSProperties}
-            data-index={i}
-            aria-label={print.alt}
-          >
-            <div className="five-sheet">
-              {i === 0 || armed[i] ? (
-                <Image
-                  className="five-plate"
-                  src={print.poster}
-                  alt={print.alt}
-                  fill
-                  sizes="(max-width: 600px) 78vw, 440px"
-                  preload={i === 0}
-                  loading={i === 0 ? "eager" : "lazy"}
-                  unoptimized
-                  style={{ objectFit: "cover" }}
-                  draggable={false}
-                />
-              ) : null}
-              <video
-                ref={(node) => {
-                  videosRef.current[i] = node;
-                }}
-                className="five-video"
-                muted
-                loop
-                playsInline
-                preload={armed[i] ? "metadata" : "none"}
-                poster={i === 0 || armed[i] ? print.poster : undefined}
-                width={720}
-                height={960}
-                aria-hidden
-                disablePictureInPicture
-                onError={(e) => e.currentTarget.classList.add("is-failed")}
-                onCanPlay={(e) => {
-                  const v = e.currentTarget;
-                  v.muted = true;
-                  v.playsInline = true;
-                  const center = Math.round(
-                    clamp(sim.current.pos, 0, LAST_PRINT),
-                  );
-                  if (
-                    !sim.current.reduced &&
-                    Math.abs(i - center) <= 1
-                  ) {
-                    void v.play().catch(() => v.classList.add("is-failed"));
-                  }
-                }}
-              >
-                {armed[i] ? (
-                  <>
-                    <source src={print.webm} type="video/webm" />
-                    <source src={print.mp4} type="video/mp4" />
-                  </>
-                ) : null}
-              </video>
-              <div
-                className="five-ghost-wrap"
-                ref={(node) => {
-                  ghostsRef.current[i] = node;
-                }}
-              >
+  return (
+    <PrintsNavContext.Provider value={nav}>
+      <main
+        ref={rootRef}
+        className={`five-prints${chapter ? " is-chapter" : ""}`}
+        aria-label="Five prints"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endPointer}
+        onPointerCancel={endPointer}
+      >
+        <h1 className="sr-only">Rahul Kumar</h1>
+        <div ref={liveRef} className="sr-only" aria-live="polite" />
+
+        <div className="five-stage" inert={chapter ? true : undefined}>
+          {PRINTS.map((print, i) => {
+            const sheet = (
+              <div className="five-sheet">
                 {i === 0 || armed[i] ? (
                   <Image
-                    className="five-ghost"
+                    className="five-plate"
                     src={print.poster}
                     alt=""
                     fill
                     sizes="(max-width: 600px) 78vw, 440px"
+                    preload={i === 0}
+                    loading={i === 0 ? "eager" : "lazy"}
                     unoptimized
                     style={{ objectFit: "cover" }}
                     draggable={false}
                   />
                 ) : null}
+                <video
+                  ref={(node) => {
+                    videosRef.current[i] = node;
+                  }}
+                  className="five-video"
+                  muted
+                  loop
+                  playsInline
+                  preload={armed[i] ? "metadata" : "none"}
+                  poster={i === 0 || armed[i] ? print.poster : undefined}
+                  width={720}
+                  height={960}
+                  aria-hidden
+                  disablePictureInPicture
+                  onError={(e) => e.currentTarget.classList.add("is-failed")}
+                  onCanPlay={(e) => {
+                    const v = e.currentTarget;
+                    v.muted = true;
+                    v.playsInline = true;
+                    const center = Math.round(
+                      clamp(sim.current.pos, 0, LAST_PRINT),
+                    );
+                    if (
+                      !sim.current.reduced &&
+                      !chapterIdRef.current &&
+                      Math.abs(i - center) <= 1
+                    ) {
+                      void v.play().catch(() => v.classList.add("is-failed"));
+                    }
+                  }}
+                >
+                  {armed[i] ? (
+                    <>
+                      <source src={print.webm} type="video/webm" />
+                      <source src={print.mp4} type="video/mp4" />
+                    </>
+                  ) : null}
+                </video>
+                <div
+                  className="five-ghost-wrap"
+                  ref={(node) => {
+                    ghostsRef.current[i] = node;
+                  }}
+                >
+                  {i === 0 || armed[i] ? (
+                    <Image
+                      className="five-ghost"
+                      src={print.poster}
+                      alt=""
+                      fill
+                      sizes="(max-width: 600px) 78vw, 440px"
+                      unoptimized
+                      style={{ objectFit: "cover" }}
+                      draggable={false}
+                    />
+                  ) : null}
+                </div>
+                <div className="five-ghost-hover" aria-hidden>
+                  {i === 0 || armed[i] ? (
+                    <Image
+                      className="five-ghost"
+                      src={print.poster}
+                      alt=""
+                      fill
+                      sizes="(max-width: 600px) 78vw, 440px"
+                      unoptimized
+                      style={{ objectFit: "cover" }}
+                      draggable={false}
+                    />
+                  ) : null}
+                </div>
+                <div className="five-fold" />
               </div>
-              <div className="five-fold" />
-            </div>
-          </article>
-        ))}
-      </div>
-
-      <header className="five-chrome five-top">
-        <p className="five-sig">{site.name}</p>
-        <div className="five-ctl">
-          <button
-            type="button"
-            onClick={toggleMute}
-            aria-label={muted ? "Unmute" : "Mute"}
-            aria-pressed={!muted}
-          >
-            <Speaker muted={muted} />
-          </button>
-          <button
-            type="button"
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-label="Menu"
-            aria-expanded={menuOpen}
-            aria-controls={menuId}
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
-              <path
-                d="M2 3.5h10M2 7h10M2 10.5h10"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                fill="none"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
+            );
+            return (
+              <article
+                key={print.id}
+                ref={(node) => {
+                  printsRef.current[i] = node;
+                }}
+                className="five-print"
+                style={{ "--i": i } as React.CSSProperties}
+                data-index={i}
+                role="button"
+                tabIndex={chapter ? -1 : 0}
+                aria-label={`Open ${print.label}: ${print.alt}`}
+                onKeyDown={(event) => onPrintKey(i, event)}
+              >
+                {chapter?.id === print.id ? (
+                  sheet
+                ) : (
+                  <ViewTransition
+                    name={`print-${print.id}`}
+                    share="morph"
+                    default="none"
+                  >
+                    {sheet}
+                  </ViewTransition>
+                )}
+              </article>
+            );
+          })}
         </div>
-      </header>
 
-      {menuOpen && (
-        <nav id={menuId} className="five-menu" aria-label="Prints and pages">
+        <header className="five-chrome five-top">
+          {chapter ? (
+            <button
+              type="button"
+              className="five-sig"
+              onClick={close}
+              aria-label={`${site.name}, close chapter`}
+            >
+              {site.name}
+            </button>
+          ) : (
+            <p className="five-sig">{site.name}</p>
+          )}
+          <div className="five-ctl">
+            <button
+              type="button"
+              onClick={toggleMute}
+              aria-label={muted ? "Unmute" : "Mute"}
+              aria-pressed={!muted}
+            >
+              <Speaker muted={muted} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label="Menu"
+              aria-expanded={menuOpen}
+              aria-controls={menuId}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
+                <path
+                  d="M2 3.5h10M2 7h10M2 10.5h10"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        {menuOpen && (
+          <nav id={menuId} className="five-menu" aria-label="Prints and pages">
+            {PRINTS.map((print) => (
+              <Link
+                key={print.id}
+                href={`/${print.id}`}
+                aria-current={chapter?.id === print.id ? "page" : undefined}
+                onClick={() => {
+                  snapTo(print, true);
+                  setMenuOpen(false);
+                }}
+              >
+                <i>{print.word}</i>
+                <span>{print.label}</span>
+              </Link>
+            ))}
+            <Link href="/room" onClick={() => setMenuOpen(false)}>
+              <i>studio</i>
+              <span>room</span>
+            </Link>
+            <a href="/cv.pdf" onClick={() => setMenuOpen(false)}>
+              <i>cv</i>
+              <span>pdf</span>
+            </a>
+            <a href={`mailto:${site.email}`} onClick={() => setMenuOpen(false)}>
+              <i>write</i>
+              <span>mail</span>
+            </a>
+          </nav>
+        )}
+
+        <div ref={labelRef} className="five-label" aria-hidden>
+          <b ref={labelWordRef}>{PRINTS[0].word}</b>
+          <i ref={labelSubRef}>{PRINTS[0].label}</i>
+        </div>
+
+        <div
+          ref={dotsRef}
+          className="five-dots"
+          role="tablist"
+          aria-label="Five prints"
+          hidden={Boolean(chapter)}
+        >
           {PRINTS.map((print, i) => (
             <button
               key={print.id}
               type="button"
-              onClick={() => {
-                goTo(i);
-                setMenuOpen(false);
-              }}
-            >
-              <i>{print.word}</i>
-              <span>{print.label}</span>
-            </button>
-          ))}
-          <Link href="/room" onClick={() => setMenuOpen(false)}>
-            <i>studio</i>
-            <span>room</span>
-          </Link>
-          <a href={`mailto:${site.email}`} onClick={() => setMenuOpen(false)}>
-            <i>write</i>
-            <span>mail</span>
-          </a>
-        </nav>
-      )}
-
-      <div ref={labelRef} className="five-label" aria-hidden>
-        <b ref={labelWordRef}>{PRINTS[0].word}</b>
-        <i ref={labelSubRef}>{PRINTS[0].label}</i>
-      </div>
-
-      <div
-        ref={dotsRef}
-        className="five-dots"
-        role="tablist"
-        aria-label="Five prints"
-      >
-        {PRINTS.map((print, i) => (
-          <button
-            key={print.id}
-            type="button"
-            className={i === 0 ? "on" : undefined}
-            aria-label={`${print.word}, ${print.label}`}
-            aria-current={i === 0 ? "true" : "false"}
-            onClick={() => goTo(i)}
-          />
-        ))}
-      </div>
-
-      <footer className="five-chrome five-bottom">
-        <div className="five-hint">scroll ↓</div>
-        <div className="five-soc">
-          {socials.map((social) => (
-            <a
-              key={social.id}
-              href={social.href}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {social.label}
-            </a>
+              className={i === 0 ? "on" : undefined}
+              aria-label={`${print.word}, ${print.label}`}
+              aria-current={i === 0 ? "true" : "false"}
+              onClick={() => goTo(i)}
+            />
           ))}
         </div>
-      </footer>
 
-      <div className="five-grain" aria-hidden />
-
-      {chapter && (
-        <div
-          className="five-chapter"
-          role="presentation"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) closeChapter();
-          }}
-        >
-          <div
-            className="five-chapter-card"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="five-chapter-title"
-          >
-            <button
-              ref={closeRef}
-              type="button"
-              className="five-chapter-close"
-              aria-label="Close"
-              onClick={closeChapter}
-            >
-              ×
-            </button>
-            <h2 id="five-chapter-title">{chapter.word}</h2>
-            <p>{chapter.label}</p>
-            <p className="five-chapter-body">{chapter.chapter}</p>
-            {chapter.studio && (
-              <Link href="/room" onClick={closeChapter}>
-                Open the studio
-              </Link>
-            )}
+        <footer className="five-chrome five-bottom">
+          <div className="five-hint">{chapter ? "" : "scroll ↓"}</div>
+          <div className="five-soc">
+            {socials.map((social) => (
+              <a
+                key={social.id}
+                href={social.href}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {social.label}
+              </a>
+            ))}
           </div>
-        </div>
-      )}
+        </footer>
 
-      <span className="sr-only">{PRINT_COUNT} equal prints</span>
-    </main>
+        <div className="five-grain" aria-hidden />
+
+        <span className="sr-only">{PRINT_COUNT} equal prints</span>
+      </main>
+      {children}
+    </PrintsNavContext.Provider>
   );
 }

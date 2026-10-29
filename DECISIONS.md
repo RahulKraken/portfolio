@@ -1,5 +1,20 @@
 # Decisions
 
+## 2026-10-29 — Five Prints chapter routing and content sourcing
+
+**Decision:** Chapters are real App Router routes (`/track`, `/lift`, `/guitar`, `/build`, `/coffee`) rendered as children of a persistent `app/(prints)` layout. The row stays mounted so closing a chapter returns to the same print. Opening uses `router.push`; prev/next uses `replace`; close uses `back()` when the chapter was opened from the row, otherwise `replace("/")`. Shared-element morph uses React `<ViewTransition name={`print-${id}`}>` (crossfade fallback is the browser default). `?p=track` / `?p=0` deep-link the same routes.
+
+**Options considered:**
+- Client overlay only (no URL) — the previous placeholder, which could not be shared or refreshed.
+- Parallel routes / intercepting routes — more machinery than five static pages.
+- Motion FLIP without the View Transitions API — extra dependency; React 19 already ships `ViewTransition`.
+
+**Chosen and why:** Routes + a persistent layout. Shareable, refresh-safe, back-button native, and the row never remounts. Old hash redirects (`/strength`, `/music`, `/building`, `/engineering`) map onto the new chapter paths; `/track` is no longer swallowed by the hash redirect.
+
+**How to reverse:** close the preview PR. Do not merge.
+
+**Content sourcing:** Chapter copy is taken only from already-published repo files (`components/room/content.ts`, `lib/products.ts`, `public/cv.pdf`, existing `/room`). No invented personal facts, numbers, places, or names. Lift has no published copy, so it uses one neutral line and a `TODO(rahul)` in `lib/chapters.ts`.
+
 ## 2026-10-29 — Five Prints preview branch
 
 **Decision:** Five Prints preview branch; home route swapped only on this branch; room moved to `/room`; reversible by closing the PR.

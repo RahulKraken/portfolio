@@ -10,9 +10,6 @@ export type Print = {
   webm: string;
   mp4: string;
   alt: string;
-  chapter: string;
-  /** The building pillar opens the studio. */
-  studio?: boolean;
 };
 
 /**
@@ -29,8 +26,6 @@ export const PRINTS: readonly Print[] = [
     webm: "/prints/track.webm",
     mp4: "/prints/track.mp4",
     alt: "Risograph print of a motorcyclist leaning through a corner",
-    chapter:
-      "A placeholder chapter. The 2025 Panigale V2 S at Madras — the real pages come later.",
   },
   {
     id: "lift",
@@ -41,8 +36,6 @@ export const PRINTS: readonly Print[] = [
     webm: "/prints/lift.webm",
     mp4: "/prints/lift.mp4",
     alt: "Risograph print of a lifter at the bottom of a squat",
-    chapter:
-      "A placeholder chapter. Heavy things, moved on purpose.",
   },
   {
     id: "guitar",
@@ -53,8 +46,6 @@ export const PRINTS: readonly Print[] = [
     webm: "/prints/guitar.webm",
     mp4: "/prints/guitar.mp4",
     alt: "Risograph print of hands bending a note on a Stratocaster",
-    chapter:
-      "A placeholder chapter. A black Strat, notes bent until they mean something.",
   },
   {
     id: "build",
@@ -65,9 +56,6 @@ export const PRINTS: readonly Print[] = [
     webm: "/prints/build.webm",
     mp4: "/prints/build.mp4",
     alt: "Risograph print of a workbench with a laptop, boards, and a soldering iron",
-    chapter:
-      "A placeholder chapter. An itch, a prototype — the studio is this way.",
-    studio: true,
   },
   {
     id: "coffee",
@@ -78,10 +66,46 @@ export const PRINTS: readonly Print[] = [
     webm: "/prints/coffee.webm",
     mp4: "/prints/coffee.mp4",
     alt: "Risograph print of a pour-over beside a laptop",
-    chapter:
-      "A placeholder chapter. A Hario Switch, an AeroPress, and this week’s beans.",
   },
 ] as const;
 
 export const PRINT_COUNT = PRINTS.length;
 export const LAST_PRINT = PRINT_COUNT - 1;
+export const PRINT_IDS: readonly PrintId[] = PRINTS.map((print) => print.id);
+
+export function isPrintId(value: string): value is PrintId {
+  return PRINTS.some((print) => print.id === value);
+}
+
+export function printById(id: string): Print | undefined {
+  return PRINTS.find((print) => print.id === id);
+}
+
+export function printIndex(id: PrintId): number {
+  return PRINTS.findIndex((print) => print.id === id);
+}
+
+export function printFromPath(pathname: string): Print | null {
+  const segment = pathname.split("?")[0]?.replace(/^\//, "").split("/")[0] ?? "";
+  return printById(segment) ?? null;
+}
+
+/** `?p=track` or `?p=0` deep-links a chapter. */
+export function printFromQuery(value: string | null): Print | null {
+  if (!value) return null;
+  const named = printById(value);
+  if (named) return named;
+  if (!/^\d+$/.test(value)) return null;
+  const index = Number(value);
+  if (index < 0 || index > LAST_PRINT) return null;
+  return PRINTS[index];
+}
+
+export function adjacentPrint(id: PrintId, direction: -1 | 1): Print {
+  const index = printIndex(id);
+  return PRINTS[(index + direction + PRINT_COUNT) % PRINT_COUNT];
+}
+
+export function printRgb(print: Print): string {
+  return `rgb(${print.color.join(",")})`;
+}
