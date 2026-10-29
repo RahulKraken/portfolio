@@ -6,7 +6,17 @@ import { Eyes } from "./home/Eyes";
 import { Cursor } from "./Cursor";
 export function LegacyChrome() {
   const path = usePathname();
-  if (path === "/") return null;
+  if (
+    path === "/" ||
+    path === "/room" ||
+    path === "/track" ||
+    path === "/lift" ||
+    path === "/guitar" ||
+    path === "/build" ||
+    path === "/coffee"
+  ) {
+    return null;
+  }
   return (
     <>
       <Nav />

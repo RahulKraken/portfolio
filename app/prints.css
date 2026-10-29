@@ -1,0 +1,780 @@
+/* Five Prints landing. First paint uses the same --w / --gap math as the rAF loop
+   so the sheets do not jump when JS takes over. */
+
+html:has(.five-prints),
+body:has(.five-prints) {
+  background: rgb(24, 62, 66);
+  overflow: hidden;
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+.five-prints {
+  --w: min(56svh, 440px);
+  --gap: calc(var(--w) * 1.18);
+  --pos: 0;
+  --g: rgb(24, 62, 66);
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--g);
+  color: #fff;
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  touch-action: none;
+  cursor: grab;
+  color-scheme: dark;
+}
+
+.five-prints.is-dragging {
+  cursor: grabbing;
+}
+
+.five-prints.is-reduced {
+  cursor: default;
+}
+
+.five-stage {
+  position: absolute;
+  inset: 0;
+  perspective: 1400px;
+  z-index: 0;
+}
+
+.five-print {
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  width: var(--w);
+  aspect-ratio: 3 / 4;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transform: translate(-50%, -50%)
+    translateX(calc((var(--i) - var(--pos)) * var(--gap)))
+    scale(calc(1 - min(abs(var(--i) - var(--pos)), 2) * 0.16));
+  z-index: calc(10 - abs(var(--i) - var(--pos)) * 2);
+}
+
+.five-print.is-openable {
+  cursor: pointer;
+}
+
+.five-print.is-openable .five-sheet {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.five-print.is-openable:hover .five-sheet,
+.five-print.is-openable:focus-visible .five-sheet {
+  transform: translateY(-8px) scale(1.02);
+}
+
+.five-print:focus {
+  outline: none;
+}
+
+.five-print:focus-visible .five-sheet {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+.five-ghost-hover {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  pointer-events: none;
+  filter: hue-rotate(35deg) saturate(1.8);
+}
+
+.five-print.is-openable:hover .five-ghost-hover,
+.five-print.is-openable:focus-visible .five-ghost-hover {
+  animation: ink-snap 0.5s cubic-bezier(0.22, 1.2, 0.36, 1);
+}
+
+.five-sheet {
+  position: relative;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #141414;
+  box-shadow:
+    0 30px 60px -20px rgba(0, 0, 0, 0.55),
+    0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
+.five-sheet img,
+.five-sheet video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.five-sheet video {
+  z-index: 1;
+  background: transparent;
+}
+
+.five-sheet video.is-failed {
+  opacity: 0;
+}
+
+.five-ghost-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  pointer-events: none;
+  filter: hue-rotate(35deg) saturate(1.8);
+  will-change: transform, opacity;
+}
+
+.five-fold {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.18),
+    rgba(255, 255, 255, 0.12) 30%,
+    rgba(0, 0, 0, 0.06) 55%,
+    rgba(255, 255, 255, 0.1) 75%,
+    rgba(0, 0, 0, 0.16)
+  );
+  mix-blend-mode: soft-light;
+}
+
+.five-chrome {
+  position: fixed;
+  z-index: 40;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  view-transition-name: none;
+}
+
+.five-chrome a,
+.five-chrome button {
+  pointer-events: auto;
+}
+
+.five-top {
+  top: 22px;
+  left: 28px;
+  right: 28px;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+.five-sig {
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  opacity: 0.92;
+}
+
+button.five-sig {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.five-ctl {
+  display: flex;
+  gap: 14px;
+}
+
+.five-ctl button {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0.85;
+}
+
+.five-ctl button:hover,
+.five-ctl button[aria-pressed="true"] {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.five-ctl button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.five-bottom {
+  bottom: 22px;
+  left: 28px;
+  right: 28px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+.five-hint {
+  opacity: 0.9;
+}
+
+.five-soc {
+  display: flex;
+  gap: 18px;
+}
+
+.five-soc a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.five-soc a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.five-soc a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.five-label {
+  position: fixed;
+  left: 50%;
+  top: calc(47svh + (var(--w) * 2 / 3) + 30px);
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.five-label b {
+  display: block;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 30px;
+  letter-spacing: -0.01em;
+}
+
+.five-label i {
+  display: block;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.88;
+  margin-top: 6px;
+}
+
+.five-dots {
+  position: fixed;
+  left: 50%;
+  top: calc(47svh + (var(--w) * 2 / 3) + 104px);
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  z-index: 4;
+  pointer-events: auto;
+}
+
+.five-dots button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.five-dots button::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: color-mix(in srgb, #fff 48%, rgb(24, 62, 66));
+}
+
+.five-dots button.on::before {
+  background: #fff;
+  width: 18px;
+  height: 6px;
+  border-radius: 3px;
+}
+
+.five-dots button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.five-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  mix-blend-mode: overlay;
+  z-index: 6;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.9'/></svg>");
+}
+
+.five-menu {
+  position: fixed;
+  top: 62px;
+  right: 28px;
+  z-index: 50;
+  width: 220px;
+  padding: 8px;
+  background: rgba(12, 12, 14, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+}
+
+.five-menu a,
+.five-menu button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.five-menu a:hover,
+.five-menu button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.five-menu a:focus-visible,
+.five-menu button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.five-menu i {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+}
+
+.five-menu span {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.five-prints[data-ink="dark"],
+.five-prints[data-ink="dark"] .five-chapter {
+  color: #1b1410;
+}
+
+.five-prints[data-ink="dark"] .five-ctl button,
+.five-prints[data-ink="dark"] .five-chapter-close,
+.five-prints[data-ink="dark"] .five-chapter-edge {
+  border-color: rgba(27, 20, 16, 0.45);
+  color: #1b1410;
+}
+
+.five-prints[data-ink="dark"] .five-dots button::before {
+  background: color-mix(in srgb, #1b1410 55%, rgb(214, 92, 64));
+}
+
+.five-prints[data-ink="dark"] .five-dots button.on::before {
+  background: #1b1410;
+}
+
+.five-prints[data-ink="dark"] .five-sig,
+.five-prints[data-ink="dark"] .five-bottom,
+.five-prints[data-ink="dark"] .five-chapter-kicker,
+.five-prints[data-ink="dark"] .five-chapter-items span,
+.five-prints[data-ink="dark"] .five-label i {
+  opacity: 1;
+}
+
+.five-prints.is-chapter {
+  cursor: default;
+}
+
+.five-prints.is-chapter .five-hint,
+.five-prints.is-chapter .five-label,
+.five-prints.is-chapter .five-dots {
+  visibility: hidden;
+}
+
+.five-chapter {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 88px 48px 72px;
+  color: #fff;
+  cursor: default;
+  touch-action: pan-y;
+  overflow: auto;
+}
+
+.five-chapter-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 38vh) minmax(0, 36rem);
+  gap: clamp(28px, 6vw, 72px);
+  align-items: center;
+  width: min(1100px, 100%);
+}
+
+.five-chapter-media {
+  width: 100%;
+}
+
+.five-chapter-sheet {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #141414;
+  box-shadow:
+    0 30px 60px -20px rgba(0, 0, 0, 0.55),
+    0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
+.five-chapter-sheet img,
+.five-chapter-sheet video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.five-chapter-sheet video {
+  z-index: 1;
+}
+
+.five-chapter-copy h2 {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(36px, 5vw, 56px);
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+}
+
+.five-chapter-kicker {
+  margin-top: 10px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.five-chapter-body {
+  margin-top: 22px;
+  font-size: 15px;
+  line-height: 1.55;
+  max-width: 36em;
+}
+
+.five-chapter-items {
+  list-style: none;
+  margin: 28px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.five-chapter-items li,
+.five-chapter-items a {
+  display: grid;
+  gap: 2px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.five-chapter-items b {
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.five-chapter-items span {
+  font-size: 13px;
+  opacity: 0.72;
+  line-height: 1.4;
+}
+
+.five-chapter-items i {
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.five-chapter-items a:hover b,
+.five-chapter-items a:hover i {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.five-chapter-close {
+  position: fixed;
+  top: 22px;
+  right: 108px;
+  z-index: 45;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.five-chapter-edge {
+  position: fixed;
+  top: 50%;
+  z-index: 21;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+  opacity: 0.85;
+}
+
+.five-chapter-prev {
+  left: 18px;
+}
+
+.five-chapter-next {
+  right: 18px;
+}
+
+.five-chapter-close:hover,
+.five-chapter-edge:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.five-chapter-close:focus-visible,
+.five-chapter-edge:focus-visible,
+.five-chapter-items a:focus-visible,
+button.five-sig:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.five-chapter-ink {
+  animation: ink-register 0.7s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+@keyframes ink-snap {
+  0% {
+    transform: translate(6px, -3px);
+    opacity: 0.55;
+  }
+  40% {
+    transform: translate(-3px, 2px);
+    opacity: 0.35;
+  }
+  100% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes ink-register {
+  0% {
+    transform: translate(10px, -6px);
+    opacity: 0.7;
+  }
+  55% {
+    transform: translate(-3px, 2px);
+    opacity: 0.35;
+  }
+  100% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+}
+
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-group(.morph) {
+  animation-duration: 480ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 30;
+}
+
+.five-prints.is-reduced .five-fold,
+.five-prints.is-reduced .five-ghost-wrap,
+.five-prints.is-reduced .five-ghost-hover,
+.five-prints.is-reduced .five-video,
+.five-prints.is-reduced .five-chapter-ink {
+  display: none;
+}
+
+.five-prints.is-reduced .five-print.is-openable .five-sheet,
+.five-prints.is-reduced .five-print.is-openable:hover .five-sheet,
+.five-prints.is-reduced .five-print.is-openable:focus-visible .five-sheet {
+  transform: none;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .five-video,
+  .five-ghost-hover,
+  .five-chapter-ink {
+    display: none;
+  }
+
+  .five-print.is-openable .five-sheet,
+  .five-print.is-openable:hover .five-sheet,
+  .five-print.is-openable:focus-visible .five-sheet {
+    transform: none;
+    transition: none;
+  }
+
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
+.five-prints.is-reduced .five-print {
+  will-change: opacity;
+}
+
+@media (max-width: 600px) {
+  .five-prints {
+    --w: min(78vw, 330px);
+    --gap: calc(var(--w) * 1.08);
+  }
+
+  .five-top {
+    top: 16px;
+    left: 18px;
+    right: 18px;
+  }
+
+  .five-bottom {
+    bottom: 16px;
+    left: 18px;
+    right: 18px;
+  }
+
+  .five-label {
+    top: calc(47svh + (var(--w) * 2 / 3) + 28px);
+  }
+
+  .five-label b {
+    font-size: 26px;
+  }
+
+  .five-dots {
+    top: calc(47svh + (var(--w) * 2 / 3) + 100px);
+  }
+
+  .five-menu {
+    top: 54px;
+    right: 18px;
+  }
+
+  .five-ctl button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .five-chapter {
+    padding: 84px 22px 96px;
+    align-items: start;
+  }
+
+  .five-chapter-layout {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    gap: 28px;
+  }
+
+  .five-chapter-sheet {
+    width: min(70vw, 280px);
+  }
+
+  .five-chapter-copy {
+    max-width: 36em;
+  }
+
+  .five-chapter-items li,
+  .five-chapter-items a {
+    justify-items: center;
+  }
+
+  .five-chapter-close {
+    top: 16px;
+    right: 118px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .five-chapter-edge {
+    width: 40px;
+    height: 40px;
+  }
+
+  .five-chapter-prev {
+    left: 8px;
+  }
+
+  .five-chapter-next {
+    right: 8px;
+  }
+}
