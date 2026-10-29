@@ -1,0 +1,458 @@
+/* Five Prints landing. First paint uses the same --w / --gap math as the rAF loop
+   so the sheets do not jump when JS takes over. */
+
+html:has(.five-prints),
+body:has(.five-prints) {
+  background: rgb(24, 62, 66);
+  overflow: hidden;
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+.five-prints {
+  --w: min(56svh, 440px);
+  --gap: calc(var(--w) * 1.18);
+  --pos: 0;
+  --g: rgb(24, 62, 66);
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--g);
+  color: #fff;
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  touch-action: none;
+  cursor: grab;
+  color-scheme: dark;
+}
+
+.five-prints.is-dragging {
+  cursor: grabbing;
+}
+
+.five-prints.is-reduced {
+  cursor: default;
+}
+
+.five-stage {
+  position: absolute;
+  inset: 0;
+  perspective: 1400px;
+}
+
+.five-print {
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  width: var(--w);
+  aspect-ratio: 3 / 4;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transform: translate(-50%, -50%)
+    translateX(calc((var(--i) - var(--pos)) * var(--gap)))
+    scale(calc(1 - min(abs(var(--i) - var(--pos)), 2) * 0.16));
+  z-index: calc(10 - abs(var(--i) - var(--pos)) * 2);
+}
+
+.five-sheet {
+  position: relative;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #141414;
+  box-shadow:
+    0 30px 60px -20px rgba(0, 0, 0, 0.55),
+    0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
+.five-sheet img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.five-ghost-wrap {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  pointer-events: none;
+  filter: hue-rotate(35deg) saturate(1.8);
+  will-change: transform, opacity;
+}
+
+.five-fold {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.18),
+    rgba(255, 255, 255, 0.12) 30%,
+    rgba(0, 0, 0, 0.06) 55%,
+    rgba(255, 255, 255, 0.1) 75%,
+    rgba(0, 0, 0, 0.16)
+  );
+  mix-blend-mode: soft-light;
+}
+
+.five-chrome {
+  position: fixed;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+
+.five-chrome a,
+.five-chrome button {
+  pointer-events: auto;
+}
+
+.five-top {
+  top: 22px;
+  left: 28px;
+  right: 28px;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+.five-sig {
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  opacity: 0.92;
+}
+
+.five-ctl {
+  display: flex;
+  gap: 14px;
+}
+
+.five-ctl button {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0.85;
+}
+
+.five-ctl button:hover,
+.five-ctl button[aria-pressed="true"] {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.five-ctl button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.five-bottom {
+  bottom: 22px;
+  left: 28px;
+  right: 28px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+.five-hint {
+  opacity: 0.9;
+}
+
+.five-soc {
+  display: flex;
+  gap: 18px;
+}
+
+.five-soc a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.five-soc a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.five-soc a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.five-label {
+  position: fixed;
+  left: 50%;
+  top: calc(47svh + (var(--w) * 2 / 3) + 30px);
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.five-label b {
+  display: block;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 30px;
+  letter-spacing: -0.01em;
+}
+
+.five-label i {
+  display: block;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-top: 6px;
+}
+
+.five-dots {
+  position: fixed;
+  left: 50%;
+  top: calc(47svh + (var(--w) * 2 / 3) + 104px);
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 4;
+  pointer-events: auto;
+}
+
+.five-dots button {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.3;
+  cursor: pointer;
+}
+
+.five-dots button.on {
+  opacity: 1;
+  width: 18px;
+  border-radius: 3px;
+}
+
+.five-dots button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.five-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  mix-blend-mode: overlay;
+  z-index: 6;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.9'/></svg>");
+}
+
+.five-menu {
+  position: fixed;
+  top: 62px;
+  right: 28px;
+  z-index: 12;
+  width: 220px;
+  padding: 8px;
+  background: rgba(12, 12, 14, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+}
+
+.five-menu a,
+.five-menu button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.five-menu a:hover,
+.five-menu button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.five-menu a:focus-visible,
+.five-menu button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.five-menu i {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+}
+
+.five-menu span {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.five-chapter {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(8, 8, 10, 0.46);
+  cursor: default;
+}
+
+.five-chapter-card {
+  position: relative;
+  width: min(420px, calc(100vw - 40px));
+  padding: 40px 36px 32px;
+  background: #f3efe6;
+  color: #1b1b18;
+  color-scheme: light;
+  border-radius: 3px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+}
+
+.five-chapter-card h2 {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 36px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.five-chapter-card h2 + p {
+  margin-top: 8px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.five-chapter-card .five-chapter-body {
+  margin-top: 22px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.five-chapter-card a {
+  display: inline-block;
+  margin-top: 22px;
+  color: inherit;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 3px;
+}
+
+.five-chapter-card a:hover {
+  opacity: 0.7;
+}
+
+.five-chapter-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.five-chapter-close:focus-visible,
+.five-chapter-card a:focus-visible {
+  outline: 2px solid #1b1b18;
+  outline-offset: 3px;
+}
+
+.five-prints.is-reduced .five-fold,
+.five-prints.is-reduced .five-ghost-wrap {
+  display: none;
+}
+
+.five-prints.is-reduced .five-print {
+  will-change: opacity;
+}
+
+@media (max-width: 600px) {
+  .five-prints {
+    --w: min(78vw, 330px);
+    --gap: calc(var(--w) * 1.08);
+  }
+
+  .five-top {
+    top: 16px;
+    left: 18px;
+    right: 18px;
+  }
+
+  .five-bottom {
+    bottom: 16px;
+    left: 18px;
+    right: 18px;
+  }
+
+  .five-label {
+    top: calc(47svh + (var(--w) * 2 / 3) + 28px);
+  }
+
+  .five-label b {
+    font-size: 26px;
+  }
+
+  .five-dots {
+    top: calc(47svh + (var(--w) * 2 / 3) + 100px);
+  }
+
+  .five-menu {
+    top: 54px;
+    right: 18px;
+  }
+
+  .five-ctl button {
+    width: 36px;
+    height: 36px;
+  }
+}

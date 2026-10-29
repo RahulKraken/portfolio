@@ -1,5 +1,18 @@
 # Decisions
 
+## 2026-10-29 — Five Prints preview branch
+
+**Decision:** Five Prints preview branch; home route swapped only on this branch; room moved to `/room`; reversible by closing the PR.
+
+**Options considered:**
+- Replace production home in place on `main`.
+- Keep the 3D studio at `/` and put Five Prints on a side route.
+- Ship Five Prints as a preview-only branch with the studio moved, not deleted.
+
+**Chosen and why:** Preview-only. The landing is the experiment; the studio stays reachable. Closing the PR restores `/` to the room.
+
+**How to reverse:** close the PR. Do not merge.
+
 ## 2026-10-26 — Simplify studio controls and add social links
 
 **Decision:** Remove the reset-camera, pan/rotate, and day/night *buttons* from the studio corner. Keep mute and the four-dot menu. Add always-visible GitHub, LinkedIn, and X links (URLs live in `lib/site.ts`). Bound the camera look-at so pan cannot send the room off-screen. Night mode stays reachable in-world by clicking the desk lamp (pointer cursor, skip-nav toggle); daylight is still the default. There is no corner sun/moon button.
