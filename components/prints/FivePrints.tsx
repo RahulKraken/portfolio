@@ -406,6 +406,10 @@ export default function FivePrints({ children }: { children?: ReactNode }) {
 
       const c = Math.round(clamp(pos, 0, LAST_PRINT));
       const print = PRINTS[c];
+      const ink = print.id === "coffee" ? "dark" : "light";
+      if (rootRef.current?.dataset.ink !== ink) {
+        rootRef.current?.setAttribute("data-ink", ink);
+      }
       if (labelWordRef.current) labelWordRef.current.textContent = print.word;
       if (labelSubRef.current) labelSubRef.current.textContent = print.label;
       if (labelRef.current) {
@@ -864,7 +868,7 @@ export default function FivePrints({ children }: { children?: ReactNode }) {
         <div
           ref={dotsRef}
           className="five-dots"
-          role="tablist"
+          role="group"
           aria-label="Five prints"
           hidden={Boolean(chapter)}
         >
@@ -896,11 +900,12 @@ export default function FivePrints({ children }: { children?: ReactNode }) {
           </div>
         </footer>
 
+        {children}
+
         <div className="five-grain" aria-hidden />
 
         <span className="sr-only">{PRINT_COUNT} equal prints</span>
       </main>
-      {children}
     </PrintsNavContext.Provider>
   );
 }

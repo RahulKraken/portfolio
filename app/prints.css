@@ -41,6 +41,7 @@ body:has(.five-prints) {
   position: absolute;
   inset: 0;
   perspective: 1400px;
+  z-index: 0;
 }
 
 .five-print {
@@ -282,7 +283,7 @@ button.five-sig {
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  opacity: 0.7;
+  opacity: 0.88;
   margin-top: 6px;
 }
 
@@ -303,13 +304,12 @@ button.five-sig {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: #fff;
-  opacity: 0.3;
+  background: color-mix(in srgb, #fff 48%, rgb(24, 62, 66));
   cursor: pointer;
 }
 
 .five-dots button.on {
-  opacity: 1;
+  background: #fff;
   width: 18px;
   border-radius: 3px;
 }
@@ -386,6 +386,34 @@ button.five-sig {
   opacity: 0.65;
 }
 
+.five-prints[data-ink="dark"],
+.five-prints[data-ink="dark"] .five-chapter {
+  color: #1b1410;
+}
+
+.five-prints[data-ink="dark"] .five-ctl button,
+.five-prints[data-ink="dark"] .five-chapter-close,
+.five-prints[data-ink="dark"] .five-chapter-edge {
+  border-color: rgba(27, 20, 16, 0.45);
+  color: #1b1410;
+}
+
+.five-prints[data-ink="dark"] .five-dots button {
+  background: color-mix(in srgb, #1b1410 55%, rgb(214, 92, 64));
+}
+
+.five-prints[data-ink="dark"] .five-dots button.on {
+  background: #1b1410;
+}
+
+.five-prints[data-ink="dark"] .five-sig,
+.five-prints[data-ink="dark"] .five-bottom,
+.five-prints[data-ink="dark"] .five-chapter-kicker,
+.five-prints[data-ink="dark"] .five-chapter-items span,
+.five-prints[data-ink="dark"] .five-label i {
+  opacity: 1;
+}
+
 .five-prints.is-chapter {
   cursor: default;
 }
@@ -415,6 +443,10 @@ button.five-sig {
   gap: clamp(28px, 6vw, 72px);
   align-items: center;
   width: min(1100px, 100%);
+}
+
+.five-chapter-media {
+  width: 100%;
 }
 
 .five-chapter-sheet {

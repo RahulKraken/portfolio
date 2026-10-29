@@ -141,6 +141,7 @@ export default function Chapter({ printId }: { printId: PrintId }) {
       </button>
 
       <div className="five-chapter-layout">
+        <div className="five-chapter-media">
         <ViewTransition
           name={`print-${print.id}`}
           share="morph"
@@ -188,6 +189,7 @@ export default function Chapter({ printId }: { printId: PrintId }) {
             <div className="five-fold" />
           </div>
         </ViewTransition>
+        </div>
 
         <div className="five-chapter-copy">
           <h2 id={titleId}>{print.word}</h2>
