@@ -70,7 +70,8 @@ body:has(.five-prints) {
     0 8px 18px rgba(0, 0, 0, 0.25);
 }
 
-.five-sheet img {
+.five-sheet img,
+.five-sheet video {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -80,9 +81,19 @@ body:has(.five-prints) {
   -webkit-user-drag: none;
 }
 
+.five-sheet video {
+  z-index: 1;
+  background: transparent;
+}
+
+.five-sheet video.is-failed {
+  opacity: 0;
+}
+
 .five-ghost-wrap {
   position: absolute;
   inset: 0;
+  z-index: 2;
   mix-blend-mode: multiply;
   opacity: 0;
   pointer-events: none;
@@ -93,6 +104,7 @@ body:has(.five-prints) {
 .five-fold {
   position: absolute;
   inset: 0;
+  z-index: 3;
   pointer-events: none;
   background: linear-gradient(
     90deg,
@@ -408,8 +420,15 @@ body:has(.five-prints) {
 }
 
 .five-prints.is-reduced .five-fold,
-.five-prints.is-reduced .five-ghost-wrap {
+.five-prints.is-reduced .five-ghost-wrap,
+.five-prints.is-reduced .five-video {
   display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .five-video {
+    display: none;
+  }
 }
 
 .five-prints.is-reduced .five-print {

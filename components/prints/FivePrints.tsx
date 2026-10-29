@@ -113,8 +113,10 @@ export default function FivePrints() {
   const dotsRef = useRef<HTMLDivElement>(null);
   const liveRef = useRef<HTMLDivElement>(null);
   const printsRef = useRef<Array<HTMLElement | null>>([]);
+  const videosRef = useRef<Array<HTMLVideoElement | null>>([]);
   const ghostsRef = useRef<Array<HTMLElement | null>>([]);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const armedRef = useRef(PRINTS.map(() => false));
   const ambient = useRef<Ambient | null>(null);
   const sim = useRef<Sim>({
     pos: 0,
@@ -143,6 +145,7 @@ export default function FivePrints() {
   const muted = useSyncExternalStore(subscribeMuted, getMuted, () => false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [chapter, setChapter] = useState<Print | null>(null);
+  const [armed, setArmed] = useState(() => PRINTS.map(() => false));
 
   const layout = useCallback(() => {
     const s = sim.current;
@@ -224,6 +227,43 @@ export default function FivePrints() {
 
     let raf = 0;
     let lastIndex = -1;
+    let lastPlay = -1;
+
+    const armNear = (center: number) => {
+      if (s.reduced) return;
+      let changed = false;
+      const next = armedRef.current.map((on, i) => {
+        if (Math.abs(i - center) <= 1 && !on) {
+          changed = true;
+          return true;
+        }
+        return on;
+      });
+      if (changed) {
+        armedRef.current = next;
+        setArmed(next);
+      }
+    };
+
+    const syncPlayback = (center: number) => {
+      videosRef.current.forEach((v, i) => {
+        if (!v) return;
+        const near = !s.reduced && Math.abs(i - center) <= 1;
+        if (!near) {
+          if (!v.paused) v.pause();
+          return;
+        }
+        v.muted = true;
+        v.defaultMuted = true;
+        v.playsInline = true;
+        v.setAttribute("playsinline", "true");
+        v.setAttribute("webkit-playsinline", "true");
+        if (v.readyState >= 2) {
+          const playing = v.play();
+          if (playing) playing.catch(() => v.classList.add("is-failed"));
+        }
+      });
+    };
 
     const render = (pos: number, vel: number) => {
       const reduced = s.reduced;
@@ -282,6 +322,11 @@ export default function FivePrints() {
       if (c !== lastIndex && liveRef.current) {
         liveRef.current.textContent = `${print.word}, ${print.label}`;
         lastIndex = c;
+      }
+      if (c !== lastPlay) {
+        lastPlay = c;
+        armNear(c);
+        syncPlayback(c);
       }
     };
 
@@ -351,11 +396,28 @@ export default function FivePrints() {
     const onMotion = () => {
       s.reduced = media.matches;
       rootRef.current?.classList.toggle("is-reduced", s.reduced);
+      const c = Math.round(clamp(s.pos, 0, LAST_PRINT));
+      lastPlay = -1;
+      if (s.reduced) {
+        videosRef.current.forEach((v) => v?.pause());
+      } else {
+        armNear(c);
+        syncPlayback(c);
+      }
+    };
+    const onVisible = () => {
+      const c = Math.round(clamp(s.pos, 0, LAST_PRINT));
+      if (document.hidden) {
+        videosRef.current.forEach((v) => v?.pause());
+      } else {
+        syncPlayback(c);
+      }
     };
 
     window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", layout);
+    document.addEventListener("visibilitychange", onVisible);
     media.addEventListener("change", onMotion);
 
     return () => {
@@ -364,10 +426,23 @@ export default function FivePrints() {
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", layout);
+      document.removeEventListener("visibilitychange", onVisible);
       media.removeEventListener("change", onMotion);
       ambient.current?.stop();
     };
   }, [goTo, layout]);
+
+  useEffect(() => {
+    videosRef.current.forEach((v, i) => {
+      if (!v || !armed[i] || v.dataset.ready === "1") return;
+      v.dataset.ready = "1";
+      v.muted = true;
+      v.defaultMuted = true;
+      v.playsInline = true;
+      v.setAttribute("webkit-playsinline", "true");
+      v.load();
+    });
+  }, [armed]);
 
   useEffect(() => {
     sim.current.locked = chapter !== null;
@@ -470,36 +545,78 @@ export default function FivePrints() {
             className="five-print"
             style={{ "--i": i } as React.CSSProperties}
             data-index={i}
+            aria-label={print.alt}
           >
             <div className="five-sheet">
-              <Image
-                className="five-plate"
-                src={print.webp}
-                alt={print.alt}
-                fill
-                sizes="(max-width: 600px) 78vw, 440px"
-                preload={i === 0}
-                loading={i < 3 ? "eager" : "lazy"}
-                unoptimized
-                style={{ objectFit: "cover" }}
-                draggable={false}
-              />
+              {i === 0 || armed[i] ? (
+                <Image
+                  className="five-plate"
+                  src={print.poster}
+                  alt={print.alt}
+                  fill
+                  sizes="(max-width: 600px) 78vw, 440px"
+                  preload={i === 0}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  unoptimized
+                  style={{ objectFit: "cover" }}
+                  draggable={false}
+                />
+              ) : null}
+              <video
+                ref={(node) => {
+                  videosRef.current[i] = node;
+                }}
+                className="five-video"
+                muted
+                loop
+                playsInline
+                preload={armed[i] ? "metadata" : "none"}
+                poster={i === 0 || armed[i] ? print.poster : undefined}
+                width={720}
+                height={960}
+                aria-hidden
+                disablePictureInPicture
+                onError={(e) => e.currentTarget.classList.add("is-failed")}
+                onCanPlay={(e) => {
+                  const v = e.currentTarget;
+                  v.muted = true;
+                  v.playsInline = true;
+                  const center = Math.round(
+                    clamp(sim.current.pos, 0, LAST_PRINT),
+                  );
+                  if (
+                    !sim.current.reduced &&
+                    Math.abs(i - center) <= 1
+                  ) {
+                    void v.play().catch(() => v.classList.add("is-failed"));
+                  }
+                }}
+              >
+                {armed[i] ? (
+                  <>
+                    <source src={print.webm} type="video/webm" />
+                    <source src={print.mp4} type="video/mp4" />
+                  </>
+                ) : null}
+              </video>
               <div
                 className="five-ghost-wrap"
                 ref={(node) => {
                   ghostsRef.current[i] = node;
                 }}
               >
-                <Image
-                  className="five-ghost"
-                  src={print.webp}
-                  alt=""
-                  fill
-                  sizes="(max-width: 600px) 78vw, 440px"
-                  unoptimized
-                  style={{ objectFit: "cover" }}
-                  draggable={false}
-                />
+                {i === 0 || armed[i] ? (
+                  <Image
+                    className="five-ghost"
+                    src={print.poster}
+                    alt=""
+                    fill
+                    sizes="(max-width: 600px) 78vw, 440px"
+                    unoptimized
+                    style={{ objectFit: "cover" }}
+                    draggable={false}
+                  />
+                ) : null}
               </div>
               <div className="five-fold" />
             </div>
