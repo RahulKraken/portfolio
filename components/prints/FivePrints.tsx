@@ -758,7 +758,7 @@ export default function FivePrints({ children }: { children?: ReactNode }) {
               </div>
             );
             return (
-              <article
+              <div
                 key={print.id}
                 ref={(node) => {
                   printsRef.current[i] = node;
@@ -782,7 +782,7 @@ export default function FivePrints({ children }: { children?: ReactNode }) {
                     {sheet}
                   </ViewTransition>
                 )}
-              </article>
+              </div>
             );
           })}
         </div>

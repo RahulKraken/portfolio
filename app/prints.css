@@ -293,24 +293,35 @@ button.five-sig {
   top: calc(47svh + (var(--w) * 2 / 3) + 104px);
   transform: translateX(-50%);
   display: flex;
-  gap: 8px;
+  gap: 4px;
   z-index: 4;
   pointer-events: auto;
 }
 
 .five-dots button {
-  width: 6px;
-  height: 6px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: color-mix(in srgb, #fff 48%, rgb(24, 62, 66));
+  background: transparent;
   cursor: pointer;
+  display: grid;
+  place-items: center;
 }
 
-.five-dots button.on {
+.five-dots button::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: color-mix(in srgb, #fff 48%, rgb(24, 62, 66));
+}
+
+.five-dots button.on::before {
   background: #fff;
   width: 18px;
+  height: 6px;
   border-radius: 3px;
 }
 
@@ -398,11 +409,11 @@ button.five-sig {
   color: #1b1410;
 }
 
-.five-prints[data-ink="dark"] .five-dots button {
+.five-prints[data-ink="dark"] .five-dots button::before {
   background: color-mix(in srgb, #1b1410 55%, rgb(214, 92, 64));
 }
 
-.five-prints[data-ink="dark"] .five-dots button.on {
+.five-prints[data-ink="dark"] .five-dots button.on::before {
   background: #1b1410;
 }
 
