@@ -2,15 +2,11 @@ import type { MetadataRoute } from "next";
 import { site } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const paths = [
-    "",
-    "/list-100",
-    "/notes",
-  ];
+  const paths = ["", "/ride", "/list-100"];
   return paths.map((path, i) => {
     const entry: MetadataRoute.Sitemap[number] = {
       url: `${site.url}${path}`,
-      lastModified: new Date("2026-10-10"),
+      lastModified: new Date("2026-10-31"),
       changeFrequency: "monthly",
       priority: i === 0 ? 1 : 0.6,
     };

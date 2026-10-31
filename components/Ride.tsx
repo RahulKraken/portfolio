@@ -282,7 +282,7 @@ export function Ride() {
           {/* Opening: the photograph, then the number and the machine pulling apart in depth */}
           <div className="ride-item ride-cover ride-plate" style={place(0, 0, 0)}>
             <Image className="wide" src="/photos/track-338.jpg" alt="A red motorcycle leaned into a corner, seen from above" fill priority sizes="100vw" />
-            <Image className="tall" src="/photos/track-337.jpg" alt="A red motorcycle leaned into a corner, close up" fill loading="eager" unoptimized sizes="100vw" />
+            <Image className="tall" src="/photos/track-337.jpg" alt="A red motorcycle leaned into a corner, close up" fill loading="eager" fetchPriority="high" sizes="100vw" />
           </div>
           <h1 className="ride-item ride-number ride-number-open" data-z="1150" style={{ "--x": 0, "--z": 1150, "--ry": 0 } as React.CSSProperties}>
             <span className="sr-only">{site.title}</span>
@@ -290,7 +290,7 @@ export function Ride() {
           </h1>
           <div className="ride-item ride-cover ride-machine" data-z="900" style={place(0, 0, 900)} aria-hidden>
             <Image className="wide" src="/photos/cut/hero.webp" alt="" fill priority sizes="100vw" />
-            <Image className="tall" src="/photos/cut/hero-tall.webp" alt="" fill loading="eager" unoptimized sizes="100vw" />
+            <Image className="tall" src="/photos/cut/hero-tall.webp" alt="" fill loading="eager" unoptimized fetchPriority="high" sizes="100vw" />
           </div>
 
           {/* Drawn scenery: each prop takes its ink from the stretch it stands in */}

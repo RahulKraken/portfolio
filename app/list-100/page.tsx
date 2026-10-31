@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
+import { openGraphSite } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "List 100",
   description: "100 as shorthand for meaningful repetition — not a leaderboard.",
+  alternates: { canonical: "/list-100" },
+  openGraph: {
+    ...openGraphSite,
+    url: "/list-100",
+    description: "100 as shorthand for meaningful repetition — not a leaderboard.",
+  },
 };
 
 const lit = [

@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -8,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { resume } from "@/lib/resume";
 import { site, socials, type SocialId } from "@/lib/site";
 import { roomItems, type RoomItem } from "./content";
 import LaptopDesktop from "./LaptopDesktop";
@@ -211,6 +213,20 @@ function PanelBody({
     );
   return <Gallery photos={coffeePhotos} />;
 }
+const HASH_TO_ROOM: Record<string, RoomItem> = {
+  built: "projects",
+  building: "projects",
+  projects: "projects",
+  track: "track",
+  engineering: "work",
+  work: "work",
+  music: "music",
+  strings: "music",
+  coffee: "coffee",
+  road: "travel",
+  travel: "travel",
+};
+
 function ObjectInfo({ id, children }: { id: RoomItem; children: ReactNode }) {
   const item = roomItems.find((x) => x.id === id)!;
   return (
@@ -356,6 +372,15 @@ export default function RoomExperience() {
     events.forEach((e) => window.addEventListener(e, start));
     return () => events.forEach((e) => window.removeEventListener(e, start));
   }, [startAmbient]);
+  const hashApplied = useRef(false);
+  useEffect(() => {
+    if (!ready || hashApplied.current) return;
+    hashApplied.current = true;
+    const id = HASH_TO_ROOM[window.location.hash.slice(1)];
+    if (!id) return;
+    const frame = requestAnimationFrame(() => select(id));
+    return () => cancelAnimationFrame(frame);
+  }, [ready, select]);
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setReduced(media.matches);
@@ -414,8 +439,18 @@ export default function RoomExperience() {
       className={`room-experience quiet-studio${night ? " room-night" : ""}`}
     >
       <h1 className="sr-only">Rahul Kumar’s interactive studio</h1>
+      <section className="sr-only" aria-label="About this studio">
+        <p>{resume.headline}</p>
+        {roomItems.map((item) => (
+          <div key={item.id}>
+            <h2>{item.title}</h2>
+            <p>{item.intro}</p>
+          </div>
+        ))}
+      </section>
       <div
         className="room-scene"
+        role="region"
         aria-label="Interactive studio with a desk, two laptops, motorcycles, guitar, and coffee setup."
       >
         <RoomScene
@@ -516,6 +551,8 @@ export default function RoomExperience() {
             {item.label}
           </button>
         ))}
+        <Link href="/ride">Ride</Link>
+        <Link href="/list-100">List 100</Link>
         {socials.map((social) => (
           <a
             key={social.id}

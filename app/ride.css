@@ -11,7 +11,7 @@
 .ride-end a {
   display: inline-flex;
   align-items: center;
-  min-height: 2.75rem;
+  min-height: 44px;
   text-decoration: none;
 }
 
@@ -420,7 +420,7 @@
 .ride-sound {
   position: absolute;
   right: var(--pad);
-  bottom: 1.25rem;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
   min-height: 2.75rem;
   padding: 0 1.1rem;
   background: none;
@@ -447,7 +447,7 @@
 
 .ride-end {
   position: absolute;
-  bottom: 1.25rem;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
   left: var(--pad);
   display: flex;
   gap: 1.75rem;

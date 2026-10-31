@@ -46,7 +46,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem var(--pad);
+  padding: calc(1rem + env(safe-area-inset-top)) calc(var(--pad) + env(safe-area-inset-right)) 1rem calc(var(--pad) + env(safe-area-inset-left));
   pointer-events: none;
 }
 
@@ -59,6 +59,7 @@
   display: flex;
   align-items: center;
   gap: 0.7rem;
+  min-height: 44px;
   font-family: var(--display);
   font-weight: 900;
   font-size: 2rem;
@@ -163,6 +164,7 @@
 
 .menu a {
   width: fit-content;
+  min-height: 44px;
   font-family: var(--display);
   font-weight: 800;
   font-size: clamp(2.6rem, 9vw, 7rem);

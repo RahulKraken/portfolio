@@ -4,7 +4,10 @@ import { notes } from "@/lib/notes";
 
 export const metadata: Metadata = {
   title: "Notes",
-  description: "Notes.",
+  description: "Notes by Rahul Kumar.",
+  // TODO(rahul): drop noindex and re-add to sitemap when the first note ships
+  robots: { index: false, follow: true },
+  alternates: { canonical: "/notes" },
 };
 
 export default function NotesPage() {

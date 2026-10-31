@@ -340,3 +340,6 @@ p {
   stroke-width: 1.5px;
   vector-effect: non-scaling-stroke;
 }
+
+a, button, summary, label, input[type="range"] { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+button, summary { -webkit-user-select: none; user-select: none; }

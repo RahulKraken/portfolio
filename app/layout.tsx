@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Bodoni_Moda, Geist, Geist_Mono } from "next/font/google";
 import { LegacyChrome } from "@/components/LegacyChrome";
-import { site } from "@/lib/site";
+import { openGraphSite, site } from "@/lib/site";
 import "./globals.css";
 import "./home.css";
 import "./ride.css";
@@ -40,23 +40,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.rahulkraken.com"),
   title: { default: site.title, template: `%s · ${site.title}` },
   description: site.description,
-  openGraph: {
-    title: site.title,
-    description: site.description,
-    url: site.url,
-    siteName: site.title,
-    locale: "en_IN",
-    type: "website",
-    videos: [
-      {
-        url: "https://www.rahulkraken.com/og/ripple-portrait-v1.mp4",
-        secureUrl: "https://www.rahulkraken.com/og/ripple-portrait-v1.mp4",
-        type: "video/mp4",
-        width: 1200,
-        height: 630,
-      },
-    ],
-  },
+  openGraph: openGraphSite,
   twitter: {
     card: "summary_large_image",
     title: site.title,
@@ -67,6 +51,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: "#fbf6ec",
   colorScheme: "light",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

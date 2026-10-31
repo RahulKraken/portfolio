@@ -80,8 +80,10 @@
   border-bottom: 1px solid var(--room-line);
   padding-bottom: 5px;
 }
-.room-contact:hover {
-  border-color: currentColor;
+@media (hover: hover) and (pointer: fine) {
+  .room-contact:hover {
+    border-color: currentColor;
+  }
 }
 .room-heading {
   position: absolute;
@@ -246,10 +248,15 @@
   white-space: nowrap;
   color: var(--room-muted);
 }
-.room-dock button:hover,
 .room-dock button:focus-visible {
   background: #858d6e18;
   transform: translateY(-3px);
+}
+@media (hover: hover) and (pointer: fine) {
+  .room-dock button:hover {
+    background: #858d6e18;
+    transform: translateY(-3px);
+  }
 }
 .room-edition {
   font-family: var(--mono);
@@ -356,8 +363,10 @@
   border-radius: 50%;
   font-size: 13px;
 }
-.panel-topline button:hover {
-  background: #e8e9dc;
+@media (hover: hover) and (pointer: fine) {
+  .panel-topline button:hover {
+    background: #e8e9dc;
+  }
 }
 .panel-scroll {
   overflow: auto;
@@ -787,7 +796,7 @@
 }
 .studio-controls {
   position: absolute;
-  inset: auto 30px 26px;
+  inset: auto calc(30px + env(safe-area-inset-right)) calc(26px + env(safe-area-inset-bottom)) calc(30px + env(safe-area-inset-left));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -815,9 +824,16 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-.studio-controls a:hover,
-.studio-controls button:hover {
+@media (hover: hover) and (pointer: fine) {
+  .studio-controls a:hover,
+  .studio-controls button:hover {
+    background: #faf9f4;
+  }
+}
+.studio-controls a:active,
+.studio-controls button:active {
   background: #faf9f4;
+  transform: scale(0.96);
 }
 .studio-controls a:focus-visible,
 .studio-controls button:focus-visible {
@@ -836,8 +852,14 @@
   background: #35413dcc;
   color: #c5ccbb;
 }
-.room-night .studio-controls a:hover,
-.room-night .studio-controls button:hover {
+@media (hover: hover) and (pointer: fine) {
+  .room-night .studio-controls a:hover,
+  .room-night .studio-controls button:hover {
+    background: #44534e;
+  }
+}
+.room-night .studio-controls a:active,
+.room-night .studio-controls button:active {
   background: #44534e;
 }
 .room-night .studio-controls a:focus-visible,
@@ -852,8 +874,8 @@
 }
 .studio-menu {
   position: absolute;
-  right: 30px;
-  bottom: 78px;
+  right: calc(30px + env(safe-area-inset-right));
+  bottom: calc(78px + env(safe-area-inset-bottom));
   z-index: 12;
   width: 230px;
   padding: 9px;
@@ -875,9 +897,16 @@
   padding: 12px;
   border-radius: 6px;
   font-size: 12px;
+  min-height: 44px;
 }
-.studio-menu button:hover,
-.studio-menu a:hover {
+@media (hover: hover) and (pointer: fine) {
+  .studio-menu button:hover,
+  .studio-menu a:hover {
+    background: #e8ebdf;
+  }
+}
+.studio-menu button:active,
+.studio-menu a:active {
   background: #e8ebdf;
 }
 .studio-menu button > span {
@@ -1008,10 +1037,18 @@
 .computer-sidebar > button.is-current {
   background: #d5ddc9;
 }
-.computer-sidebar > button:hover {
+@media (hover: hover) and (pointer: fine) {
+  .computer-sidebar > button:hover {
+    background: #dce2d2;
+  }
+  .computer-sidebar > button:hover > span {
+    opacity: 1;
+  }
+}
+.computer-sidebar > button:active {
   background: #dce2d2;
 }
-.computer-sidebar > button:hover > span {
+.computer-sidebar > button:active > span {
   opacity: 1;
 }
 .computer-content {
@@ -1056,7 +1093,12 @@
   text-align: left;
   transition: background 0.2s;
 }
-.computer-projects button:hover {
+@media (hover: hover) and (pointer: fine) {
+  .computer-projects button:hover {
+    background: #dce4cf;
+  }
+}
+.computer-projects button:active {
   background: #dce4cf;
 }
 .desktop-project-icon {
@@ -1171,7 +1213,12 @@
   background: #e6e9de;
   transition: background 0.2s;
 }
-.cv-links a:hover {
+@media (hover: hover) and (pointer: fine) {
+  .cv-links a:hover {
+    background: #dce4cf;
+  }
+}
+.cv-links a:active {
   background: #dce4cf;
 }
 .cv-company {
@@ -1260,7 +1307,7 @@
 }
 @media (max-width: 700px) {
   .studio-controls {
-    inset: auto 16px 18px;
+    inset: auto calc(16px + env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
   }
   .studio-controls a,
   .studio-controls button {
@@ -1268,8 +1315,8 @@
     height: 44px;
   }
   .studio-menu {
-    right: 16px;
-    bottom: 78px;
+    right: calc(16px + env(safe-area-inset-right));
+    bottom: calc(78px + env(safe-area-inset-bottom));
   }
   .physical-screen {
     display: none !important;
@@ -1277,7 +1324,7 @@
   .mobile-computer {
     display: block;
     position: fixed;
-    inset: 16px;
+    inset: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
     z-index: 40;
     border: 5px solid #303633;
     border-radius: 12px;
@@ -1343,8 +1390,8 @@
 /* Object information stays optional so the scene remains available to inspect. */
 .object-info {
   position: fixed;
-  right: 24px;
-  bottom: 82px;
+  right: calc(24px + env(safe-area-inset-right));
+  bottom: calc(82px + env(safe-area-inset-bottom));
   z-index: 12;
   width: min(350px, calc(100vw - 48px));
   color: #343b31;
@@ -1398,8 +1445,8 @@
 }
 @media (max-width: 700px) {
   .object-info {
-    bottom: 82px;
-    right: 20px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    right: calc(20px + env(safe-area-inset-right));
     width: min(320px, calc(100vw - 40px));
   }
   .object-info-content {
@@ -1411,8 +1458,8 @@
    loaded (and playing) when hidden; only its visibility changes. */
 .spotify-player {
   position: fixed;
-  top: 24px;
-  right: 24px;
+  top: calc(24px + env(safe-area-inset-top));
+  right: calc(24px + env(safe-area-inset-right));
   z-index: 12;
   width: min(350px, calc(100vw - 48px));
   height: 152px;
@@ -1535,9 +1582,13 @@
 .room-video[data-playing="true"] button {
   opacity: 0;
 }
-.room-video[data-playing="true"]:hover button,
 .room-video[data-playing="true"] button:focus-visible {
   opacity: 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  .room-video[data-playing="true"]:hover button {
+    opacity: 1;
+  }
 }
 @media (hover: none) {
   .room-video[data-playing="true"] .room-video-sound {
