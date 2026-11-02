@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rahul Kumar</title>
+<meta name="robots" content="noindex">
+<style>
+:root{--ink:#1d2a3a;--acc:#e84a5f;--paper:#f3e6d6}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden;background:#111;font-family:ui-sans-serif,-apple-system,"Inter","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block;touch-action:none;cursor:default}
+canvas.portal{cursor:zoom-in}
+.name{position:fixed;z-index:3;top:20px;left:22px;font-size:13px;font-weight:600;letter-spacing:.01em;color:var(--paper);padding:6px 10px;border-radius:999px;background:color-mix(in srgb,var(--ink) 90%,transparent);transition:background .6s,color .6s}
+.links{position:fixed;z-index:3;bottom:18px;right:18px;display:flex;gap:8px}
+.btn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--paper) 92%,transparent);color:var(--ink);border:0;cursor:pointer;transition:transform .15s,background .6s,color .6s}
+.btn:hover{transform:scale(1.08)}.btn:active{transform:scale(.94)}
+.btn svg{width:15px;height:15px;fill:currentColor}
+.verb{position:fixed;left:22px;bottom:20px;z-index:3;font-size:15px;font-weight:800;letter-spacing:.02em;color:var(--paper);text-transform:lowercase;pointer-events:none}
+.verb span{display:inline-block;padding:6px 12px;border-radius:999px;background:var(--ink);box-shadow:3px 2px 0 var(--acc);transition:background .6s,box-shadow .6s}
+.verb .w{display:inline-block;transition:opacity .3s,transform .3s}
+.verb .w.out{opacity:0;transform:translateY(5px)}
+.sheet{position:fixed;inset:0;z-index:5;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);background:var(--paper);color:var(--ink);clip-path:circle(0% at var(--cx,50%) var(--cy,50%));transition:clip-path .7s cubic-bezier(.7,0,.2,1);pointer-events:none}
+.sheet.open{clip-path:circle(150% at var(--cx,50%) var(--cy,50%));pointer-events:auto}
+.sheet .art{background-size:cover;background-position:center;height:100vh}
+.sheet .side{padding:72px 48px 40px;overflow:auto;display:flex;flex-direction:column;gap:22px}
+.sheet h2{font-size:64px;line-height:.9;font-weight:900;letter-spacing:-.03em;text-transform:lowercase;text-shadow:4px 3px 0 var(--acc)}
+.sheet p{font-size:16px;line-height:1.5;max-width:44ch}
+.needs{display:inline-block;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.06em;text-transform:uppercase;background:#fff3a8;color:#333;padding:4px 6px;border-radius:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid img,.grid .ph{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;display:block}
+.ph{display:grid;place-items:center;border:2px dashed currentColor;font:600 12px/1.3 ui-monospace,Menlo,monospace;text-align:center;padding:10px;opacity:.7}
+.close{position:absolute;top:18px;right:20px}
+@media (max-width:700px){
+ .name{top:14px;left:14px}.links{bottom:14px;right:12px}.verb{left:14px;bottom:18px}
+ .sheet{grid-template-columns:1fr;grid-template-rows:44vh auto;overflow:auto}.sheet .art{height:44vh}
+ .sheet .side{padding:24px 18px 80px}.sheet h2{font-size:48px}
+}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="name" id="name">Rahul Kumar</div>
+<div class="links">
+  <a class="btn" aria-label="GitHub" href="#"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9V21c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg></a>
+  <a class="btn" aria-label="LinkedIn" href="#"><svg viewBox="0 0 24 24"><path d="M4 9h3.5v11H4zM5.8 3.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM9.5 9h3.3v1.5c.5-.9 1.7-1.8 3.4-1.8 3.6 0 4.3 2.4 4.3 5.4V20H17v-5.2c0-1.3 0-2.9-1.8-2.9s-2.1 1.4-2.1 2.8V20H9.5z"/></svg></a>
+  <a class="btn" aria-label="X" href="#"><svg viewBox="0 0 24 24"><path d="M17.8 3h3.1l-6.8 7.8 8 10.2h-6.3l-4.9-6.4L5.3 21H2.2l7.3-8.3L1.8 3h6.4l4.4 5.9zm-1.1 16.2h1.7L7.4 4.7H5.5z"/></svg></a>
+</div>
+<div class="verb"><span><b class="w" id="vw">lean</b></span></div>
+<div class="sheet" id="sheet">
+  <div class="art" id="sa"></div>
+  <div class="side"><h2 id="sh"></h2><p id="sp"></p><div class="grid" id="sg"></div></div>
+  <button class="btn close" id="close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4"/></svg></button>
+</div>
+<script src="/look-closer/assets/meta.js"></script>
+<script>
+const Q=new URLSearchParams(location.search), CAPTURE=Q.has('capture');
+const REDUCE=matchMedia('(prefers-reduced-motion: reduce)').matches||Q.has('reduce');
+// Five prints, 4:3, coordinates in 1152x864 master space. Each portal is real glass in the scene.
+const P=[
+ {id:'track', verb:'lean',  ink:'#1d2a3a',acc:'#e84a5f',paper:'#f3e6d6', glass:'visor',  copy:'[needs his words: two lines on why the track]', pics:['track_01.webp','track_onboard.webp']},
+ {id:'lift',  verb:'depth', ink:'#1f3fbf',acc:'#f2c230',paper:'#f4eedd', glass:'mirror', copy:'[needs his words: two lines on lifting]', pics:[null,null]},
+ {id:'guitar',verb:'bend',  ink:'#4b2a9e',acc:'#ef5a2a',paper:'#f4ecdc', glass:'chrome', copy:'[needs his words: two lines on guitar]', pics:['photos_print_strat-016.webp','photos_print_strat-019.webp']},
+ {id:'build', verb:'solder',ink:'#0f3d1e',acc:'#2fae4a',paper:'#eef0e4', glass:'lens',   copy:'[needs his words: two lines on building]', pics:[null,null]},
+ {id:'coffee',verb:'bloom', ink:'#0e6f74',acc:'#ef6a3a',paper:'#f7ecdc', glass:'coffee', copy:'[needs his words: two lines on coffee]', pics:['coffee_01.webp','coffee_03.webp']},
+];
+const N=5, IW=1152, IH=864, BAND=IW*0.05, GW=288, GH=216, CELL=IW/GW;
+for(const p of P){const m=META[p.id];p.portal=m.portal;p.poly=m.poly;p.grid=Uint8Array.from(m.grid,c=>c==='1'?1:0)}
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+let W=0,H=0,DPR=1;
+
+/* ---------- geometry ---------- */
+// summed-area table over each print's portal mask: find the largest screen-shaped rect fully inside the glass
+function sat(g){const S=new Int32Array((GW+1)*(GH+1));for(let y=0;y<GH;y++){let row=0;for(let x=0;x<GW;x++){row+=g[y*GW+x];S[(y+1)*(GW+1)+x+1]=S[y*(GW+1)+x+1]+row}}return S}
+function inscribed(p,a){
+  const S=p.sat||(p.sat=sat(p.grid)), sum=(x,y,w,h)=>S[(y+h)*(GW+1)+x+w]-S[y*(GW+1)+x+w]-S[(y+h)*(GW+1)+x]+S[y*(GW+1)+x];
+  const [pcx,pcy]=p.portal; let best=null,lo=1,hi=GH;
+  while(lo<=hi){const h=(lo+hi)>>1,w=Math.max(1,Math.round(h*a));let found=null,bd=1e9;
+    if(w<=GW)for(let y=0;y+h<=GH;y++)for(let x=0;x+w<=GW;x++){if(sum(x,y,w,h)===w*h){const d=((x+w/2)*CELL-pcx)**2+((y+h/2)*CELL-pcy)**2;if(d<bd){bd=d;found={x,y,w,h}}}}
+    if(found){best=found;lo=h+1}else hi=h-1}
+  const b=best, sh=0.03; // pull in 3% so the feathered rim never touches the frame
+  let r={x:b.x*CELL,y:b.y*CELL,w:b.w*CELL,h:b.w*CELL/a};
+  r.y+= (b.h*CELL-r.h)/2; return {x:r.x+r.w*sh/2,y:r.y+r.h*sh/2,w:r.w*(1-sh),h:r.h*(1-sh)};
+}
+function layout(){
+  const a=W/H, portrait=a<1;
+  for(const p of P){
+    const [px,py]=p.portal; let cw,ch,cx,cy;
+    if(!portrait){cw=Math.min(IW*0.76,IH*0.86*a);ch=cw/a;cx=IW/2+(px-IW/2)*0.3;cy=IH/2+(py-IH/2)*0.3}
+    else{ch=IH*0.88;cw=ch*a;cx=px;cy=IH/2+(py-IH/2)*0.2}
+    // keep the whole glass inside the rest frame (with a little air) when the sheet allows
+    const [,,rx,ry,rot]=p.portal,t=rot*Math.PI/180,bx=Math.hypot(rx*Math.cos(t),ry*Math.sin(t)),by=Math.hypot(rx*Math.sin(t),ry*Math.cos(t)),mg=0.05*ch;
+    cx=2*(bx+mg)>cw?px:Math.min(Math.max(cx,px+bx+mg-cw/2),px-bx-mg+cw/2);
+    cy=2*(by+mg)>ch?py:Math.min(Math.max(cy,py+by+mg-ch/2),py-by-mg+ch/2);
+    const bx2=Math.min(BAND,(IW-cw)/2),by2=Math.min(BAND,(IH-ch)/2);
+    cx=Math.min(IW-cw/2-bx2,Math.max(cw/2+bx2,cx));cy=Math.min(IH-ch/2-by2,Math.max(ch/2+by2,cy));
+    p.C={x:cx-cw/2,y:cy-ch/2,w:cw,h:ch};
+    p.T=inscribed(p,a);
+  }
+}
+// camera inside one print: zoom from rest crop C to the glass rect T about their shared fixed point (geometric in scale)
+function cam(p,s){
+  const C=p.C,T=p.T,k=Math.pow(T.w/C.w,s);
+  const ux=(T.x-C.x)/(C.w-T.w),uy=(T.y-C.y)/(C.h-T.h);
+  const fx=C.x+ux*C.w,fy=C.y+uy*C.h,w=C.w*k,h=C.h*k;
+  return {x:fx-ux*w,y:fy-uy*h,w,h};
+}
+// M: print coords -> screen px (uniform scale a, offset e,f)
+const toM=r=>{const a=W/r.w;return {a,e:-r.x*a,f:-r.y*a}};
+// child print's rest crop C maps onto the host's glass rect T
+function childM(M,host,child){const s=host.T.w/child.C.w;return {a:M.a*s,e:M.a*(host.T.x-child.C.x*s)+M.e,f:M.a*(host.T.y-child.C.y*s)+M.f}}
+
+/* ---------- assets ---------- */
+const img=u=>new Promise(r=>{const i=new Image();i.decoding='async';i.onload=()=>r(i);i.onerror=()=>r(null);i.src='/look-closer/assets/'+u});
+async function load(){
+  await Promise.all(P.map(async p=>{
+    const [im,mask,ext,a,b]=await Promise.all([img(p.id+'.webp'),img(p.id+'-mask.webp'),img(p.id+'-ext.webp'),img(p.id+'-in-a.webp'),img(p.id+'-in-b.webp')]);
+    // host layer: the print with its glass punched out, so whatever is behind shows through (and the head stays in front of the mirror)
+    const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const g=c.getContext('2d');
+    g.drawImage(im,0,0);g.globalCompositeOperation='destination-out';
+    // mask png is white where glass: convert luminance to alpha
+    const mc=document.createElement('canvas');mc.width=im.width;mc.height=im.height;const mg=mc.getContext('2d');mg.drawImage(mask,0,0,im.width,im.height);
+    const d=mg.getImageData(0,0,mc.width,mc.height),px=d.data;for(let k=0;k<px.length;k+=4){px[k+3]=px[k];}mg.putImageData(d,0,0);
+    g.drawImage(mc,0,0);
+    Object.assign(p,{im,host:c,ext,plA:a,plB:b,inkSrc:p.id+'-ink.webp'});
+  }));
+}
+
+/* ---------- rest-state ink flicker ---------- */
+// At rest the darker drum drifts a couple of px out of register and back, like a riso print that never quite sat still.
+// Built lazily for the print on screen only (two canvases), never while scrolling, never under reduced motion.
+const FLICK={amp:1.8,max:0.85,rise:1.4,fall:0.12,idle:900};
+let flick=0;
+function inkPlates(p){
+  if(p.plates||p.platesLoading||!p.inkSrc)return p.plates;
+  p.platesLoading=true;
+  img(p.inkSrc).then(a=>{
+    if(!a){return}
+    const w=p.host.width,h=p.host.height;
+    const al=document.createElement('canvas');al.width=w;al.height=h;const g=al.getContext('2d');g.drawImage(a,0,0,w,h);
+    const d=g.getImageData(0,0,w,h),px=d.data;for(let k=0;k<px.length;k+=4){px[k+3]=px[k]}g.putImageData(d,0,0);
+    g.globalCompositeOperation='destination-in';g.drawImage(p.host,0,0); // no plate over the glass: the reflection stays put
+    const S=document.createElement('canvas');S.width=w;S.height=h;const x=S.getContext('2d');x.drawImage(p.host,0,0);x.globalCompositeOperation='destination-in';x.drawImage(al,0,0);
+    p.plates={alpha:al,ink:S};
+    for(const q of P)if(q!==p&&q.plates){q.plates=null;q.platesLoading=false} // keep memory to one print
+  });
+}
+const fx=document.createElement('canvas'),fxc=fx.getContext('2d');
+function drawFlicker(p,M,amt,t){
+  if(amt<0.003)return;const pl=inkPlates(p);if(!pl)return;
+  const dx=FLICK.amp*amt*(0.8*Math.sin(t*2*Math.PI/7.3)+0.25*Math.sin(t*2*Math.PI/3.1+0.7));
+  const dy=FLICK.amp*amt*(0.6*Math.sin(t*2*Math.PI/11.1+1.3));
+  const Ms={a:M.a,e:M.e+dx,f:M.f+dy};
+  if(fx.width!==cv.width||fx.height!==cv.height){fx.width=cv.width;fx.height=cv.height}
+  // where the dark ink sat, show what the paper looks like once that ink has slid off by (dx,dy)
+  fxc.setTransform(1,0,0,1,0,0);fxc.globalCompositeOperation='source-over';fxc.clearRect(0,0,fx.width,fx.height);
+  fxc.setTransform(Ms.a*DPR,0,0,Ms.a*DPR,Ms.e*DPR,Ms.f*DPR);fxc.drawImage(p.host,0,0,IW,IH);
+  fxc.globalCompositeOperation='destination-in';fxc.setTransform(M.a*DPR,0,0,M.a*DPR,M.e*DPR,M.f*DPR);fxc.drawImage(pl.alpha,0,0,IW,IH);
+  const ga=Math.min(FLICK.max,amt);
+  ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=ga;ctx.globalCompositeOperation='lighten';ctx.drawImage(fx,0,0);
+  // then the same ink, laid down at the new position (darken: zero offset leaves the print untouched)
+  setM(Ms);ctx.globalCompositeOperation='darken';ctx.drawImage(pl.ink,0,0,IW,IH);ctx.restore();
+}
+
+/* ---------- drawing ---------- */
+const sm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)};
+let ptr={x:0,y:0},ptrS={x:0,y:0};
+function setM(M){ctx.setTransform(M.a*DPR,0,0,M.a*DPR,M.e*DPR,M.f*DPR)}
+function onScreen(M,x,y,w,h){const X=M.a*x+M.e,Y=M.a*y+M.f;return X<W&&Y<H&&X+M.a*w>0&&Y+M.a*h>0}
+function drawSheet(p,M){
+  setM(M);
+  // bleed beyond the sheet edge (only matters while seen through a large glass)
+  if(!(M.a*BAND+M.e<=0&&M.a*BAND+M.f<=0&&M.a*(IW-BAND)+M.e>=W&&M.a*(IH-BAND)+M.f>=H)){
+    ctx.save();ctx.beginPath();ctx.rect(-576,-288,IW+1152,IH+576);ctx.rect(BAND,BAND,IW-2*BAND,IH-2*BAND);ctx.clip('evenodd');
+    ctx.drawImage(p.ext,-576,-288,IW+1152,IH+576);ctx.restore();
+  }
+  ctx.drawImage(p.host,0,0,IW,IH);
+}
+// draw print i and everything visible through its glass. 'seen' = how strongly it is still a reflection in its host's glass (1 = fully inside, 0 = arrived)
+function drawLevel(i,M,depth,seen){
+  const p=P[i%N],q=P[(i+1)%N];
+  // 1) what's behind this print's glass
+  if(depth<2){const T=p.T;if(onScreen(M,T.x-T.w,T.y-T.h,T.w*3,T.h*3)&&M.a*T.w>2){drawLevel(i+1,childM(M,p,q),depth+1,1);tintGlass(p,M,1)}}
+  drawSheet(p,M);
+  // 3) the reflection treatment: while this print is still inside its host's glass it is printed in the HOST's two inks, slightly off-register
+  if(seen>0.001){
+    const h=P[(i+N-1)%N];
+    ctx.save();ctx.globalAlpha=seen;
+    ctx.drawImage(p.plA,-576,-288,IW+1152,IH+576);
+    const off=4.5*seen/M.a; // registration error in screen px
+    ctx.drawImage(p.plB,-576+off*0.8,-288+off*0.55,IW+1152,IH+576);
+    ctx.restore();
+  }
+}
+// smoked glass (visor) and the black coffee surface darken what they reflect, in the host's own ink
+const TINT={visor:0.5,coffee:0.42,chrome:0.12};
+function glassPath(p){ctx.beginPath();if(p.poly){p.poly.forEach(([x,y],k)=>k?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();return}const [cx,cy,rx,ry,rot]=p.portal;ctx.ellipse(cx,cy,rx*1.04,ry*1.04,rot*Math.PI/180,0,Math.PI*2)}
+function tintGlass(p,M,amt){const t=(TINT[p.glass]||0)*amt;if(t<0.01)return;setM(M);ctx.save();glassPath(p);ctx.clip();ctx.globalAlpha=t;ctx.globalCompositeOperation='multiply';ctx.fillStyle=p.ink;ctx.fillRect(0,0,IW,IH);ctx.restore()}
+// glass glints of the host drawn faintly back over the hole while you are still outside it
+function drawGlass(p,M,amt){
+  if(amt<0.01)return;setM(M);ctx.save();ctx.globalAlpha=amt;ctx.globalCompositeOperation='screen';
+  glassPath(p);ctx.clip();
+  ctx.drawImage(p.im,0,0,IW,IH);ctx.restore();
+}
+let z=0,target=0,curOwn=null;
+let clockT=0;
+function renderScene(zz){
+  const zi=Math.floor(zz),s=zz-zi,i=((zi%N)+N)%N,p=P[i],q=P[(i+1)%N];
+  const M=toM(cam(p,s));
+  ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=p.paper;ctx.fillRect(0,0,cv.width,cv.height);
+  // child with its arrival progress; the pointer nudges the reflection a few px (parallax) until you are through
+  const seen=1-sm(0.30,0.97,s);
+  const Mc=childM(M,p,q);const par=seen*7;Mc.e+=ptrS.x*par;Mc.f+=ptrS.y*par;
+  drawLevel(i+1,Mc,1,seen);
+  tintGlass(p,M,seen);
+  drawSheet(p,M);
+  if(s<0.05)drawFlicker(p,M,flick,clockT);
+  drawGlass(p,M,0.16*seen);
+  setInks(s>0.6?q:p);
+}
+function setInks(p){
+  if(curOwn===p)return;curOwn=p;const st=document.documentElement.style;
+  st.setProperty('--ink',p.ink);st.setProperty('--acc',p.acc);st.setProperty('--paper',p.paper);
+  const w=document.getElementById('vw');
+  if(CAPTURE){w.textContent=p.verb;return}
+  w.classList.add('out');setTimeout(()=>{w.textContent=p.verb;w.classList.remove('out')},160);
+}
+
+/* ---------- scroll feel ---------- */
+// target = where the input wants to be; z follows with an exponential ease (inertia). After input goes quiet, target settles
+// into the nearest print, biased in the direction you were going (a soft lens detent, not a hard snap).
+let lastInput=-1e9,lastDir=1,anim=null;
+const PER_PRINT_PX=1100; // trackpad px of scroll for one print
+function nudge(d){target+=d;lastDir=Math.sign(d)||lastDir;lastInput=performance.now();anim=null}
+addEventListener('wheel',e=>{
+  e.preventDefault();if(sheet.classList.contains('open'))return;
+  let d=e.deltaY*(e.deltaMode===1?33:e.deltaMode===2?H:1);
+  const wheely=e.deltaMode!==0||(Math.abs(d)>=60&&Math.abs(d)%1===0&&Math.abs(e.deltaX)<1);
+  if(REDUCE){if(Math.abs(d)>20&&performance.now()-lastInput>500){target=Math.round(target)+Math.sign(d);z=target;lastInput=performance.now()}return}
+  d=Math.max(-160,Math.min(160,d));
+  nudge(wheely? Math.sign(d)*Math.min(1,Math.abs(d)/100)*0.125 : d/PER_PRINT_PX);
+},{passive:false});
+let touch=null;
+cv.addEventListener('touchstart',e=>{const t=e.touches[0];touch={y:t.clientY,t:performance.now(),v:0};lastInput=performance.now()},{passive:true});
+cv.addEventListener('touchmove',e=>{if(!touch)return;const t=e.touches[0],now=performance.now(),dy=touch.y-t.clientY,dz=dy/(H*0.85);
+  touch.v=0.8*(dz/Math.max(1,now-touch.t))+0.2*touch.v;touch.y=t.clientY;touch.t=now;
+  if(REDUCE)return;target+=dz;z+=dz*0.6;lastDir=Math.sign(dz)||lastDir;lastInput=now},{passive:true});
+cv.addEventListener('touchend',()=>{if(!touch)return;
+  if(REDUCE){if(Math.abs(touch.v)>0.0005){target=Math.round(target)+Math.sign(touch.v);z=target}touch=null;return}
+  const fling=Math.max(-0.9,Math.min(0.9,touch.v*260));target+=fling;lastInput=performance.now();touch=null},{passive:true});
+function goTo(t){anim={from:z,to:t,t0:performance.now(),dur:REDUCE?1:1100};target=t;lastDir=Math.sign(t-z)||1}
+addEventListener('keydown',e=>{
+  if(e.key==='Escape')return closeSheet();
+  if(sheet.classList.contains('open'))return;
+  if(['ArrowDown','PageDown',' ','ArrowRight'].includes(e.key)){e.preventDefault();goTo(Math.round(target)+1)}
+  if(['ArrowUp','PageUp','ArrowLeft'].includes(e.key)){e.preventDefault();goTo(Math.round(target)-1)}
+});
+// pointer: portal hit test against the real glass mask
+function toPrint(sx,sy){const zi=Math.floor(z),s=z-zi,i=((zi%N)+N)%N,p=P[i],r=cam(p,s);return {p,x:r.x+sx/W*r.w,y:r.y+sy/W*r.w}}
+function inGlass(sx,sy){const {p,x,y}=toPrint(sx,sy),gx=Math.floor(x/CELL),gy=Math.floor(y/CELL);
+  for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const X=gx+dx,Y=gy+dy;if(X>=0&&Y>=0&&X<GW&&Y<GH&&p.grid[Y*GW+X])return true}return false}
+cv.addEventListener('pointermove',e=>{ptr.x=(e.clientX/W-0.5)*2;ptr.y=(e.clientY/H-0.5)*2;if(e.pointerType==='mouse')cv.classList.toggle('portal',inGlass(e.clientX,e.clientY))});
+cv.addEventListener('click',e=>{
+  if(Math.abs(z-Math.round(z))>0.06)return;
+  if(inGlass(e.clientX,e.clientY))goTo(Math.round(z)+1);
+  else openSheet(toPrint(e.clientX,e.clientY).p,e.clientX,e.clientY);
+});
+const sheet=document.getElementById('sheet');
+function openSheet(p,x,y){
+  sheet.style.setProperty('--cx',x+'px');sheet.style.setProperty('--cy',y+'px');
+  document.getElementById('sa').style.backgroundImage=`url(/look-closer/assets/${p.id}.webp)`;
+  document.getElementById('sh').textContent=p.verb;
+  document.getElementById('sp').innerHTML=`<span class="needs">needs his words</span><br>${p.copy}`;
+  document.getElementById('sg').innerHTML=p.pics.map(u=>u?`<img src="/look-closer/assets/${u}" alt="">`:`<div class="ph">[published photo needed: ${p.id}]</div>`).join('');
+  sheet.classList.add('open');
+}
+function closeSheet(){sheet.classList.remove('open')}
+document.getElementById('close').onclick=closeSheet;
+
+function resize(){DPR=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);ctx.imageSmoothingQuality='high';layout();if(window.READY)renderScene(z)}
+window.render=(zz,t,f)=>{z=zz;ptrS={x:0,y:0};clockT=t||0;flick=f||0;renderScene(zz)};
+window.preloadPlates=k=>new Promise(r=>{inkPlates(P[k]);const w=()=>P[k].plates?r(true):setTimeout(w,50);w()});
+window.openChapter=(k,x,y)=>openSheet(P[k],x,y);
+resize();addEventListener('resize',resize);
+(async()=>{
+  await load();
+  const z0=Q.has('z')?parseFloat(Q.get('z')):Math.floor(Math.random()*N);
+  z=target=z0;renderScene(z);window.READY=true;
+  if(CAPTURE)return;
+  let last=performance.now();
+  (function tick(now){
+    const dt=Math.min(0.05,(now-last)/1000);last=now;
+    if(anim){const k=Math.min(1,(now-anim.t0)/anim.dur),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;z=anim.from+(anim.to-anim.from)*e;if(k>=1){z=anim.to;anim=null}}
+    else{
+      if(!touch&&now-lastInput>170){
+        const f=target-Math.floor(target);
+        const r=Math.floor(target)+(lastDir>0?(f>0.22?1:0):(f>0.78?1:0));
+        target+=(r-target)*(1-Math.exp(-dt*6));
+        if(Math.abs(r-target)<1e-4)target=r;
+      }
+      z+=(target-z)*(1-Math.exp(-dt*(touch?22:8)));
+      if(Math.abs(target-z)<1e-5)z=target;
+    }
+    clockT+=dt;
+    const atRest=!REDUCE&&!anim&&!touch&&z===Math.round(z)&&now-lastInput>FLICK.idle&&!sheet.classList.contains('open')&&!document.hidden;
+    if(atRest)inkPlates(P[((Math.round(z)%N)+N)%N]);
+    flick+=((atRest?1:0)-flick)*(1-Math.exp(-dt/(atRest?FLICK.rise:FLICK.fall)));
+    if(!atRest&&flick<0.003)flick=0;
+    ptrS.x+=(ptr.x-ptrS.x)*(1-Math.exp(-dt*4));ptrS.y+=(ptr.y-ptrS.y)*(1-Math.exp(-dt*4));
+    renderScene(z);
+    requestAnimationFrame(tick);
+  })(last);
+})();
+</script></body></html>

@@ -13,6 +13,18 @@ const nextConfig: NextConfig = {
       { source: "/:gone(contact|credits)", destination: "/", permanent: false },
     ];
   },
+  // Preview only (preview/look-closer): serve the static "Look closer" mock as the home page.
+  // beforeFiles runs ahead of app/page.tsx, so closing the PR restores the current home page untouched.
+  async rewrites() {
+    return {
+      beforeFiles: [
+        { source: "/", destination: "/look-closer/index.html" },
+        { source: "/look-closer", destination: "/look-closer/index.html" },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
 };
 
 export default nextConfig;
