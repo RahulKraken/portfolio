@@ -14,6 +14,7 @@ export const resume = {
     { label: "LinkedIn", href: site.linkedin },
     { label: "GitHub", href: site.github },
     { label: "X", href: site.x },
+    { label: "Instagram", href: site.instagram },
   ],
   jobs: [
     {
