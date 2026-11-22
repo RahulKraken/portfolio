@@ -6,6 +6,7 @@ export const site = {
   github: "https://github.com/RahulKraken",
   linkedin: "https://linkedin.com/in/rahulkraken",
   x: "https://x.com/RahulKraken",
+  instagram: "https://www.instagram.com/rahulkraken/",
   url: "https://rahulkraken.com",
   description:
     "Step inside Rahul Kumar’s studio. Engineering, personal projects, motorcycles, guitar, and a good cup of coffee.",
@@ -16,6 +17,7 @@ export const socials = [
   { id: "github", label: "GitHub", href: site.github },
   { id: "linkedin", label: "LinkedIn", href: site.linkedin },
   { id: "x", label: "X", href: site.x },
+  { id: "instagram", label: "Instagram", href: site.instagram },
 ] as const;
 
 export type SocialId = (typeof socials)[number]["id"];
